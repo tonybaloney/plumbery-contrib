@@ -1,0 +1,33 @@
+---
+categories:
+  - containers:
+    name: Containers
+    description: "Fittings for container based applications and workloads"
+  - database:
+    name: Databases
+    description: "Fittings for database applications"
+  - devops:
+    name: DevOps
+    description: "Fittings for DevOps tools and engines"
+  - example:
+    name: Examples
+    description: "Generic examples"
+  - it:
+    name: IT
+    description: "IT applications
+  - logging:
+    name: Logging
+    description: "Logging and log collection, retention applications"
+  - messaging:
+    name: Messaging
+    description: "Applications for messaging and message distribution"
+  - networking:
+    name: Networking
+    description: "Networking applications"
+  - storage:
+    name: Storage
+    description: "Applications for file, object and network storage"
+  - web:
+    name: Web
+    description: "Web applications and servers"
+    

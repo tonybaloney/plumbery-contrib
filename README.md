@@ -4,9 +4,14 @@ A public repository of templates for provisioning applications into the Dimensio
 
 ## Using
 
-You will need to install [Plumbery](http://pypi.python.org/packages/plumbery) from PyPi to use these examples
+You will need to install [Plumbery](https://pypi.python.org/pypi/plumbery) from PyPi to use these examples
+
+Then you can download and run any of the examples in this repository.
 
 ```bash
+git clone https://github.com/DimensionDataCBUSydney/plumbery-contrib.git
+cd plumbery-contrib/fittings/containers/
+python -m plumbery fitting.yaml deploy  
 ```
 
 ## Contributing
