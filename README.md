@@ -23,5 +23,6 @@ This repository accepts pull-requests, if you wish to share your own application
 * Create a folder for your fittings template
 * Create the fitting.yaml file in your folder
 * Include a README.md with the instructions for your template
+* Test the index of the library by running "python reindex.py info"
 * Commit your code
 * Create a pull-request, check the build status of your build request
