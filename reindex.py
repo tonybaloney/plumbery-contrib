@@ -14,16 +14,14 @@ if len(sys.argv) > 1:
     level = LEVELS.get(level_name, logging.NOTSET)
     logging.basicConfig(level=level)
 
-
 def raise_KeyError(msg=''): raise KeyError(msg)  # Don't return anything.
-
 
 def check_existence_of_key(dictionary, key, path):
     try:
         dictionary[key] \
             or raise_KeyError('%s not present' % key)
     except KeyError:
-        logging.error("fitting %s missing required links",
+        logging.error("fittings %s missing required links",
                       path)
 
 with open("fittings/categories.yaml", "r") as categories_f:
@@ -37,15 +35,24 @@ with open("fittings/categories.yaml", "r") as categories_f:
                 logging.info("Found directory %s", dir)
 
             for file in files:
-                if file == "fitting.yaml":
+                if file == "fittings.yaml":
+
                     # check the yaml
                     file_path = os.path.join(subdir, file)
                     with open(file_path) as fitting_f:
-                        fitting_collection = yaml.load_all(fitting_f)
-                        logging.info("Validated fitting %s",
-                                     file_path)
-                        for idx, fitting in enumerate(fitting_collection):
-                            if idx == 0:
+
+                        plan = fitting_f.read()
+                        documents = plan.split('\n---')
+                        for document in documents:
+                            if '\n' in document:
+                                settings = yaml.load(document)
+                                logging.info("Validated fittings %s",
+                                             file_path)
+
                                 # Check existence of docs
-                                check_existence_of_key(fitting, 'links', file_path)
-                                check_existence_of_key(fitting, 'information', file_path)
+                                check_existence_of_key(settings, 'links', file_path)
+                                check_existence_of_key(settings, 'information', file_path)
+
+                                # parameters may break remaining documents
+                                break
+

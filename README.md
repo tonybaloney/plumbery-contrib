@@ -10,8 +10,8 @@ Then you can download and run any of the examples in this repository.
 
 ```bash
 git clone https://github.com/DimensionDataCBUSydney/plumbery-contrib.git
-cd plumbery-contrib/fittings/containers/
-python -m plumbery fitting.yaml deploy  
+cd plumbery-contrib/fittings/containers/docker
+python -m plumbery fittings.yaml deploy
 ```
 
 ## Contributing
@@ -21,7 +21,7 @@ This repository accepts pull-requests, if you wish to share your own application
 * Create a fork of this repository
 * Choose the category of your application - if the category does not exist, simple create a new folder and update fittings/categories.yaml
 * Create a folder for your fittings template
-* Create the fitting.yaml file in your folder
+* Create the fittings.yaml file in your folder
 * Include a README.md with the instructions for your template
 * Test the index of the library by running "python reindex.py info"
 * Commit your code

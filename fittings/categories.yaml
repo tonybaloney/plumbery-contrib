@@ -1,5 +1,8 @@
 ---
 categories:
+  - directory: applications
+    name: IT applications
+    description: "Ready-to-use IT services"
   - directory: containers
     name: Containers
     description: "Fittings for container based applications and workloads"
@@ -12,9 +15,6 @@ categories:
   - directory: example
     name: Examples
     description: "Generic examples"
-  - directory: it
-    name: IT
-    description: "IT applications"
   - directory: logging
     name: Logging
     description: "Logging and log collection, retention applications"
@@ -30,4 +30,3 @@ categories:
   - directory: web
     name: Web
     description: "Web applications and servers"
-    
