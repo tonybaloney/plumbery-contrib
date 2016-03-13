@@ -59,10 +59,10 @@ with open("fittings/categories.yaml", "r") as categories_f:
                                                        'links', file_path)
                                 check_existence_of_key(settings,
                                                        'information', file_path)
-                                readme += "\n### [%s](%s) \n\n![icon](%s)\n%s" % (
+                                readme += "\n### [%s](%s) \n\n![icon](%s =64x64)\n%s" % (
                                     settings['information'][0],
                                     settings['links']['documentation'],
-                                    'https://github.com/',
+                                    'https://raw.githubusercontent.com/DimensionDataCBUSydney/plumbery-contrib/master/%s/logo.png' % subdir.replace('\\','/'),
                                     '\n'.join(settings['information'][0:])
                                 )
                                 # parameters may break remaining documents
