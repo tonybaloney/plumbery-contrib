@@ -15,9 +15,9 @@ polishers:
       reap: gigafox_ansible.yaml
   - inventory:
       reap: gigafox_inventory.yaml
-  - rub:
+  - prepare:
       key: ~/.ssh/id_rsa.pub
-      reap: gigafox_rubs.yaml
+      reap: gigafox_prepare.yaml
 
 # each facility is described separately
 ---
@@ -25,7 +25,7 @@ polishers:
 locationId: NA12
 regionId: dd-na
 
-rub:
+prepare:
   - beachhead: 10.10.10.9
   - beachhead: 10.10.10.10
 
@@ -198,9 +198,9 @@ blueprints:
             cpu: 32
             memory: 128
             monitoring: essentials
-            rub:
-              - run rub.update.sh
-              - run rub.docker.sh
+            prepare:
+              - run prepare.update.sh
+              - run prepare.docker.sh
 
   # nodejs resources
   - nodejs:
@@ -210,8 +210,8 @@ blueprints:
         - nodejs[1..5]_na12:
             description: '#nodejs #us #primary'
             monitoring: essentials
-            rub:
-              - run rub.update.sh
+            prepare:
+              - run prepare.update.sh
 
   # workloads dedicated to data records
   - sql:
@@ -286,9 +286,9 @@ blueprints:
             disks:
               - 1 500 standard
             monitoring: essentials
-            rub:
-              - put rub.puppet.apache.pp /root/apache.pp
-              - run rub.puppet.apache.sh /root/apache.pp
+            prepare:
+              - put prepare.puppet.apache.pp /root/apache.pp
+              - run prepare.puppet.apache.sh /root/apache.pp
       listeners:
         - http:
             port: 80
@@ -322,9 +322,9 @@ blueprints:
         - docker[1..5]_na9:
             description: '#docker #us #secondary'
             monitoring: essentials
-            rub:
-              - run rub.update.sh
-              - run rub.docker.sh
+            prepare:
+              - run prepare.update.sh
+              - run prepare.docker.sh
 
   # nodejs resources
   - nodejs:
@@ -334,8 +334,8 @@ blueprints:
         - nodejs[1..5]_na9:
             description: '#nodejs #us #secondary'
             monitoring: essentials
-            rub:
-              - run rub.update.sh
+            prepare:
+              - run prepare.update.sh
 
   # workloads dedicated to data records
   - sql:

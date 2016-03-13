@@ -40,7 +40,7 @@ defaults:
           - "{{ key.rsa_public }}"
           - "{{ local.rsa_public }}"
 
-    # plumbery uses the account root to rub nodes
+    # plumbery uses the account root to prepare nodes
     #
     disable_root: false
 
