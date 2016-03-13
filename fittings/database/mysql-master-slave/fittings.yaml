@@ -50,7 +50,6 @@ defaults:
           - "{{ key.rsa_public }}"
           - "{{ local.rsa_public }}"
 
-<<<<<<< HEAD:fittings/database/mysql/fitting.yaml
       # configure SSH keys for the account root
       #
       - name: root
@@ -64,9 +63,8 @@ defaults:
 
     # plumbery can use ssh certificate to avoid passwords
     #
-=======
+
     disable_root: true
->>>>>>> 807fb3f59a5df1db522e1b26b4c565688fd118dd:fittings/database/mysql-master-slave/fittings.yaml
     ssh_pwauth: false
 
 ---

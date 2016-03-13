@@ -14,7 +14,9 @@ if len(sys.argv) > 1:
     level = LEVELS.get(level_name, logging.NOTSET)
     logging.basicConfig(level=level)
 
-def raise_KeyError(msg=''): raise KeyError(msg)  # Don't return anything.
+
+def raise_KeyError(msg=''): raise KeyError(msg)  #  Don't return anything.
+
 
 def check_existence_of_key(dictionary, key, path):
     try:
@@ -23,10 +25,13 @@ def check_existence_of_key(dictionary, key, path):
     except KeyError:
         logging.error("fittings %s missing required links",
                       path)
+readme = ""
 
 with open("fittings/categories.yaml", "r") as categories_f:
     docs = yaml.load(categories_f)
     for category in docs['categories']:
+        readme += "\n## %s\n\n%s" % (
+            category['name'], category['description'])
         # Check and load directory.
         for subdir, dirs, files in os.walk("fittings/"+category['directory']):
             logging.info("Subdirectory %s", subdir)
@@ -50,9 +55,17 @@ with open("fittings/categories.yaml", "r") as categories_f:
                                              file_path)
 
                                 # Check existence of docs
-                                check_existence_of_key(settings, 'links', file_path)
-                                check_existence_of_key(settings, 'information', file_path)
-
+                                check_existence_of_key(settings,
+                                                       'links', file_path)
+                                check_existence_of_key(settings,
+                                                       'information', file_path)
+                                readme += "\n### [%s](%s) \n\n![icon](%s)\n%s" % (
+                                    settings['information'][0],
+                                    settings['links']['documentation'],
+                                    'https://github.com/',
+                                    '\n'.join(settings['information'][0:])
+                                )
                                 # parameters may break remaining documents
                                 break
-
+with open("INDEX.md", "w") as readme_f:
+    readme_f.write(readme)

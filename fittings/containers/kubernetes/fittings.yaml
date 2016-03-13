@@ -37,7 +37,7 @@ defaults:
   # the same network domain is used at various facilities
   #
   domain:
-    name: {{ domainName.parameter }}
+    name: "{{ domainName.parameter }}"
     description: "Kubernetes nodes"
     service: essentials
     ipv4: auto
@@ -45,7 +45,7 @@ defaults:
   # the same ethernet configuration is used at various facilities
   #
   ethernet:
-    name: {{ networkName.parameter }}
+    name: "{{ networkName.parameter }}"
     subnet: 192.168.20.0
 
   # default settings for a Kubernetes node
