@@ -1,0 +1,83 @@
+type: map
+mapping:
+  "information":
+    type: seq
+    sequence:
+      - type: str
+  "links":
+    required: false
+    type: map
+    mapping:
+      "documentation":
+        type: str
+        required: true
+      "credit":
+        type: str
+        required: false
+  "defaults":
+    type: any
+  "parameters":
+    type: any
+  "locationId":
+    type: str
+  "safeMode":
+    type: bool
+  "polishers":
+    type: seq
+    sequence:
+      - type: map
+        matching-rule: 'any'
+        mapping:
+          regex;(.+):
+            type: map
+            mapping:
+              "key":
+                type: str
+              "reap":
+                type: str
+  "blueprints":
+    type: seq
+    sequence:
+      - type: map
+        matching-rule: 'any'
+        mapping:
+          regex;(.+):
+            type: map
+            mapping:
+              "ethernet":
+                type: any
+              "domain":
+                type: map
+                mapping:
+                  "name":
+                    type: str
+                    required: true
+                  "description":
+                    type: str
+                  "service":
+                    type: str
+                    enum: ['essentials','advanced']
+                  "ipv4":
+                    type: int
+              "nodes":
+                type: seq
+                sequence:
+                  - type: map
+                    matching-rule: 'any'
+                    mapping:
+                      regex;(.+):
+                        type: map
+                        mapping:
+                          "default":
+                            type: str
+                          "glue":
+                            type: seq
+                            sequence:
+                              - type: str
+                          "monitoring":
+                            type: str
+                            enum: ['essentials','advanced']
+                          "information":
+                            type: seq
+                            sequence:
+                              - type: str

@@ -11,7 +11,7 @@ locationId: EU6
 
 blueprints:
 
-  - first:
+  - "first":
 
       domain:
         description: "Demonstration of server orchestration at Dimension Data"
