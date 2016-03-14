@@ -57,7 +57,15 @@ mapping:
             type: map
             mapping:
               "ethernet":
-                type: any
+                type: map
+                mapping:
+                  "name":
+                    type: str
+                    required: true
+                  "description":
+                    type: str
+                  "subnet":
+                    type: str
               "domain":
                 type: map
                 mapping:
