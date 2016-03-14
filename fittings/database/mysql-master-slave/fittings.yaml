@@ -69,7 +69,7 @@ defaults:
 
 ---
 
-locationId: {{ primaryId.parameter }}
+locationId: "{{ primaryId.parameter }}"
 
 blueprints:
 
@@ -80,17 +80,17 @@ blueprints:
       # reservation of 2 public ipv4 addresses to be given to nodes afterwards
       #
       domain:
-        name: {{ domainName.parameter }}
+        name: "{{ domainName.parameter }}"
         description: "SQL replication"
         ipv4: 2
 
       # firewall is configured to accept ipv6 traffic from the slave
       #
       ethernet:
-        name: {{ networkName.parameter }}
+        name: "{{ networkName.parameter }}"
         subnet: 10.0.0.0
         accept:
-          - {{ secondaryId.parameter }}::{{ networkName.parameter }}
+          - "{{ secondaryId.parameter }}::{{ networkName.parameter }}"
 
       nodes:
         - masterSQL:
@@ -265,7 +265,7 @@ blueprints:
 
 ---
 
-locationId: {{ secondaryId.parameter }}
+locationId: "{{ secondaryId.parameter }}"
 
 blueprints:
 
@@ -274,17 +274,17 @@ blueprints:
       # reservation of 2 public ipv4 addresses to be given to nodes afterwards
       #
       domain:
-        name: {{ domainName.parameter }}
+        name: "{{ domainName.parameter }}"
         description: "SQL replication"
         ipv4: 2
 
       # firewall is configured to accept ipv6 traffic from the master
       #
       ethernet:
-        name: {{ networkName.parameter }}
+        name: "{{ networkName.parameter }}"
         subnet: 10.0.0.0
         accept:
-          - {{ primaryId.parameter }}::{{ networkname.parameter }}
+          - "{{ primaryId.parameter }}::{{ networkname.parameter }}"
 
       nodes:
         - slaveSQL:

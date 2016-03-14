@@ -48,7 +48,7 @@ defaults:
     ssh_pwauth: false
 
 ---
-locationId: {{ locationId.parameter }}
+locationId: "{{ locationId.parameter }}"
 
 blueprints:
 
@@ -57,12 +57,12 @@ blueprints:
   - mongo_config:
 
       domain: &domain
-        name: {{ domainName.parameter }}
+        name: "{{ domainName.parameter }}"
         service: essentials
         ipv4: auto
 
       ethernet: &ethernet
-        name: {{ networkName.parameter }}
+        name: "{{ networkName.parameter }}"
         subnet: 192.168.20.0
 
       nodes:

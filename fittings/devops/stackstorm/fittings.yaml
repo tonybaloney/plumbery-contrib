@@ -55,24 +55,24 @@ defaults:
 
 ---
 
-locationId: {{ locationId.parameter }}
+locationId: "{{ locationId.parameter }}"
 
 blueprints:
 
   - stackstorm:
 
       domain:
-        name: {{ domainName.parameter }}
+        name: "{{ domainName.parameter }}"
         service: essentials
         ipv4: auto
 
       ethernet:
-        name: {{ networkName.parameter }}
+        name: "{{ networkName.parameter }}"
         subnet: 192.168.20.0
 
       nodes:
 
-        - {{ nodeName.parameter }}:
+        - "{{ nodeName.parameter }}":
 
             description: "#stackstorm #ubuntu"
 

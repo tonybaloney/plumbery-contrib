@@ -146,11 +146,11 @@ defaults:
 
 ---
 
-locationId: {{ locationId.parameter }}
+locationId: "{{ locationId.parameter }}"
 
 blueprints:
 
   - docker:
       nodes:
-        - {{ nodeName.parameter }}:
+        - "{{ nodeName.parameter }}":
             default: dockerNode

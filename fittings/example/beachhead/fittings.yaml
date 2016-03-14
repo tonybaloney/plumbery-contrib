@@ -55,23 +55,23 @@ defaults:
 
 ---
 
-locationId: {{ locationId.parameter }}
+locationId: "{{ locationId.parameter }}"
 
 blueprints:
 
   - beachhead:
 
       domain:
-        name: {{ domainName.parameter }}
+        name: "{{ domainName.parameter }}"
         ipv4: 2
 
       ethernet:
-        name: {{ networkName.parameter }}
+        name: "{{ networkName.parameter }}"
         subnet: 10.0.0.0
 
       nodes:
 
-        - {{ nodeName.parameter }}:
+        - "{{ nodeName.parameter }}":
 
             description: '#beachhead #ops #ubuntu'
 

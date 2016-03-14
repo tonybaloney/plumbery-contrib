@@ -58,7 +58,7 @@ mapping:
                     type: str
                     enum: ['essentials','advanced']
                   "ipv4":
-                    type: int
+                    type: text
               "nodes":
                 type: seq
                 sequence:
@@ -70,10 +70,29 @@ mapping:
                         mapping:
                           "default":
                             type: str
+                          "appliance":
+                            type: str
+                          "cpu":
+                            desc: "Number of CPU"
+                            type: int
+                          "memory":
+                            desc: "Amount of RAM in GB"
+                            type: int
+                          "disks":
+                            type: seq
+                            sequence:
+                              - type: str
+                          "cloud-config":
+                            type: any
+                          "description":
+                            type: str
                           "glue":
                             type: seq
                             sequence:
                               - type: str
+                          "running":
+                            type: str
+                            enum: ['always']
                           "monitoring":
                             type: str
                             enum: ['essentials','advanced']

@@ -17,7 +17,6 @@ if len(sys.argv) > 1:
     logging.basicConfig(level=level)
 
 
-
 readme = ""
 
 with open("fittings/categories.yaml", "r") as categories_f:
@@ -34,7 +33,26 @@ with open("fittings/categories.yaml", "r") as categories_f:
 
             for file in files:
                 if file == "fittings.yaml":
-                    validate_fittings(os.path.join(subdir, file), readme, subdir)
+                    # check the yaml
+                    file_path = os.path.join(subdir, file)
+                    with open(file_path) as fitting_f:
+                        plan = fitting_f.read()
+                        documents = plan.split('\n---')
+                        index = 0
+                        for document in documents:
+                            index += 1
+                            if '\n' in document and index == 1:
+                                settings = yaml.load(document)
+                                logging.info("Validated fittings %s",
+                                             file_path)
+
+                                readme += "\n### [%s](%s) \n\n<img src='%s' style='width: 64px;'/>\n%s" % (
+                                    settings['information'][0],
+                                    settings['links']['documentation'],
+                                    'https://raw.githubusercontent.com/DimensionDataCBUSydney/plumbery-contrib/master/%s/icon.png' % subdir.replace('\\','/'),
+                                    '\n'.join(settings['information'][0:])
+                                )
+                    validate_fittings(file_path)
 
 with open("INDEX.md", "w") as readme_f:
     readme_f.write(readme)

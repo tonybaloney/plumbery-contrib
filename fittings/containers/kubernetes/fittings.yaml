@@ -173,11 +173,11 @@ defaults:
 
 ---
 
-locationId: {{ locationId.parameter }}
+locationId: "{{ locationId.parameter }}"
 
 blueprints:
 
   - kubernetes:
       nodes:
-        - {{ nodeName.parameter }}:
+        - "{{ nodeName.parameter }}":
             default: kubernetesNode
