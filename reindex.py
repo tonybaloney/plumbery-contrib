@@ -59,7 +59,7 @@ with open("fittings/categories.yaml", "r") as categories_f:
                                                        'links', file_path)
                                 check_existence_of_key(settings,
                                                        'information', file_path)
-                                readme += "\n### [%s](%s) \n\n![icon](%s =64x64)\n%s" % (
+                                readme += "\n### [%s](%s) \n\n<img src='%s' style='width: 64px;'/>\n%s" % (
                                     settings['information'][0],
                                     settings['links']['documentation'],
                                     'https://raw.githubusercontent.com/DimensionDataCBUSydney/plumbery-contrib/master/%s/icon.png' % subdir.replace('\\','/'),
