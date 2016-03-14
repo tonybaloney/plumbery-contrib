@@ -29,6 +29,15 @@ links:
 
 defaults:
 
+  domain:
+    name: "{{ domainName.parameter }}"
+    description: "Cluster of ceph nodes"
+    ipv4: auto
+
+  ethernet:
+    name: "{{ networkName.parameter }}"
+    subnet: 10.0.0.0
+
   cloud-config:
 
     ssh_keys:
@@ -39,7 +48,7 @@ defaults:
     users:
       - default
 
-      - name: ubuntu
+      - name: ceph
         sudo: 'ALL=(ALL) NOPASSWD:ALL'
         ssh-authorized-keys:
           - "{{ key.rsa_public }}"
@@ -59,28 +68,20 @@ locationId: "{{ locationId.parameter }}"
 
 blueprints:
 
-  - ceph: ceph-admin ceph-nodes
+  - ceph: ceph-admin ceph-nodes ceph-gateway
 
   - ceph-admin:
 
-      domain: &domain
-        name: "{{ domainName.parameter }}"
-        description: "Cluster of ceph nodes"
-        ipv4: 4
-
-      ethernet: &ethernet
-        name: "{{ networkName.parameter }}"
-        subnet: 10.0.0.0
-
       nodes:
+
         - admin:
 
             description: "#ceph #admin #ubuntu"
 
             information:
-              - "$ ssh ubuntu@{{ node.public }}"
+              - "$ ssh ceph@{{ node.public }}"
 
-            appliance: 'Ubuntu 14'
+            appliance: 'CentOS'
 
             cpu: 2
             memory: 4
@@ -123,6 +124,16 @@ blueprints:
                      print "{{ node3.ipv6 }}    node3"
                     }
 
+                - path: /etc/yum.repos.d/ceph.repo
+                  content: |
+                    [ceph-noarch]
+                    name=Ceph noarch packages
+                    baseurl=http://ceph.com/rpm-firefly/el7/noarch
+                    enabled=1
+                    gpgcheck=1
+                    type=rpm-md
+                    gpgkey=https://git.ceph.com/git/?p=ceph.git;a=blob_plain;f=keys/release.asc
+
                 - path: /etc/ceph/ceph.conf
                   content: |
                     [global]
@@ -155,24 +166,12 @@ blueprints:
                 - awk -f /root/hosts.awk /etc/hosts >/etc/hosts.new && mv /etc/hosts.new /etc/hosts
 
                 - echo "===== Installing ceph"
-                - wget -q -O- 'https://download.ceph.com/keys/release.asc' | sudo apt-key add -
-                - apt-add-repository 'deb http://download.ceph.com/debian-hammer/ $(lsb_release -sc) main'
-                - apt-get update
-                - apt-get install -y ceph
+                - yum update
+                - yum install ceph-deploy
 
-                - echo "===== Installing ceph monitor"
-                - ceph-authtool --create-keyring /tmp/ceph.mon.keyring --gen-key -n mon. --cap mon 'allow *'
-                - ceph-authtool --create-keyring /etc/ceph/ceph.client.admin.keyring --gen-key -n client.admin --set-uid=0 --cap mon 'allow *' --cap osd 'allow *' --cap mds 'allow'
-                - ceph-authtool /tmp/ceph.mon.keyring --import-keyring /etc/ceph/ceph.client.admin.keyring
-                - monmaptool --create --add admin {{ admin.private }} --fsid {{ cluster.uuid }} /tmp/monmap
-                - mkdir /var/lib/ceph/mon/ceph-admin
-                - ceph-mon --mkfs -i admin --monmap /tmp/monmap --keyring /tmp/ceph.mon.keyring
-                - touch /var/lib/ceph/mon/ceph-admin/done
-                - touch /var/lib/ceph/mon/ceph-admin/upstart
-                - start ceph-mon id=admin
-                - ceph osd lspools
-                - ceph -s
-                - sleep 2m
+                - echo "===== Installing ceph cluster"
+                - mkdir /home/ceph/cluster
+                - cd /home/ceph/cluster
 
 #                - echo "===== Deploying ceph osd"
 #                - su ubuntu -c "ceph-deploy osd prepare node2:/var/local/ceph"
@@ -187,17 +186,16 @@ blueprints:
 
   - ceph-nodes:
 
-      domain: *domain
-      ethernet: *ethernet
       nodes:
+
         - node[1..3]:
 
             description: "#ceph #node #ubuntu"
 
             information:
-              - "ssh ubuntu@{{ node.public }}"
+              - "ssh ceph@{{ node.public }}"
 
-            appliance: 'Ubuntu 14'
+            appliance: 'CentOS'
             cpu: 2
             memory: 4
 
