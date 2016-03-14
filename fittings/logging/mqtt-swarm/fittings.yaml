@@ -140,7 +140,7 @@ defaults:
 
 ---
 
-locationId: {{ locationId.parameter }}
+locationId: "{{ locationId.parameter }}"
 
 blueprints:
 
@@ -148,14 +148,14 @@ blueprints:
 
       ethernet:
         accept:
-          - AP3::{{ networkName.parameter }}
-          - AP4::{{ networkName.parameter }}
-          - AP5::{{ networkName.parameter }}
-          - AU11::{{ networkName.parameter }}
-          - EU6::{{ networkName.parameter }}
-          - EU8::{{ networkName.parameter }}
-          - NA9::{{ networkName.parameter }}
-          - NA12::{{ networkName.parameter }}
+          - "AP3::{{ networkName.parameter }}"
+          - "AP4::{{ networkName.parameter }}"
+          - "AP5::{{ networkName.parameter }}"
+          - "AU11::{{ networkName.parameter }}"
+          - "EU6::{{ networkName.parameter }}"
+          - "EU8::{{ networkName.parameter }}"
+          - "NA9::{{ networkName.parameter }}"
+          - "NA12::{{ networkName.parameter }}"
 
       nodes:
 
@@ -385,7 +385,7 @@ blueprints:
 
       ethernet:
         accept:
-          - {{ locationId.parameter }}::{{ networkName.parameter }}
+          - "{{ locationId.parameter }}::{{ networkName.parameter }}"
 
       nodes:
         - bee-AP3:
@@ -400,7 +400,7 @@ blueprints:
 
       ethernet:
         accept:
-          - {{ locationId.parameter }}::{{ networkName.parameter }}
+          - "{{ locationId.parameter }}::{{ networkName.parameter }}"
 
       nodes:
         - bee-AP4:
@@ -415,7 +415,7 @@ blueprints:
 
       ethernet:
         accept:
-          - {{ locationId.parameter }}::{{ networkName.parameter }}
+          - "{{ locationId.parameter }}::{{ networkName.parameter }}"
 
       nodes:
         - bee-AP5:
@@ -430,7 +430,7 @@ blueprints:
 
       ethernet:
         accept:
-          - {{ locationId.parameter }}::{{ networkName.parameter }}
+          - "{{ locationId.parameter }}::{{ networkName.parameter }}"
 
       nodes:
         - bee-AU11:
@@ -445,7 +445,7 @@ blueprints:
 
       ethernet:
         accept:
-          - {{ locationId.parameter }}::{{ networkName.parameter }}
+          - "{{ locationId.parameter }}::{{ networkName.parameter }}"
 
       nodes:
         - bee-EU6:
@@ -460,7 +460,7 @@ blueprints:
 
       ethernet:
         accept:
-          - {{ locationId.parameter }}::{{ networkName.parameter }}
+          - "{{ locationId.parameter }}::{{ networkName.parameter }}"
 
       nodes:
         - bee-EU8:
@@ -475,7 +475,7 @@ blueprints:
 
       ethernet:
         accept:
-          - {{ locationId.parameter }}::{{ networkName.parameter }}
+          - "{{ locationId.parameter }}::{{ networkName.parameter }}"
 
       nodes:
         - bee-NA9:
@@ -490,7 +490,7 @@ blueprints:
 
       ethernet:
         accept:
-          - {{ locationId.parameter }}::{{ networkName.parameter }}
+          - "{{ locationId.parameter }}::{{ networkName.parameter }}"
 
       nodes:
         - bee-NA12:

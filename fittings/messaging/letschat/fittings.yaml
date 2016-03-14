@@ -56,22 +56,22 @@ defaults:
 
 ---
 
-locationId: {{ locationId.parameter }}
+locationId: "{{ locationId.parameter }}"
 
 blueprints:
 
   - letschat:
 
       domain:
-        name: {{ domainName.parameter }}
+        name: "{{ domainName.parameter }}"
         ipv4: 2
 
       ethernet:
-        name: {{ networkName.parameter }}
+        name: "{{ networkName.parameter }}"
         subnet: 10.0.0.0
 
       nodes:
-        - {{ nodName.parameter }}:
+        - "{{ nodeName.parameter }}":
 
             description: "#chat server #ubuntu"
 

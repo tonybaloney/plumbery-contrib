@@ -55,7 +55,7 @@ defaults:
 
 ---
 
-locationId: {{ locationId.parameter }}
+locationId: "{{ locationId.parameter }}"
 
 blueprints:
 
@@ -64,12 +64,12 @@ blueprints:
   - ceph-admin:
 
       domain: &domain
-        name: {{ domainName.parameter }}
+        name: "{{ domainName.parameter }}"
         description: "Cluster of ceph nodes"
         ipv4: 4
 
       ethernet: &ethernet
-        name: {{ networkName.parameter }}
+        name: "{{ networkName.parameter }}"
         subnet: 10.0.0.0
 
       nodes:

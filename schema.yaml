@@ -20,6 +20,10 @@ mapping:
     type: any
   "locationId":
     type: str
+  "regionId":
+    type: str
+  "basement":
+    type: str
   "safeMode":
     type: bool
   "polishers":
@@ -35,6 +39,14 @@ mapping:
                 type: str
               "reap":
                 type: str
+  "prepare":
+    type: seq
+    sequence:
+      - type: map
+        matching-rule: 'any'
+        mapping:
+          regex;(.+):
+            type: str
   "blueprints":
     type: seq
     sequence:
@@ -59,6 +71,22 @@ mapping:
                     enum: ['essentials','advanced']
                   "ipv4":
                     type: text
+              "listeners":
+                type: seq
+                sequence:
+                  - type: map
+                    matching-rule: 'any'
+                    mapping:
+                      regex;(.+):
+                        type: map
+                        mapping:
+                          "protocol":
+                            type: str
+                          "port":
+                            type: int
+                          "algorithm":
+                            type: str
+                            enum: ['round_robin']
               "nodes":
                 type: seq
                 sequence:
@@ -73,8 +101,8 @@ mapping:
                           "appliance":
                             type: str
                           "cpu":
-                            desc: "Number of CPU"
-                            type: int
+                            desc: "Number of CPU | CPU configuration"
+                            type: text
                           "memory":
                             desc: "Amount of RAM in GB"
                             type: int
@@ -97,6 +125,10 @@ mapping:
                             type: str
                             enum: ['essentials','advanced']
                           "information":
+                            type: seq
+                            sequence:
+                              - type: str
+                          "prepare":
                             type: seq
                             sequence:
                               - type: str

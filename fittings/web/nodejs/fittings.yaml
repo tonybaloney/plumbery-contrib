@@ -55,23 +55,23 @@ defaults:
 
 ---
 
-locationId: {{ locationId.parameter }}
+locationId: "{{ locationId.parameter }}"
 
 blueprints:
 
   - nodejs:
 
       domain:
-        name: {{ domainName.parameter }}
+        name: "{{ domainName.parameter }}"
         service: essentials
         ipv4: 2
 
       ethernet:
-        name: {{ networkName.parameter }}
+        name: "{{ networkName.parameter }}"
         subnet: 192.168.20.0
 
       nodes:
-        - {{ nodeName.parameter }}:
+        - "{{ nodeName.parameter }}":
 
             description: "#nodejs #ubuntu"
 

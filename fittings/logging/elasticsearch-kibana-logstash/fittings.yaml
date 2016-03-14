@@ -159,7 +159,7 @@ defaults:
 
 ---
 
-locationId: {{ locationId.parameter }}
+locationId: "{{ locationId.parameter }}"
 
 blueprints:
 
@@ -167,11 +167,11 @@ blueprints:
 
       ethernet:
         accept:
-          - AP5::{{ networkName.parameter }}
+          - "AP5::{{ networkName.parameter }}"
 
       nodes:
 
-        - {{ nodeName.parameter }}:  # a combo of logstash, elasticsearch, and kibana
+        - "{{ nodeName.parameter }}":  # a combo of logstash, elasticsearch, and kibana
 
             description: "#logstash #elasticsearch #dashboard #kibana #ubuntu"
 
@@ -358,7 +358,7 @@ blueprints:
                 - cp /root/etc-cron.d-elasticsearch_curator /etc/cron.d/elasticsearch_curator
 
 
-        - logstash-{{ locationId.parameter }}:
+        - "logstash-{{ locationId.parameter }}":
             default: logstashForwarder
 
 ---
@@ -371,7 +371,7 @@ blueprints:
 
       ethernet:
         accept:
-          - {{ locationId.parameter }}::{{ networkName.parameter }}
+          - "{{ locationId.parameter }}::{{ networkName.parameter }}"
 
       nodes:
         - logstash-AP5:

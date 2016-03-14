@@ -55,22 +55,22 @@ defaults:
 
 ---
 
-locationId: {{ primaryId.parameter }}
+locationId: "{{ primaryId.parameter }}"
 
 blueprints:
 
   - nfs:
 
       domain:
-        name: {{ domainName.parameter }}
+        name: "{{ domainName.parameter }}"
         description: "NFS - server side"
         ipv4: 2
 
       ethernet:
-        name: {{ networkName.parameter }}
+        name: "{{ networkName.parameter }}"
         subnet: 192.168.20.0
         accept:
-          - {{ secondaryId.parameter }}::{{ networkName.parameter }}
+          - "{{ secondaryId.parameter }}::{{ networkName.parameter }}"
 
       nodes:
 
@@ -142,22 +142,22 @@ blueprints:
 
 ---
 
-locationId: {{ secondaryId.parameter }}
+locationId: "{{ secondaryId.parameter }}"
 
 blueprints:
 
   - nfs:
 
       domain:
-        name: {{ domainName.parameter }}
+        name: "{{ domainName.parameter }}"
         description: "NFS - client side"
         ipv4: 2
 
       ethernet:
-        name: {{ networkName.parameter }}
+        name: "{{ networkName.parameter }}"
         subnet: 192.168.20.0
         accept:
-          - {{ primaryId.parameter }}::{{ networkName.parameter }}
+          - "{{ primaryId.parameter }}::{{ networkName.parameter }}"
 
       nodes:
         - nfsClient:

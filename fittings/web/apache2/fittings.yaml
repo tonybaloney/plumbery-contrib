@@ -55,25 +55,25 @@ defaults:
 
 ---
 
-locationId: {{ locationId.parameter }}
+locationId: "{{ locationId.parameter }}"
 
 blueprints:
 
   - apache2:
 
       domain:
-        name: {{ domainName.parameter }}
+        name: "{{ domainName.parameter }}"
         description: "Demonstration of a standalone apache2 web server"
         service: essentials
         ipv4: 2
 
       ethernet:
-        name: {{ networkname.parameter }}
+        name: "{{ networkname.parameter }}"
         subnet: 192.168.20.0
 
       nodes:
 
-        - {{ nodeName.parameter }}:
+        - "{{ nodeName.parameter }}":
 
             description: "#apache #ubuntu"
 
