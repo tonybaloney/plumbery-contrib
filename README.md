@@ -1,5 +1,8 @@
 # Plumbery-Contrib
 
+[![Build status](https://img.shields.io/travis/DimensionDataCBUSydney/plumbery-contrib.svg)](https://travis-ci.org/DimensionDataCBUSydney/plumbery-contrib)  ![Python 2.7](https://img.shields.io/badge/python-2.7-blue.svg)
+
+
 A public repository of templates for provisioning applications into the Dimension Data Cloud
 
 ## Using
