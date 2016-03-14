@@ -62,7 +62,7 @@ with open("fittings/categories.yaml", "r") as categories_f:
                                 readme += "\n### [%s](%s) \n\n![icon](%s =64x64)\n%s" % (
                                     settings['information'][0],
                                     settings['links']['documentation'],
-                                    'https://raw.githubusercontent.com/DimensionDataCBUSydney/plumbery-contrib/master/%s/logo.png' % subdir.replace('\\','/'),
+                                    'https://raw.githubusercontent.com/DimensionDataCBUSydney/plumbery-contrib/master/%s/icon.png' % subdir.replace('\\','/'),
                                     '\n'.join(settings['information'][0:])
                                 )
                                 # parameters may break remaining documents
