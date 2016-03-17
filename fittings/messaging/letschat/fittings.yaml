@@ -102,6 +102,19 @@ blueprints:
                 - mongodb-server
                 - git
 
+              write_files:
+
+                - path: /root/hosts.awk
+                  content: |
+                    #!/usr/bin/awk -f
+                    /^{{ node.private }}/ {next}
+                    /^{{ node.ipv6 }}/ {next}
+                    {print}
+                    END {
+                     print "{{ node.private }}    {{ node.name }}"
+                     print "{{ node.ipv6 }}    {{ node.name }}"
+                    }
+
               runcmd:
 
                 - echo "===== Growing LVM with added disk"
@@ -115,12 +128,17 @@ blueprints:
                 - cp -n /etc/ssh/ssh_host_rsa_key.pub /home/ubuntu/.ssh/id_rsa.pub
                 - chown ubuntu:ubuntu /home/ubuntu/.ssh/*
 
-                - echo "===== Installing Let s Chat"
+                - echo "===== Updating /etc/hosts"
+                - cp -n /etc/hosts /etc/hosts.original
+                - awk -f /root/hosts.awk /etc/hosts >/etc/hosts.new && mv /etc/hosts.new /etc/hosts
+
+                - echo "===== Installing Let's Chat"
                 - cd /home/ubuntu
                 - git clone https://github.com/sdelements/lets-chat.git
                 - cd lets-chat
                 - npm install
                 - cp settings.yml.sample settings.yml
+                - sed -i "/host:/s/'[^']*'/'{{ node.name }}'/" settings.yml
 
                 - echo "===== Starting the server"
                 - npm start
