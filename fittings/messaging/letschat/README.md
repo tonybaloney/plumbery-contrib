@@ -1,12 +1,12 @@
 # Let's Chat server
 
-Let's Chat is a persistent messaging application that runs on Node.js and MongoDB.
+[Let's Chat](https://sdelements.github.io/lets-chat/) is a persistent messaging application that runs on Node.js and MongoDB.
 It's designed to be easily deployable and fits well with small, intimate teams.
 
 ![Lets Chat](lets-chat.png)
 
 It's free (MIT licensed) and ships with killer features such as LDAP/Kerberos authentication, a REST-like API and XMPP support.
-In this use case we demonstrate how to create a ready-to-use Let's Chat server
+In this use case we demonstrate how to create a ready-to-use [Let's Chat](https://sdelements.github.io/lets-chat/) server
 on a single node.
 
 ## Requirements for this use case
@@ -29,7 +29,7 @@ on a single node.
 
 ## Fittings plan
 
-[fittings.yaml](fittings.yaml)
+[Click here to read fittings.yaml](fittings.yaml)
 
 ## Deployment command
 
