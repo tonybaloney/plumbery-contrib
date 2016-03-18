@@ -1,7 +1,7 @@
 ---
 
 information:
-  - "Let's Chat server, self-hosted chat for private teams"
+  - "EMC Elastic Cloud Storage, for development"
 
 parameters:
 
@@ -9,29 +9,29 @@ parameters:
     information:
       - "the target data centre for this deployment"
     type: locations.list
-    default: AU10
+    default: EU7
 
   domainName:
     information:
       - "the name of the network domain to be deployed"
     type: str
-    default: LetsChatFox
+    default: EcsFox
 
   networkName:
     information:
       - "the name of the Ethernet VLAN to be deployed"
     type: str
-    default: LetsChatNetwork
+    default: EcsNetwork
 
   nodeName:
     information:
       - "the name of the main node to be deployed"
     type: str
-    default: chat01
+    default: ecs01
 
 links:
-  documentation: https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/fittings/messaging/letschat
-  credit: https://mborgerson.com/setting-up-lets-chat-on-ubuntu
+  documentation: https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/fittings/storage/ecs
+  credit: https://github.com/EMCECS/ECS-CommunityEdition/blob/master/Documentation/ECS-SingleNode-Instructions.md
 
 defaults:
 
@@ -45,7 +45,7 @@ defaults:
     users:
       - default
 
-      - name: ubuntu
+      - name: centos
         sudo: 'ALL=(ALL) NOPASSWD:ALL'
         ssh-authorized-keys:
           - "{{ key.rsa_public }}"
@@ -73,21 +73,21 @@ blueprints:
       nodes:
         - "{{ nodeName.parameter }}":
 
-            description: "#chat server #ubuntu"
+            description: "#ecs #docker #centos"
 
             information:
-              - "this is the Let's Chat server for our team"
+              - "this is a ECS node from EMC, for development only"
               - "browse http://{{ node.public }}:5000/ to enter conversations"
 
-            appliance: 'Ubuntu 14'
-            cpu: 8
+            appliance: 'CentOS 7'
+            cpu: 6
             memory: 32
 
             disks:
-              - 1 50 standard
+              - 1 500 standard
 
             glue:
-              - internet 22 5000
+              - internet 22 443 9020 9024 4443 9011 9101
 
             monitoring: essentials
 
@@ -95,11 +95,7 @@ blueprints:
               hostname: "{{ node.name }}"
 
               packages:
-                - nodejs
-                - npm
-                - nodejs-legacy
-                - mongodb
-                - mongodb-server
+                - ntp
                 - git
 
               write_files:
@@ -117,28 +113,17 @@ blueprints:
 
               runcmd:
 
-                - echo "===== Growing LVM with added disk"
-                - pvcreate /dev/sdb
-                - vgextend rootvol00 /dev/sdb
-                - lvextend -l +100%FREE /dev/mapper/rootvol00-rootlvol00
-                - resize2fs /dev/mapper/rootvol00-rootlvol00
-
-                - echo "===== Handling ubuntu identity"
-                - cp -n /etc/ssh/ssh_host_rsa_key /home/ubuntu/.ssh/id_rsa
-                - cp -n /etc/ssh/ssh_host_rsa_key.pub /home/ubuntu/.ssh/id_rsa.pub
-                - chown ubuntu:ubuntu /home/ubuntu/.ssh/*
+                - echo "===== Handling centos identity"
+                - cp -n /etc/ssh/ssh_host_rsa_key /home/centos/.ssh/id_rsa
+                - cp -n /etc/ssh/ssh_host_rsa_key.pub /home/centos/.ssh/id_rsa.pub
+                - chown centos:centos /home/centos/.ssh/*
 
                 - echo "===== Updating /etc/hosts"
                 - cp -n /etc/hosts /etc/hosts.original
                 - awk -f /root/hosts.awk /etc/hosts >/etc/hosts.new && mv /etc/hosts.new /etc/hosts
 
-                - echo "===== Installing Let's Chat"
-                - cd /home/ubuntu
-                - git clone https://github.com/sdelements/lets-chat.git
-                - cd lets-chat
-                - npm install
-                - cp settings.yml.sample settings.yml
-                - sed -i "/host:/s/'[^']*'/'{{ node.name }}'/" settings.yml
+                - echo "===== Installing ECS"
+                - cd /home/centos
+                - git clone https://github.com/EMCECS/ECS-CommunityEdition.git
+                - cd  ecs-single-node
 
-                - echo "===== Starting the server"
-                - npm start
