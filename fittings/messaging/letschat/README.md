@@ -22,6 +22,7 @@ on a single node.
 * Add address translation to ensure end-to-end IP connectivity
 * Add firewall rule to accept TCP traffic on port 22 (ssh) and 5000 (web)
 * Use the virtual disk to expand logical volume (LVM)
+* Edit the host name and the `/etc/hosts` file
 * Install a new SSH key to secure remote communications
 * Configure SSH to reject passwords and to prevent access from root account
 * Install Let's Chat
