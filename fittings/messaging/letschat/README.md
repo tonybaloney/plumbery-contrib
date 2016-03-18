@@ -1,12 +1,11 @@
-# Let's Chat server (based on Node JS and MongoDB)
+# Let's Chat server
 
 Let's Chat is a persistent messaging application that runs on Node.js and MongoDB.
 It's designed to be easily deployable and fits well with small, intimate teams.
 
-It's free (MIT licensed) and ships with killer features such as LDAP/Kerberos authentication, a REST-like API and XMPP support.
-
 ![Lets Chat](lets-chat.png)
 
+It's free (MIT licensed) and ships with killer features such as LDAP/Kerberos authentication, a REST-like API and XMPP support.
 In this use case we demonstrate how to create a ready-to-use Let's Chat server
 on a single node.
 
