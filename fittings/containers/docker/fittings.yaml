@@ -30,7 +30,7 @@ parameters:
     default: docker01
 
 links:
-  documentation: https://plumbery.readthedocs.org/en/latest/tutorial.docker.html
+  documentation: https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/fittings/containers/docker
 
 defaults:
 
