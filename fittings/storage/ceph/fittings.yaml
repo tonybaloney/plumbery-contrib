@@ -1,7 +1,7 @@
 ---
 
 information:
-  - "Cluster of Ceph servers."
+  - "Cluster of Ceph servers"
 
 parameters:
 
@@ -9,7 +9,7 @@ parameters:
     information:
       - "the target data centre for this deployment"
     type: locations.list
-    default: AU10
+    default: EU7
 
   domainName:
     information:
@@ -38,6 +38,69 @@ defaults:
     name: "{{ networkName.parameter }}"
     subnet: 10.0.0.0
 
+
+  ceph-bee:
+
+    description: "#ceph #bee #ubuntu"
+
+    information:
+      - "ssh ceph@{{ node.public }}"
+
+    appliance: 'Ubuntu 14'
+    cpu: 2
+    memory: 4
+
+    glue:
+      - internet 22
+
+    monitoring: essentials
+
+    cloud-config:
+
+      hostname: "{{ node.name }}"
+
+      packages:
+        - ntp
+
+      write_files:
+
+        - path: /root/hosts.awk
+          content: |
+            #!/usr/bin/awk -f
+            /^{{ admin.private }}/ {next}
+            /^{{ admin.ipv6 }}/ {next}
+            /^{{ node1.private}}/ {next}
+            /^{{ node1.ipv6 }}/ {next}
+            /^{{ node2.private }}/ {next}
+            /^{{ node2.ipv6 }}/ {next}
+            /^{{ node3.private }}/ {next}
+            /^{{ node3.ipv6 }}/ {next}
+            {print}
+            END {
+             print "{{ admin.private }}    admin"
+             print "{{ admin.ipv6 }}    admin"
+             print "{{ node1.private }}    node1"
+             print "{{ node1.ipv6 }}    node1"
+             print "{{ node2.private }}    node2"
+             print "{{ node2.ipv6 }}    node2"
+             print "{{ node3.private }}    node3"
+             print "{{ node3.ipv6 }}    node3"
+            }
+
+      runcmd:
+
+        - echo "===== Installing ssh keys"
+        - cp -n /etc/ssh/ssh_host_rsa_key /home/ubuntu/.ssh/id_rsa
+        - cp -n /etc/ssh/ssh_host_rsa_key.pub /home/ubuntu/.ssh/id_rsa.pub
+        - chown ubuntu:ubuntu /home/ubuntu/.ssh/*
+        - cp -n /etc/ssh/ssh_host_rsa_key /root/.ssh/id_rsa
+        - cp -n /etc/ssh/ssh_host_rsa_key.pub /root/.ssh/id_rsa.pub
+        - sed -i "/StrictHostKeyChecking/s/^.*$/    StrictHostKeyChecking no/" /etc/ssh/ssh_config
+
+        - echo "===== Updating /etc/hosts"
+        - cp -n /etc/hosts /etc/hosts.original
+        - awk -f /root/hosts.awk /etc/hosts >/etc/hosts.new && mv /etc/hosts.new /etc/hosts
+
   cloud-config:
 
     ssh_keys:
@@ -48,7 +111,7 @@ defaults:
     users:
       - default
 
-      - name: ceph
+      - name: ubuntu
         sudo: 'ALL=(ALL) NOPASSWD:ALL'
         ssh-authorized-keys:
           - "{{ key.rsa_public }}"
@@ -68,175 +131,65 @@ locationId: "{{ locationId.parameter }}"
 
 blueprints:
 
-  - ceph: ceph-admin ceph-nodes ceph-gateway
-
-  - ceph-admin:
+  - all:
 
       nodes:
 
         - admin:
 
-            description: "#ceph #admin #ubuntu"
-
-            information:
-              - "$ ssh ceph@{{ node.public }}"
-
-            appliance: 'CentOS'
-
-            cpu: 2
-            memory: 4
-
-            glue:
-              - internet 22
-
-            monitoring: essentials
+            default: ceph-bee
 
             cloud-config:
 
-              hostname: "{{ node.name }}"
-
-              packages:
-                - ntp
-                - openssh-server
-
-              write_files:
-
-                - path: /root/hosts.awk
-                  content: |
-                    #!/usr/bin/awk -f
-                    /^{{ admin.private }}/ {next}
-                    /^{{ admin.ipv6 }}/ {next}
-                    /^{{ node1.private}}/ {next}
-                    /^{{ node1.ipv6 }}/ {next}
-                    /^{{ node2.private }}/ {next}
-                    /^{{ node2.ipv6 }}/ {next}
-                    /^{{ node3.private }}/ {next}
-                    /^{{ node3.ipv6 }}/ {next}
-                    {print}
-                    END {
-                     print "{{ admin.private }}    admin"
-                     print "{{ admin.ipv6 }}    admin"
-                     print "{{ node1.private }}    node1"
-                     print "{{ node1.ipv6 }}    node1"
-                     print "{{ node2.private }}    node2"
-                     print "{{ node2.ipv6 }}    node2"
-                     print "{{ node3.private }}    node3"
-                     print "{{ node3.ipv6 }}    node3"
-                    }
-
-                - path: /etc/yum.repos.d/ceph.repo
-                  content: |
-                    [ceph-noarch]
-                    name=Ceph noarch packages
-                    baseurl=http://ceph.com/rpm-firefly/el7/noarch
-                    enabled=1
-                    gpgcheck=1
-                    type=rpm-md
-                    gpgkey=https://git.ceph.com/git/?p=ceph.git;a=blob_plain;f=keys/release.asc
-
-                - path: /etc/ceph/ceph.conf
-                  content: |
-                    [global]
-                    fsid = {{ cluster.uuid }}
-                    mon initial members = admin
-                    mon host = {{ admin.private }}
-                    auth cluster required = cephx
-                    auth service required = cephx
-                    auth client required = cephx
-                    osd journal size = 1024
-                    filestore xattr use omap = true
-                    osd pool default size = 2
-                    osd pool default min size = 1
-                    osd pool default pg num = 333
-                    osd pool default pgp num = 333
-                    osd crush chooseleaf type = 1
-
               runcmd:
 
-                - echo "===== Installing ssh keys"
-                - cp -n /etc/ssh/ssh_host_rsa_key /home/ubuntu/.ssh/id_rsa
-                - cp -n /etc/ssh/ssh_host_rsa_key.pub /home/ubuntu/.ssh/id_rsa.pub
-                - chown ubuntu:ubuntu /home/ubuntu/.ssh/*
-                - cp -n /etc/ssh/ssh_host_rsa_key /root/.ssh/id_rsa
-                - cp -n /etc/ssh/ssh_host_rsa_key.pub /root/.ssh/id_rsa.pub
-                - sed -i "/StrictHostKeyChecking/s/^.*$/    StrictHostKeyChecking no/" /etc/ssh/ssh_config
+                - echo "===== Installing ceph-deploy"
+                - wget -q -O- 'https://download.ceph.com/keys/release.asc' | sudo apt-key add -
+                - apt-add-repository 'deb http://download.ceph.com/debian-hammer/ $(lsb_release -sc) main'
+                - apt-get update
+                - apt-get install -y ceph-deploy
 
-                - echo "===== Updating /etc/hosts"
-                - cp -n /etc/hosts /etc/hosts.original
-                - awk -f /root/hosts.awk /etc/hosts >/etc/hosts.new && mv /etc/hosts.new /etc/hosts
+                - echo "===== Creating ceph cluster"
+                - sleep 2m
+                - mkdir /home/ubuntu/cluster
+                - cd /home/ubuntu/cluster
+                - ceph-deploy --username ubuntu new monitor1 monitor2 monitor3
 
                 - echo "===== Installing ceph"
-                - yum update
-                - yum install ceph-deploy
+                - ceph-deploy --username ubuntu install admin monitor1 monitor2 monitor3 node1 node2 node3
 
-                - echo "===== Installing ceph cluster"
-                - mkdir /home/ceph/cluster
-                - cd /home/ceph/cluster
+                - echo "===== Adding monitors and gathering keys"
+                - ceph-deploy --username ubuntu mon create-initial
 
-#                - echo "===== Deploying ceph osd"
-#                - su ubuntu -c "ceph-deploy osd prepare node2:/var/local/ceph"
-#                - su ubuntu -c "ceph-deploy osd prepare node3:/var/local/ceph"
-#                - su ubuntu -c "ceph-deploy osd activate node1:/var/local/ceph"
-#                - su ubuntu -c "ceph-deploy osd activate node2:/var/local/ceph"
-#                - su ubuntu -c "ceph-deploy osd activate node3:/var/local/ceph"
-#                - su ubuntu -c "ceph-deploy --overwrite-conf admin admin node1"
-#                - su ubuntu -c "ceph-deploy --overwrite-conf admin admin node2"
-#                - su ubuntu -c "ceph-deploy --overwrite-conf admin admin node3"
-#                - sudo chmod +r /etc/ceph/ceph.client.admin.keyring
+                - echo "===== Preparing storage"
+                - ceph-deploy --username osd prepare node1:/var/local/ceph
+                - ceph-deploy --username osd prepare node2:/var/local/ceph
+                - ceph-deploy --username osd prepare node3:/var/local/ceph
 
-  - ceph-nodes:
+                - echo "===== Activating storage"
+                - ceph-deploy --username osd activate node1:/var/local/ceph
+                - ceph-deploy --username osd activate node2:/var/local/ceph
+                - ceph-deploy --username osd activate node3:/var/local/ceph
 
-      nodes:
+                - echo "===== Sharing configuration and keys"
+                - ceph-deploy --username ubuntu admin admin monitor1 monitor2 monitor3 node1 node2 node3
+
+                - echo "===== checking cluster health"
+                - chmod +r /etc/ceph/ceph.client.admin.keyring
+                - ceph health
+
+        - monitor[1..3]:
+
+            default: ceph-bee
 
         - node[1..3]:
 
-            description: "#ceph #node #ubuntu"
-
-            information:
-              - "ssh ceph@{{ node.public }}"
-
-            appliance: 'CentOS'
-            cpu: 2
-            memory: 4
+            default: ceph-bee
 
             disks:
               - 1 100 economy
 
-            glue:
-              - internet 22
-
-            monitoring: essentials
-
             cloud-config:
-              hostname: "{{ node.name }}"
-
-              packages:
-                - ntp
-
-              write_files:
-
-                - path: /root/hosts.awk
-                  content: |
-                    #!/usr/bin/awk -f
-                    /^{{ admin.private }}/ {next}
-                    /^{{ admin.ipv6 }}/ {next}
-                    /^{{ node1.private}}/ {next}
-                    /^{{ node1.ipv6 }}/ {next}
-                    /^{{ node2.private }}/ {next}
-                    /^{{ node2.ipv6 }}/ {next}
-                    /^{{ node3.private }}/ {next}
-                    /^{{ node3.ipv6 }}/ {next}
-                    {print}
-                    END {
-                     print "{{ admin.private }}    admin"
-                     print "{{ admin.ipv6 }}    admin"
-                     print "{{ node1.private }}    node1"
-                     print "{{ node1.ipv6 }}    node1"
-                     print "{{ node2.private }}    node2"
-                     print "{{ node2.ipv6 }}    node2"
-                     print "{{ node3.private }}    node3"
-                     print "{{ node3.ipv6 }}    node3"
-                    }
 
               runcmd:
 
@@ -246,27 +199,8 @@ blueprints:
                 - lvextend -l +100%FREE /dev/mapper/rootvol00-rootlvol00
                 - resize2fs /dev/mapper/rootvol00-rootlvol00
 
-                - echo "===== Installing ssh keys"
-                - cp -n /etc/ssh/ssh_host_rsa_key /home/ubuntu/.ssh/id_rsa
-                - cp -n /etc/ssh/ssh_host_rsa_key.pub /home/ubuntu/.ssh/id_rsa.pub
-                - chown ubuntu:ubuntu /home/ubuntu/.ssh/*
-                - cp -n /etc/ssh/ssh_host_rsa_key /root/.ssh/id_rsa
-                - cp -n /etc/ssh/ssh_host_rsa_key.pub /root/.ssh/id_rsa.pub
-                - sed -i "/StrictHostKeyChecking/s/^.*$/    StrictHostKeyChecking no/" /etc/ssh/ssh_config
-
-                - echo "===== Updating /etc/hosts"
-                - cp -n /etc/hosts /etc/hosts.original
-                - awk -f /root/hosts.awk /etc/hosts >/etc/hosts.new && mv /etc/hosts.new /etc/hosts
-
-                - echo "===== Installing ceph"
-                - wget -q -O- 'https://download.ceph.com/keys/release.asc' | sudo apt-key add -
-                - apt-add-repository 'deb http://download.ceph.com/debian-hammer/ $(lsb_release -sc) main'
-                - apt-get update
-                - apt-get install -y ceph
-
                 - echo "===== Preparing storage"
                 - mkdir -p /var/local/ceph
                 - chown -R ubuntu:ubuntu /var/local/ceph
-                - ceph-disk prepare --cluster ceph --cluster-uuid {{ cluster.uuid }} --fs-type ext4 /var/local/ceph
 
 
