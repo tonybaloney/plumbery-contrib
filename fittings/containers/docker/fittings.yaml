@@ -1,7 +1,7 @@
 ---
 
 information:
-  - "Docker node that you can access remotely and securely over the Internet."
+  - "Docker node"
 
 parameters:
 
