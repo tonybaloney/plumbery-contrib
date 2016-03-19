@@ -1,8 +1,8 @@
 ---
 
-information:
-  - "Docker Swarm, with one queen and 7 bees."
-  - "A container submitted to the queen is dispatched to bees."
+information: |
+  Docker Swarm, with one queen and 7 bees.
+  A container submitted to the queen is dispatched to bees.
 
 parameters:
 
@@ -25,7 +25,7 @@ parameters:
     default: DockerSwarmNetwork
 
 links:
-  documentation: https://plumbery.readthedocs.org/en/latest/tutorial.docker.swarm.html
+  documentation: https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/fittings/containers/docker-swarm
 
 defaults:
 

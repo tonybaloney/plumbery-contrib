@@ -3,6 +3,8 @@
 ## Containers
 
 - [Docker node](https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/containers/docker)
+- [Kubernetes node](https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/containers/kubernetes)
+- [Docker Swarm](https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/containers/docker-swarm)
 
 ## Logging
 

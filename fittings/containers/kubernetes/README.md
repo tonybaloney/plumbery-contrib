@@ -26,7 +26,7 @@ to better accomodate your requirements.
 * Add a Network Domain
 * Add an Ethernet network
 * Deploy a large Ubuntu server
-* Provide 32 CPU and 256 MB of RAM to each node
+* Provide 32 CPU and 256 MB of RAM
 * Add a virtual disk of 100 GB
 * Monitor this server in the real-time dashboard provided by Dimension Data
 * Assign a public IPv4 address
