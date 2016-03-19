@@ -1,7 +1,7 @@
 ---
 
 information:
-  - "Centralised logging with Elasticsearch, Logstash, and Kibana."
+  - "Centralised logging with Elasticsearch, Logstash, and Kibana"
 
 parameters:
 
@@ -30,7 +30,7 @@ parameters:
     default: logstashServer
 
 links:
-  documentation: https://plumbery.readthedocs.org/en/latest/tutorial.elk.html
+  documentation: https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/logging/elasticsearch-kibana-logstash
   credit: http://www.exonet3i.net/evernote/How%20To%20Install%20Elasticsearch,%20Logstash,%20and%20K%20%5B3%5D.html
 
 defaults:

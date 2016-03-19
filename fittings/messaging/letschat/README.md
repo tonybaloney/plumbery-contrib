@@ -22,6 +22,8 @@ This is done with [plumbery](https://developer.dimensiondata.com/display/PLUM/Pl
 * Add address translation to ensure end-to-end IP connectivity
 * Add firewall rule to accept TCP traffic on port 22 (ssh) and 5000 (web)
 * Use the virtual disk to expand logical volume (LVM)
+* Update the operating system
+* Synhronise node clock
 * Edit the host name and the `/etc/hosts` file
 * Install a new SSH key to secure remote communications
 * Configure SSH to reject passwords and to prevent access from root account
@@ -63,4 +65,8 @@ Launch following command to remove all resources involved in the fittings plan:
 
 - [x] Work as expected
 - [ ] Add Hubot to get interactive feedback while demonstrating the chat
+
+## See also
+
+- [All plumbery fittings plan](https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/fittings)
 
