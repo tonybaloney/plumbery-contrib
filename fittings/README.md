@@ -2,14 +2,14 @@
 
 ## Containers
 
-- [Docker node](https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/containers/docker)
-- [Kubernetes node](https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/containers/kubernetes)
-- [Docker Swarm](https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/containers/docker-swarm)
+- [Docker node](containers/docker)
+- [Kubernetes node](containers/kubernetes)
+- [Docker Swarm](containers/docker-swarm)
 
 ## Logging
 
-- [Centralised logging with Elasticsearch, Logstash, and Kibana](https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/logging/elasticsearch-kibana-logstash)
-- [Multiple pingers connected to a MQTT broker and to a Kibana dashboard](https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/logging/mqtt-swarm)
+- [Centralised logging with Elasticsearch, Logstash, and Kibana](logging/elasticsearch-kibana-logstash)
+- [Multiple pingers connected to a MQTT broker and to a Kibana dashboard](logging/mqtt-swarm)
 
 ## Messaging
 
