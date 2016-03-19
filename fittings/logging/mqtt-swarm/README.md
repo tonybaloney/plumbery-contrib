@@ -142,6 +142,6 @@ Launch following command to remove all resources involved in the fittings plan:
 
 ## See also
 
-- [Logging with plumbery](https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/logging)
-- [All plumbery fittings plan](https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/fittings)
+- [Logging with plumbery](../)
+- [All plumbery fittings plan](../../)
 

@@ -81,6 +81,6 @@ Launch following command to remove all resources involved in the fittings plan:
 
 ## See also
 
-- [Containers with plumbery](https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/containers)
-- [All plumbery fittings plans](https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/fittings)
+- [Containers with plumbery](../)
+- [All plumbery fittings plans](../../)
 
