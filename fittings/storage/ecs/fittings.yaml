@@ -52,7 +52,7 @@ defaults:
           - "{{ local.rsa_public }}"
 
     disable_root: true
-    ssh_pwauth: false
+    ssh_pwauth: true
 
 ---
 
@@ -77,14 +77,16 @@ blueprints:
 
             information:
               - "this is a ECS node from EMC, for development only"
-              - "browse http://{{ node.public }}:5000/ to enter conversations"
+              - "get secret keys with following commands:"
+              - "ssh centos@{{ node.public }}"
+              - "cat /var/log/cloud-init-output.log"
 
             appliance: 'CentOS 7'
-            cpu: 6
+            cpu: 8
             memory: 32
 
             disks:
-              - 1 500 standard
+              - 1 500 economy
 
             glue:
               - internet 22 443 9020 9024 4443 9011 9101
@@ -117,6 +119,7 @@ blueprints:
                 - cp -n /etc/ssh/ssh_host_rsa_key /home/centos/.ssh/id_rsa
                 - cp -n /etc/ssh/ssh_host_rsa_key.pub /home/centos/.ssh/id_rsa.pub
                 - chown centos:centos /home/centos/.ssh/*
+                - enforce 0
 
                 - echo "===== Updating /etc/hosts"
                 - cp -n /etc/hosts /etc/hosts.original
@@ -125,5 +128,15 @@ blueprints:
                 - echo "===== Installing ECS"
                 - cd /home/centos
                 - git clone https://github.com/EMCECS/ECS-CommunityEdition.git
-                - cd  ecs-single-node
+                - cd ECS-CommunityEdition/ecs-single-node
+                - "python step1_ecs_singlenode_install.py --disks sdb --ethadapter ens32 --hostname {{ node.name }}"
+                - "python step2_object_provisioning.py --ECSNodes={{ node.private }} --Namespace=ns1 --ObjectVArray=ova1 --ObjectVPool=ovp1 --UserName=emccode --DataStoreName=ds1 --VDCName=vdc1 --MethodName=UploadLicense"
+                - "python step2_object_provisioning.py --ECSNodes={{ node.private }} --Namespace=ns1 --ObjectVArray=ova1 --ObjectVPool=ovp1 --UserName=emccode --DataStoreName=ds1 --VDCName=vdc1 --MethodName=CreateObjectVarray"
+                - "python step2_object_provisioning.py --ECSNodes={{ node.private }} --Namespace=ns1 --ObjectVArray=ova1 --ObjectVPool=ovp1 --UserName=emccode --DataStoreName=ds1 --VDCName=vdc1 --MethodName=CreateDataStore"
+                - "python step2_object_provisioning.py --ECSNodes={{ node.private }} --Namespace=ns1 --ObjectVArray=ova1 --ObjectVPool=ovp1 --UserName=emccode --DataStoreName=ds1 --VDCName=vdc1 --MethodName=InsertVDC"
+                - "python step2_object_provisioning.py --ECSNodes={{ node.private }} --Namespace=ns1 --ObjectVArray=ova1 --ObjectVPool=ovp1 --UserName=emccode --DataStoreName=ds1 --VDCName=vdc1 --MethodName=CreateObjectVpool"
+                - "python step2_object_provisioning.py --ECSNodes={{ node.private }} --Namespace=ns1 --ObjectVArray=ova1 --ObjectVPool=ovp1 --UserName=emccode --DataStoreName=ds1 --VDCName=vdc1 --MethodName=CreateNamespace"
+                - "python step2_object_provisioning.py --ECSNodes={{ node.private }} --Namespace=ns1 --ObjectVArray=ova1 --ObjectVPool=ovp1 --UserName=emccode --DataStoreName=ds1 --VDCName=vdc1 --MethodName=CreateUser"
+                - "python step2_object_provisioning.py --ECSNodes={{ node.private }} --Namespace=ns1 --ObjectVArray=ova1 --ObjectVPool=ovp1 --UserName=emccode --DataStoreName=ds1 --VDCName=vdc1 --MethodName=CreateSecretKey"
+
 
