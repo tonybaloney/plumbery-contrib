@@ -1,7 +1,7 @@
 ---
 
 information:
-  - "Docker node that you can access remotely and securely over the Internet."
+  - "Docker node"
 
 parameters:
 
@@ -30,7 +30,7 @@ parameters:
     default: docker01
 
 links:
-  documentation: https://plumbery.readthedocs.org/en/latest/tutorial.docker.html
+  documentation: https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/fittings/containers/docker
 
 defaults:
 

@@ -30,7 +30,7 @@ parameters:
     default: kubernetes01
 
 links:
-  documentation: https://plumbery.readthedocs.org/en/latest/tutorial.kubernetes.html
+  documentation: https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/fittings/containers/kubernetes
 
 defaults:
 

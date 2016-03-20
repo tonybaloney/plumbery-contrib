@@ -1,8 +1,7 @@
 ---
 
 information:
-  - "These fittings plan are aiming to deploy multiple pingers connected"
-  - "to a MQTT server and to a Kibana dashboard"
+  - "Swarm of pingers connected to a MQTT broker and to a Kibana dashboard"
 
 parameters:
 
@@ -25,12 +24,12 @@ parameters:
     default: PingerSwarmNetwork
 
 links:
-  documentation: https://plumbery.readthedocs.org/en/latest/tutorial.mqtt.pinger.swarm.html
+  documentation: https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/logging/mqtt-swarm
   credit: https://github.com/athoune/swarming
 
 defaults:
 
-  # deploy a limited number of bugs by default
+  # deploy a limited number of nodes by default -- add blueprint 'bees' to deploy more pingers
   #
   blueprints: queen drones
 
