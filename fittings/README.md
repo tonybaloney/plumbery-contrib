@@ -15,3 +15,7 @@
 
 - [Let's Chat server, self-hosted chat for private teams](messaging/letschat)
 
+## Storage
+
+- [Cluster of Ceph servers providing S3-like storage](storage/ceph)
+

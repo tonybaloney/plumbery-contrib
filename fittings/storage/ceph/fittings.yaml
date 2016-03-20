@@ -1,7 +1,7 @@
 ---
 
 information:
-  - "Cluster of Ceph servers"
+  - "Cluster of Ceph servers providing S3-like storage"
 
 parameters:
 
@@ -24,8 +24,8 @@ parameters:
     default: CephNetwork
 
 links:
-  documentation: https://plumbery.readthedocs.org/en/latest/tutorial.ceph.html
-  credit: http://blog.programster.org/ubuntu-14-04-deploy-a-ceph-cluster-part-1/
+  documentation: https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/fittings/storage/ceph
+  credit: http://docs.ceph.com/docs/master/start/
 
 defaults:
 
@@ -44,11 +44,11 @@ defaults:
     description: "#ceph #bee #ubuntu"
 
     information:
-      - "ssh ceph@{{ node.public }}"
+      - "ssh ubuntu@{{ node.public }}"
 
     appliance: 'Ubuntu 14'
-    cpu: 2
-    memory: 4
+    cpu: 1
+    memory: 2
 
     glue:
       - internet 22
@@ -69,22 +69,38 @@ defaults:
             #!/usr/bin/awk -f
             /^{{ admin.private }}/ {next}
             /^{{ admin.ipv6 }}/ {next}
+            /^{{ monitor1.private}}/ {next}
+            /^{{ monitor1.ipv6 }}/ {next}
+            /^{{ monitor2.private }}/ {next}
+            /^{{ monitor2.ipv6 }}/ {next}
+            /^{{ monitor3.private }}/ {next}
+            /^{{ monitor3.ipv6 }}/ {next}
             /^{{ node1.private}}/ {next}
             /^{{ node1.ipv6 }}/ {next}
             /^{{ node2.private }}/ {next}
             /^{{ node2.ipv6 }}/ {next}
             /^{{ node3.private }}/ {next}
             /^{{ node3.ipv6 }}/ {next}
+            /^{{ object-gateway.private }}/ {next}
+            /^{{ object-gateway.ipv6 }}/ {next}
             {print}
             END {
              print "{{ admin.private }}    admin"
              print "{{ admin.ipv6 }}    admin"
+             print "{{ monitor1.private }}    monitor1"
+             print "{{ monitor1.ipv6 }}    monitor1"
+             print "{{ monitor2.private }}    monitor2"
+             print "{{ monitor2.ipv6 }}    monitor2"
+             print "{{ monitor3.private }}    monitor3"
+             print "{{ monitor3.ipv6 }}    monitor3"
              print "{{ node1.private }}    node1"
              print "{{ node1.ipv6 }}    node1"
              print "{{ node2.private }}    node2"
              print "{{ node2.ipv6 }}    node2"
              print "{{ node3.private }}    node3"
              print "{{ node3.ipv6 }}    node3"
+             print "{{ object-gateway.private }}    object-gateway"
+             print "{{ object-gateway.ipv6 }}    object-gateway"
             }
 
       runcmd:
@@ -145,7 +161,7 @@ blueprints:
 
                 - echo "===== Installing ceph-deploy"
                 - wget -q -O- 'https://download.ceph.com/keys/release.asc' | sudo apt-key add -
-                - apt-add-repository 'deb http://download.ceph.com/debian-hammer/ $(lsb_release -sc) main'
+                - apt-add-repository "deb http://download.ceph.com/debian-hammer/ $(lsb_release -sc) main"
                 - apt-get update
                 - apt-get install -y ceph-deploy
 
@@ -156,27 +172,31 @@ blueprints:
                 - ceph-deploy --username ubuntu new monitor1 monitor2 monitor3
 
                 - echo "===== Installing ceph"
-                - ceph-deploy --username ubuntu install admin monitor1 monitor2 monitor3 node1 node2 node3
+                - apt-get install -y ceph
+                - ceph-deploy --username ubuntu install monitor1 monitor2 monitor3 node1 node2 node3 object-gateway
 
                 - echo "===== Adding monitors and gathering keys"
                 - ceph-deploy --username ubuntu mon create-initial
 
                 - echo "===== Preparing storage"
-                - ceph-deploy --username osd prepare node1:/var/local/ceph
-                - ceph-deploy --username osd prepare node2:/var/local/ceph
-                - ceph-deploy --username osd prepare node3:/var/local/ceph
+                - ceph-deploy --username ubuntu osd prepare node1:/dev/sdb
+                - ceph-deploy --username ubuntu osd prepare node2:/dev/sdb
+                - ceph-deploy --username ubuntu osd prepare node3:/dev/sdb
 
                 - echo "===== Activating storage"
-                - ceph-deploy --username osd activate node1:/var/local/ceph
-                - ceph-deploy --username osd activate node2:/var/local/ceph
-                - ceph-deploy --username osd activate node3:/var/local/ceph
+                - ceph-deploy --username ubuntu osd activate node1:/dev/sdb
+                - ceph-deploy --username ubuntu osd activate node2:/dev/sdb
+                - ceph-deploy --username ubuntu osd activate node3:/dev/sdb
 
                 - echo "===== Sharing configuration and keys"
-                - ceph-deploy --username ubuntu admin admin monitor1 monitor2 monitor3 node1 node2 node3
+                - ceph-deploy --username ubuntu admin admin monitor1 monitor2 monitor3 node1 node2 node3 object-gateway
 
-                - echo "===== checking cluster health"
+                - echo "===== Checking cluster health"
                 - chmod +r /etc/ceph/ceph.client.admin.keyring
                 - ceph health
+
+                - echo "===== Adding object-storage gateway"
+                - ceph-deploy --username ubuntu rgw create object-gateway
 
         - monitor[1..3]:
 
@@ -186,21 +206,21 @@ blueprints:
 
             default: ceph-bee
 
+            cpu: 4
+            memory: 8
+
             disks:
               - 1 100 economy
 
-            cloud-config:
+        - object-gateway:
 
-              runcmd:
+            default: ceph-bee
 
-                - echo "===== Growing LVM with added disk"
-                - pvcreate /dev/sdb
-                - vgextend rootvol00 /dev/sdb
-                - lvextend -l +100%FREE /dev/mapper/rootvol00-rootlvol00
-                - resize2fs /dev/mapper/rootvol00-rootlvol00
+            cpu: 4
+            memory: 8
 
-                - echo "===== Preparing storage"
-                - mkdir -p /var/local/ceph
-                - chown -R ubuntu:ubuntu /var/local/ceph
+            glue:
+              - internet 22 7480
+
 
 
