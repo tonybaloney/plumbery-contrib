@@ -1,20 +1,20 @@
 ---
 
 information:
-  - "First example fittings example"
+  - "First example with Ubuntu node"
 
 links:
-  documentation: https://developer.dimensiondata.com/PLUM
+  documentation: https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/example/first
 
+---
 
 locationId: EU6
 
 blueprints:
 
-  - "first":
+  - first:
 
       domain:
-        description: "Demonstration of server orchestration at Dimension Data"
         name: MyDataCentre
         ipv4: 2
 
@@ -26,8 +26,11 @@ blueprints:
 
         - MyServer:
 
+            appliance: 'Ubuntu 14'
+
             glue:
               - internet 22
+
             monitoring: essentials
 
             information:

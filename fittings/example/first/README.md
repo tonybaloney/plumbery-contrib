@@ -1,6 +1,6 @@
-# Multiple disks added with LVM
+# First example with Ubuntu node
 
-The objective of this use case is to deploy a server with extended stortage, at the [Managed Cloud Platform from Dimension Data](http://cloud.dimensiondata.com/eu/en/).
+This is a minimal project, where one single Ubuntu node is deployed at the [Managed Cloud Platform from Dimension Data](http://cloud.dimensiondata.com/eu/en/).
 This is done with [plumbery](https://developer.dimensiondata.com/display/PLUM/Plumbery) and a template that is provided below.
 
 ## Requirements for this use case
@@ -9,25 +9,10 @@ This is done with [plumbery](https://developer.dimensiondata.com/display/PLUM/Pl
 * Add a Network Domain
 * Add an Ethernet network
 * Deploy a Ubuntu node
-* Add disk 1 with 100 GB of standard storage
-* Add disk 2 with 200 GB of standard storage
-* Add disk 3 with 30 GB of high-performance storage
-* Add disk 4 with 40 GB of high-performance storage
-* Add disk 5 with 1000 GB of economy storage
-* Add disk 6 with 1000 GB of economy storage
 * Monitor this server in the real-time dashboard provided by Dimension Data
 * Assign a public IPv4 address
 * Add address translation to ensure end-to-end IP connectivity
 * Add firewall rule to accept TCP traffic on port 22 (ssh)
-* Partition each disk as of Linux LVM type (8e)
-* Use LVM to manage logical storage provided by multiple disks
-* Extend the mount / with storage brought by disks 1 and 2
-* Create new mount /highperformance with combined capacity provided by disks 3 and 4
-* Create new mount /economy with combined capacity provided by disks 5 and 6
-* Update the operating system
-* Synchronise node clock with NTP
-* Install a new SSH key to secure remote communications
-* Configure SSH to reject passwords and to prevent access from root account
 
 ## Fittings plan
 
@@ -53,15 +38,6 @@ In this use case you can use the IPv4 assigned to the node for direct ssh
 connection.
 
     $ ssh ubuntu@<ipv4_here>
-
-You will have to accept the new host, and authentication will be based on
-the SSH key communicated to the node by Plumbery.
-
-    $ sudo fdisk -l
-    $ df -h
-    $ mount
-
-These commands are self-explanatory and validate disks deployment and configuration.
 
 ## Destruction commands
 

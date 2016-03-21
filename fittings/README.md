@@ -2,6 +2,7 @@
 
 ## Example configurations
 
+- [First example with Ubuntu node](example/first)
 - [Multiple disks added with LVM](example/disks)
 
 ## Application services
