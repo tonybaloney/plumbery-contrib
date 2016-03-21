@@ -30,6 +30,10 @@
 
 - [Let's Chat server, self-hosted chat for private teams](messaging/letschat)
 
+## Networking services
+
+- [OpenVPN gateway](networking/openvpn)
+
 ## Storage services
 
 - [NFS server and client over IPv6 back-end network](storage/nfs)
