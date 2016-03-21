@@ -1,7 +1,7 @@
 ---
 
 information:
-  - "NFS client and server at two different data centres"
+  - "NFS server and client over IPv6 back-end network"
 
 parameters:
 
@@ -30,7 +30,7 @@ parameters:
     default: NfsNetwork
 
 links:
-  documentation: https://plumbery.readthedocs.org/en/latest/tutorial.nfs.html
+  documentation: https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/fittings/storage/nfs
 
 defaults:
 

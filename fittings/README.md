@@ -32,6 +32,7 @@
 
 ## Storage services
 
+- [NFS server and client over IPv6 back-end network](storage/nfs)
 - [Standalone minio s3-compatible object server](storage/minio)
 - [Cluster of Ceph servers providing S3-like storage](storage/ceph)
 
