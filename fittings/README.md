@@ -19,6 +19,7 @@
 
 ## Database services
 
+- [MySQL replication over IPv6 back-end network](database/mysql-master-slave)
 - [Cluster of Redis servers](database/redis-cluster)
 - [Cluster of MongoDB servers](database/mongodb-cluster)
 

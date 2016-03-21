@@ -49,7 +49,7 @@ at any time with the following command:
 
 After the setup, connect via ssh to redis01 to check the status of the cluster::
 
-    $ ssh root@<ipv4_of_redis01>
+    $ ssh ubuntu@<ipv4_of_redis01>
     $ redis-cli -h 127.0.0.1 -p 6379
     > AUTH {{ random.secret }}
     OK
