@@ -17,6 +17,10 @@
 - [Kubernetes node](containers/kubernetes)
 - [Docker Swarm](containers/docker-swarm)
 
+## Database services
+
+- [Cluster of MongoDB servers](database/mongodb-cluster)
+
 ## Logging services
 
 - [Centralised logging with Elasticsearch, Logstash, and Kibana](logging/elasticsearch-kibana-logstash)
