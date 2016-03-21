@@ -9,6 +9,7 @@
 
 ## Application services
 
+- [WordPress blogging server](applications/wordpress)
 - [Confluence server from Atlassian](applications/confluence)
 - [iTop Community from Combodo, for open-source ITSM](applications/itop)
 
