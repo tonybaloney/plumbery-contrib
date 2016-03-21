@@ -1,7 +1,7 @@
 ---
 
 information:
-  - "Linux-Nginx-MySQL-PHP standalone web server"
+  - "Linux-Nginx-MySQL-PHP web server (LEMP)"
 
 parameters:
 
@@ -30,7 +30,7 @@ parameters:
     default: web01
 
 links:
-  documentation: https://plumbery.readthedocs.org/en/latest/tutorial.lemp.html
+  documentation: https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/fittings/web/lemp
 
 defaults:
 
