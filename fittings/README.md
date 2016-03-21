@@ -19,3 +19,7 @@
 
 - [Cluster of Ceph servers providing S3-like storage](storage/ceph)
 
+## Web
+
+- [Apache web server with PHP](web/apache2)
+

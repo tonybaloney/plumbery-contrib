@@ -1,7 +1,7 @@
 ---
 
 information:
-  - "Standalone Apache 2 web server."
+  - "Apache web server with PHP"
 
 parameters:
 
