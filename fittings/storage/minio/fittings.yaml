@@ -30,7 +30,7 @@ parameters:
     default: minio01
 
 links:
-  documentation: https://plumbery.readthedocs.org/en/latest/tutorial.minio.html
+  documentation: https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/fittings/storage/minio
 
 defaults:
 
