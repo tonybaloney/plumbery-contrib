@@ -2,10 +2,36 @@
 
 information:
 
-  - "Demonstrates how to configure a server with multiple disks"
+  - "Multiple disks added with LVM"
+
+parameters:
+
+  locationId:
+    information:
+      - "the target data centre for this deployment"
+    type: locations.list
+    default: NA12
+
+  domainName:
+    information:
+      - "the name of the network domain to be deployed"
+    type: str
+    default: DisksFox
+
+  networkName:
+    information:
+      - "the name of the Ethernet VLAN to be deployed"
+    type: str
+    default: DisksNetwork
+
+  nodeName:
+    information:
+      - "the name of the main node to be deployed"
+    type: str
+    default: disks01
 
 links:
-  documentation: https://plumbery.readthedocs.org/en/latest/tutorial.disks.html
+  documentation: https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/fittings/example/disks
   credit: http://www.howtogeek.com/howto/40702/how-to-manage-and-use-lvm-logical-volume-management-in-ubuntu/
 
 defaults:
@@ -31,21 +57,23 @@ defaults:
 
 ---
 
-locationId: NA12
+locationId: "{{ locationId.parameter }}"
 
 blueprints:
 
   - disks:
 
       domain:
-        name: DisksFox
+        name: "{{ domainName.parameter }}"
         ipv4: auto
+
       ethernet:
-        name: DisksNetwork
+        name: "{{ networkName.parameter }}"
         subnet: 10.0.0.0
+
       nodes:
 
-        - disks01:
+        - "{{ nodeName.parameter }}":
 
             description: '#demo #ubuntu'
 

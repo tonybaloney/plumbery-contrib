@@ -1,5 +1,9 @@
 # Reference fittings plans
 
+## Example configurations
+
+- [Multiple disks added with LVM](example/disks)
+
 ## Application services
 
 - [Confluence server from Atlassian](applications/confluence)
