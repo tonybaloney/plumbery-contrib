@@ -23,6 +23,10 @@
 - [Cluster of Redis servers](database/redis-cluster)
 - [Cluster of MongoDB servers](database/mongodb-cluster)
 
+## DevOps services
+
+- [Stackstorm server, event-based Ops](devops/stackstorm)
+
 ## Logging services
 
 - [Centralised logging with Elasticsearch, Logstash, and Kibana](logging/elasticsearch-kibana-logstash)
