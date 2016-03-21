@@ -4,6 +4,7 @@
 
 - [First example with Ubuntu node](example/first)
 - [Multiple disks added with LVM](example/disks)
+- [Ubuntu desktop](example/ubuntu-desktop)
 - [The master plan to conquer the world](example/gigafox)
 
 ## Application services

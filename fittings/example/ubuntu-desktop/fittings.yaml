@@ -30,7 +30,7 @@ parameters:
     default: ubuntu01
 
 links:
-  documentation: https://plumbery.readthedocs.org/en/latest/tutorial.ubuntu.desktop.html
+  documentation: https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/fittings/example/ubuntu-desktop
 
 defaults:
 
