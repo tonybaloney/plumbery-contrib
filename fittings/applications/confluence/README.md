@@ -3,6 +3,9 @@
 The objective of this use case is to deploy the Confluence server, from Atlassian, at the [Managed Cloud Platform from Dimension Data](http://cloud.dimensiondata.com/eu/en/).
 This is done with [plumbery](https://developer.dimensiondata.com/display/PLUM/Plumbery) and a template that is provided below.
 
+![Confluence](confluence.jpg)
+
+The motto from Atlassian on [Confluence](https://www.atlassian.com/software/confluence): "Give your team one place to create, share and discuss work"
 
 ## Requirements for this use case
 
