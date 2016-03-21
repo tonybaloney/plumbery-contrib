@@ -1,25 +1,29 @@
 # Reference fittings plans
 
-## Containers
+## Application services
+
+- [Confluence server from Atlassian](applications/confluence)
+
+## Container services
 
 - [Docker node](containers/docker)
 - [Kubernetes node](containers/kubernetes)
 - [Docker Swarm](containers/docker-swarm)
 
-## Logging
+## Logging services
 
 - [Centralised logging with Elasticsearch, Logstash, and Kibana](logging/elasticsearch-kibana-logstash)
 - [Multiple pingers connected to a MQTT broker and to a Kibana dashboard](logging/mqtt-swarm)
 
-## Messaging
+## Messaging services
 
 - [Let's Chat server, self-hosted chat for private teams](messaging/letschat)
 
-## Storage
+## Storage services
 
 - [Cluster of Ceph servers providing S3-like storage](storage/ceph)
 
-## Web
+## Web services
 
 - [Apache web server with PHP](web/apache2)
 - [Cluster of Apache web servers behind the load-balancer integrated in the Managed Cloud Platform](web/apache2-cluster)

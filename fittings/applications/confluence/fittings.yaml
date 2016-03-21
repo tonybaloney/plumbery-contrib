@@ -1,7 +1,7 @@
 ---
 
 information:
-  - "Confluence server"
+  - "Confluence server from Atlassian"
 
 parameters:
 
@@ -30,7 +30,7 @@ parameters:
     default: confluence01
 
 links:
-  documentation: https://plumbery.readthedocs.org/en/latest/tutorial.confluence.html
+  documentation: https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/fittings/applications/confluence
 
 defaults:
 
