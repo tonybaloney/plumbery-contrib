@@ -24,7 +24,7 @@ parameters:
     default: RedisNetwork
 
 links:
-  documentation: https://plumbery.readthedocs.org/en/latest/tutorial.redis.html
+  documentation: https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/fittings/database/redis-cluster
 
 defaults:
 
@@ -80,7 +80,8 @@ blueprints:
               - internet 22
 
             information:
-              - "after the setup, connect via ssh to {{ node.public }} to check the status of the cluster"
+              - "check the status of the cluster:"
+              - "ssh ubuntu@{{ node.public }}"
               - "then use following commands:"
               - "redis-cli -h 127.0.0.1 -p 6379"
               - "> AUTH {{ master.secret }}"

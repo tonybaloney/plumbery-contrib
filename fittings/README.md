@@ -19,6 +19,7 @@
 
 ## Database services
 
+- [Cluster of Redis servers](database/redis-cluster)
 - [Cluster of MongoDB servers](database/mongodb-cluster)
 
 ## Logging services
