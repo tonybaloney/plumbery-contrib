@@ -38,7 +38,8 @@
 
 ## Web services
 
-- [Apache web server with PHP](web/apache2)
+- [Apache web server with PHP (LAMP)](web/apache2)
 - [Linux-Nginx-MySQL-PHP web server (LEMP)](web/lemp)
+- [Node.js web server](web/nodejs)
 - [Cluster of Apache web servers behind the load-balancer integrated in the Managed Cloud Platform](web/apache2-cluster)
 
