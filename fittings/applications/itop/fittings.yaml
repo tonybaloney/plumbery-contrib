@@ -1,7 +1,7 @@
 ---
 
 information:
-  - "iTop server for open-source ITSM"
+  - "iTop Community from Combodo, for open-source ITSM"
 
 parameters:
 
@@ -30,7 +30,7 @@ parameters:
     default: itop
 
 links:
-  documentation: https://plumbery.readthedocs.org/en/latest/tutorial.itop.html
+  documentation: https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/fittings/applications/itop
 
 defaults:
 
@@ -61,12 +61,12 @@ blueprints:
 
   - itop:
 
-      domain: &domain
+      domain:
         name: "{{ domainName.parameter }}"
         description: "Demonstration of iTop server"
         ipv4: auto
 
-      ethernet: &ethernet
+      ethernet:
         name: "{{ networkName.parameter }}"
         subnet: 10.0.0.0
 

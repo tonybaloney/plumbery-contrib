@@ -9,6 +9,7 @@
 ## Application services
 
 - [Confluence server from Atlassian](applications/confluence)
+- [iTop Community from Combodo, for open-source ITSM](applications/itop)
 
 ## Container services
 
