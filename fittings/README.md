@@ -22,4 +22,5 @@
 ## Web
 
 - [Apache web server with PHP](web/apache2)
+- [Cluster of Apache web servers behind the load-balancer integrated in the Managed Cloud Platform](web/apache2-cluster)
 

@@ -1,27 +1,29 @@
-# Apache web server with PHP
+# Cluster of Apache web servers behind the load-balancer integrated in the Managed Cloud Platform
 
-The objective of this use case is to deploy a dynamic web server powered by Apache and PHP, at the [Managed Cloud Platform from Dimension Data](http://cloud.dimensiondata.com/eu/en/).
+The objective of this use case is to pool multiple web server, at the [Managed Cloud Platform from Dimension Data](http://cloud.dimensiondata.com/eu/en/).
 This is done with [plumbery](https://developer.dimensiondata.com/display/PLUM/Plumbery) and a template that is provided below.
 
+The web service is accessible from the Internet via a single public IPv4 address. Traffic is balanced across available
+web servers by the load-balancer that is coming with the Managed Cloud Platform itself.
 
 ## Requirements for this use case
 
 * Select a MCP location
 * Add a Network Domain
 * Add an Ethernet network
-* Deploy a Ubuntu node
-* Add a virtual disk of 50 GB
-* Monitor this server in the real-time dashboard provided by Dimension Data
-* Assign a public IPv4 address
+* Deploy 10 web servers
+* Monitor these servers in the real-time dashboard provided by Dimension Data
+* Pool servers
+* Add a listener and configure load-balancing
+* Assign a public IPv4 address to the load-balancer
 * Add address translation to ensure end-to-end IP connectivity
 * Add firewall rule to accept TCP traffic on port 22 (ssh) and 80 (web)
-* Combine the virtual disks into a single expanded logical volume (LVM)
 * Update the operating system
 * Synchronise node clock with NTP
 * Install a new SSH key to secure remote communications
 * Configure SSH to reject passwords and to prevent access from root account
 * Install Apache2 and PHP
-* Change the home page
+* Reflect server name at web home pages
 
 ## Fittings plan
 
