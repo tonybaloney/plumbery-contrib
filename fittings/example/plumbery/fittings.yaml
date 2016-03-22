@@ -1,7 +1,7 @@
 ---
 
 information:
-  - "Plumbery and Apache Libcloud installed in the cloud."
+  - "Plumbery and Apache Libcloud"
 
 parameters:
 
@@ -9,28 +9,28 @@ parameters:
     information:
       - "the target data centre for this deployment"
     type: locations.list
-    default: NA12
+    default: EU7
 
   domainName:
     information:
       - "the name of the network domain to be deployed"
     type: str
-    default: BeachheadFox
+    default: PlumberyFox
 
   networkName:
     information:
       - "the name of the Ethernet VLAN to be deployed"
     type: str
-    default: BeachheadNetwork
+    default: PlumberyNetwork
 
   nodeName:
     information:
       - "the name of the main node to be deployed"
     type: str
-    default: beachhead01
+    default: plumbery01
 
 links:
-  documentation: https://plumbery.readthedocs.org/en/latest/tutorial.beachhead.html
+  documentation: https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/fittings/example/plumbery
 
 defaults:
 
@@ -50,8 +50,13 @@ defaults:
           - "{{ key.rsa_public }}"
           - "{{ local.rsa_public }}"
 
-    disable_root: true
-    ssh_pwauth: false
+      - name: root
+        ssh-authorized-keys:
+          - "{{ key.rsa_public }}"
+          - "{{ local.rsa_public }}"
+
+    disable_root: false
+    ssh_pwauth: true
 
 ---
 
@@ -73,7 +78,7 @@ blueprints:
 
         - "{{ nodeName.parameter }}":
 
-            description: '#beachhead #ops #ubuntu'
+            description: '#plumbery #ops #ubuntu'
 
             information:
               - "ssh ubuntu@{{ node.public }}"
@@ -86,15 +91,30 @@ blueprints:
             glue:
               - internet 22
 
-            running: always
             monitoring: essentials
 
             cloud-config:
 
+              hostname: "{{ node.name }}"
+
               packages:
+                - ntp
                 - python-pip
                 - python-dev
                 - git
+
+              write_files:
+
+                - path: /root/hosts.awk
+                  content: |
+                    #!/usr/bin/awk -f
+                    /^{{ node.private }}/ {next}
+                    /^{{ node.ipv6 }}/ {next}
+                    {print}
+                    END {
+                     print "{{ node.private }}    {{ node.name }}"
+                     print "{{ node.ipv6 }}    {{ node.name }}"
+                    }
 
               runcmd:
 
@@ -104,12 +124,20 @@ blueprints:
                 - lvextend -l +100%FREE /dev/mapper/rootvol00-rootlvol00
                 - resize2fs /dev/mapper/rootvol00-rootlvol00
 
-                - echo "===== Handling ubuntu identity"
+                - echo "===== Installing ssh keys"
                 - cp -n /etc/ssh/ssh_host_rsa_key /home/ubuntu/.ssh/id_rsa
                 - cp -n /etc/ssh/ssh_host_rsa_key.pub /home/ubuntu/.ssh/id_rsa.pub
                 - chown ubuntu:ubuntu /home/ubuntu/.ssh/*
+                - cp -n /etc/ssh/ssh_host_rsa_key /root/.ssh/id_rsa
+                - cp -n /etc/ssh/ssh_host_rsa_key.pub /root/.ssh/id_rsa.pub
                 - sed -i "/StrictHostKeyChecking/s/^.*$/    StrictHostKeyChecking no/" /etc/ssh/ssh_config
 
+                - echo "===== Updating /etc/hosts"
+                - cp -n /etc/hosts /etc/hosts.original
+                - awk -f /root/hosts.awk /etc/hosts >/etc/hosts.new && mv /etc/hosts.new /etc/hosts
+
                 - echo "===== Installing libcloud and plumbery"
-                - pip install -e git+https://github.com/apache/libcloud.git#egg=apache-libcloud
-                - pip install -e git+https://github.com/DimensionDataCBUSydney/plumbery.git#egg=plumbery
+                - cd /home/ubuntu
+                - git clone https://github.com/bernard357/libcloud.git
+                - git clone https://github.com/bernard357/plumbery.git
+                - git clone https://github.com/bernard357/plumbery-contrib.git

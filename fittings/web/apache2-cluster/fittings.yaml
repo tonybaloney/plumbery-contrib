@@ -1,8 +1,7 @@
 ---
 
-information:
-  - "Cluster of Apache web servers behind a load-balancer."
-  - "The load-balancer is provided by the Managed Cloud Platform itself."
+information: |
+  Cluster of Apache web servers behind the load-balancer integrated in the Managed Cloud Platform
 
 parameters:
 
@@ -25,7 +24,7 @@ parameters:
     default: Apache2ClusterNetwork
 
 links:
-  documentation: https://plumbery.readthedocs.org/en/latest/tutorial.apache2.cluster.html
+  documentation: https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/fittings/web/apache2-cluster
 
 defaults:
 
@@ -83,6 +82,25 @@ blueprints:
 
             cloud-config:
 
+              packages:
+                - ntp
+                - apache2
+                - libapache2-mod-php5
+
+              write_files:
+
+                - path: /var/www/html/index.php
+                  content: |
+                    <html>
+                     <head>
+                      <title>Hello World</title>
+                     </head>
+                     <body>
+                     <h1>Hello World from {{ node.name }}</h1>
+                        <?php echo '<p>This is a warm welcome from {{ node.name }}</p>'; ?>
+                     </body>
+                    </html>
+
               runcmd:
 
                 - echo "===== Handling ubuntu identity"
@@ -90,6 +108,9 @@ blueprints:
                 - cp -n /etc/ssh/ssh_host_rsa_key.pub /home/ubuntu/.ssh/id_rsa.pub
                 - chown ubuntu:ubuntu /home/ubuntu/.ssh/*
                 - sed -i "/StrictHostKeyChecking/s/^.*$/    StrictHostKeyChecking no/" /etc/ssh/ssh_config
+
+                - echo "===== Providing PHP web index page"
+                - mv /var/www/html/index.html /var/www/html/index.html.deprecated
 
       listeners:
 

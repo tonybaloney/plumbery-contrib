@@ -1,7 +1,7 @@
 ---
 
 information:
-  - "MySQL replication across two data centres"
+  - "MySQL replication over IPv6 back-end network"
 
 parameters:
 
@@ -30,7 +30,7 @@ parameters:
     default: SqlMasterSlaveNetwork
 
 links:
-  documentation: https://plumbery.readthedocs.org/en/latest/tutorial.sql.master.slave.html
+  documentation: https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/fittings/storage/mysql-master-slave
 
 defaults:
 
@@ -49,20 +49,6 @@ defaults:
         ssh-authorized-keys:
           - "{{ key.rsa_public }}"
           - "{{ local.rsa_public }}"
-
-      # configure SSH keys for the account root
-      #
-      - name: root
-        ssh-authorized-keys:
-          - "{{ key.rsa_public }}"
-          - "{{ local.rsa_public }}"
-
-    # plumbery uses the account root to prepare nodes
-    #
-    disable_root: false
-
-    # plumbery can use ssh certificate to avoid passwords
-    #
 
     disable_root: true
     ssh_pwauth: false

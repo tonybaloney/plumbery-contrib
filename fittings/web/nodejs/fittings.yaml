@@ -1,7 +1,7 @@
 ---
 
 information:
-  - "Standalone nodejs server"
+  - "Node.js web server"
 
 parameters:
 
@@ -30,7 +30,7 @@ parameters:
     default: nodejs01
 
 links:
-  documentation: https://plumbery.readthedocs.org/en/latest/tutorial.nodejs.html
+  documentation: https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/fittings/web/nodejs
 
 defaults:
 
@@ -76,7 +76,7 @@ blueprints:
             description: "#nodejs #ubuntu"
 
             information:
-              - "open a browser at http://{{ node.public }}:8080/ to view it live"
+              - "open a browser at http://{{ node.public }}/ to view it live"
 
             appliance: 'Ubuntu 14'
             cpu: 2
@@ -88,11 +88,13 @@ blueprints:
             monitoring: essentials
 
             glue:
-              - internet 22 8080
+              - internet 22 80
 
             cloud-config:
 
               bootcmd:
+                - apt-get remove apache2 -y
+                - apt-get autoremove -y
                 - "curl -sL https://deb.nodesource.com/setup_4.x | sudo -E bash -"
 
               packages:
@@ -108,7 +110,7 @@ blueprints:
                     http.createServer(function (req, res) {
                       res.writeHead(200, {'Content-Type': 'text/html'});
                       res.end('<h2>Hello World</h2>\nThis is a warm welcome from plumbery {{ plumbery.version }}');
-                    }).listen(8080, '0.0.0.0');
+                    }).listen(80, '0.0.0.0');
                     console.log('Server running at http://{{ node.public }}:8080/');
 
               runcmd:

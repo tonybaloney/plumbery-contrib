@@ -30,7 +30,7 @@ parameters:
     default: samba01
 
 links:
-  documentation: https://plumbery.readthedocs.org/en/latest/tutorial.samba.html
+  documentation: https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/fittings/storage/samba
 
 defaults:
 
@@ -93,6 +93,10 @@ blueprints:
 
             cloud-config:
 
+              bootcmd:
+                - apt-get remove apache2 -y
+                - apt-get autoremove -y
+
               packages:
                 - ntp
                 - samba
@@ -105,9 +109,15 @@ blueprints:
                 - path: /etc/samba/smb.conf.plumbery
                   content: |
                     [global]
-                    workgroup = WORKGROUP
+                    workgroup = workgroup
                     server string = Samba Server %v
                     netbios name = {{ node.name }}
+                    security = share
+                    map to guest = bad user
+                    dns proxy = no
+                    ; encrypt passwords = yes
+                    guest ok = yes
+                    guest account = nobody
                     load printers = no
                     printing = bsd
                     printcap name = /dev/null

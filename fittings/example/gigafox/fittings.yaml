@@ -1,15 +1,11 @@
 ---
 
 information:
-  - "Demonstrates how plumbery is working in parallel to deploy a large number of nodes."
+  - "The master plan to conquer the world"
 
 links:
-  documentation: https://plumbery.readthedocs.org/en/latest/tutorial.fittings.html
+  documentation: https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/example/gigafox
 
-# in safe mode no change is actually made on the infrastructure
-safeMode: False
-
-#
 polishers:
   - ansible:
       reap: gigafox_ansible.yaml
@@ -21,9 +17,8 @@ polishers:
 
 # each facility is described separately
 ---
-# Santa Clara - secondary site in USA
+
 locationId: NA12
-regionId: dd-na
 
 prepare:
   - beachhead: 10.10.10.9
@@ -35,17 +30,21 @@ blueprints:
 
   # root resources
   - beachhead:
+
       domain: &domain
         name: Gigafox
         description: '#us #primary'
         service: advanced
         ipv4: 8
+
       ethernet: &control
         name: gigafox.control
         description: '#us #ops'
         subnet: 10.0.0.0
         destroy: never
+
       nodes:
+
         - beachhead:
             description: '#beachhead #us #ops'
             glue:

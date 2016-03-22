@@ -1,7 +1,7 @@
 ---
 
 information:
-  - "Wordpress blogging server"
+  - "WordPress blogging server"
 
 parameters:
 
@@ -30,7 +30,7 @@ parameters:
     default: wordpress01
 
 links:
-  documentation: https://plumbery.readthedocs.org/en/latest/tutorial.wordpress.html
+  documentation: https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/fittings/applications/wordpress
 
 defaults:
 

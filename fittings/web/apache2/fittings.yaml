@@ -1,7 +1,7 @@
 ---
 
 information:
-  - "Standalone Apache 2 web server."
+  - "Apache web server with PHP"
 
 parameters:
 
@@ -30,7 +30,7 @@ parameters:
     default: apache01
 
 links:
-  documentation: https://plumbery.readthedocs.org/en/latest/tutorial.apache2.html
+  documentation: https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/fittings/web/apache2
 
 defaults:
 
