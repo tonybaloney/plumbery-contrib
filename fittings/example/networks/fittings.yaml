@@ -1,0 +1,125 @@
+---
+
+information:
+
+  - "Multiple network interfaces"
+
+parameters:
+
+  locationId:
+    information:
+      - "the target data centre for this deployment"
+    type: locations.list
+    default: NA12
+
+  domainName:
+    information:
+      - "the name of the network domain to be deployed"
+    type: str
+    default: NetworksFox
+
+  networkName:
+    information:
+      - "the name of the primary Ethernet VLAN to be deployed"
+    type: str
+    default: PrimaryNetwork
+
+  nodeName:
+    information:
+      - "the name of the main node to be deployed"
+    type: str
+    default: networks01
+
+links:
+  documentation: https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/fittings/example/networks
+
+defaults:
+
+  cloud-config:
+
+    ssh_keys:
+      rsa_private: |
+        {{ key.rsa_private }}
+      rsa_public: "{{ key.rsa_public }}"
+
+    users:
+      - default
+
+      - name: ubuntu
+        sudo: 'ALL=(ALL) NOPASSWD:ALL'
+        ssh-authorized-keys:
+          - "{{ key.rsa_public }}"
+          - "{{ local.rsa_public }}"
+
+    disable_root: true
+    ssh_pwauth: false
+
+---
+
+locationId: "{{ locationId.parameter }}"
+
+blueprints:
+
+  - primary:
+
+      domain:
+        name: "{{ domainName.parameter }}"
+        ipv4: auto
+
+      ethernet:
+        name: "{{ networkName.parameter }}"
+        subnet: 10.1.0.0
+
+      nodes:
+
+        - "{{ nodeName.parameter }}":
+
+            description: '#demo #ubuntu'
+
+            information:
+              - "multiple network interfaces have been added to this node"
+              - "connect to this server in a terminal window:"
+              - "$ ssh ubuntu@{{ node.public }}"
+              - "check network configuration with:"
+              - "$ ifconfig"
+
+            appliance: 'Ubuntu 14'
+
+            glue:
+              - "{{ networkName.parameter }}" 10.1.0.123
+              - internet 22
+              - SecondaryNetwork
+              - TertiaryNetwork 10.3.0.123
+
+            monitoring: essentials
+
+            cloud-config:
+
+              packages:
+                - ntp
+
+              runcmd:
+                - echo "===== Handling ubuntu identity"
+                - cp -n /etc/ssh/ssh_host_rsa_key /home/ubuntu/.ssh/id_rsa
+                - cp -n /etc/ssh/ssh_host_rsa_key.pub /home/ubuntu/.ssh/id_rsa.pub
+                - chown ubuntu:ubuntu /home/ubuntu/.ssh/*
+                - sed -i "/StrictHostKeyChecking/s/^.*$/    StrictHostKeyChecking no/" /etc/ssh/ssh_config
+
+  - secondary:
+
+      domain:
+        name: "{{ domainName.parameter }}"
+
+      ethernet:
+        name: SecondaryNetwork
+        subnet: 10.2.0.0
+
+  - tertiary:
+
+      domain:
+        name: "{{ domainName.parameter }}"
+
+      ethernet:
+        name: TertiaryNetwork
+        subnet: 10.3.0.0
+
