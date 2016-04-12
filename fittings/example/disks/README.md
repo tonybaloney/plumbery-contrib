@@ -1,6 +1,6 @@
 # Multiple disks added with LVM
 
-The objective of this use case is to deploy a server with extended stortage, at the [Managed Cloud Platform from Dimension Data](http://cloud.dimensiondata.com/eu/en/).
+The objective of this use case is to deploy a server with extended storage, at the [Managed Cloud Platform from Dimension Data](http://cloud.dimensiondata.com/eu/en/).
 This is done with [plumbery](https://developer.dimensiondata.com/display/PLUM/Plumbery) and a template that is provided below.
 
 ## Requirements for this use case
