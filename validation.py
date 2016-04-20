@@ -24,3 +24,10 @@ def validate_fittings(file_path):
 
             c = Core(source_data=settings, schema_files=["schema.yaml"])
             c.validate(raise_exception=True)
+
+
+if __name__ == "__main__":
+    import sys
+    logging.basicConfig(level=logging.INFO)
+    validate_fittings(sys.argv[1])
+    print("Validation completed.")

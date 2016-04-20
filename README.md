@@ -21,11 +21,12 @@ python -m plumbery fittings.yaml deploy
 
 This repository accepts pull-requests, if you wish to share your own application template:
 
-* Create a fork of this repository
-* Choose the category of your application - if the category does not exist, simple create a new folder and update fittings/categories.yaml
-* Create a folder for your fittings template
-* Create the fittings.yaml file in your folder
-* Include a README.md with the instructions for your template
-* Test the index of the library by running "python reindex.py info"
+* Create a fork of this repository and create your application
+ * Choose the category of your application - if the category does not exist, simple create a new folder and update fittings/categories.yaml
+ * Create a folder for your fittings template
+ * Create the `fittings.yaml` file in your folder, see [documentation](https://developer.dimensiondata.com/display/PLUM/Fittings+schema+documentation) for schema documentation
+ * Include a README.md with the instructions for your template
+ * Check your syntax using `python validation.py <path to your fittings file>.yaml`
+ * Reindex the library `python reindex.py info`
 * Commit your code
-* Create a pull-request, check the build status of your build request
+* Create a pull-request
