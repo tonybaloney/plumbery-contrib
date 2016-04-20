@@ -86,9 +86,17 @@ blueprints:
             appliance: 'Ubuntu 14'
 
             glue:
+
+              # in this case this will assign 10.1.0.123 to the primary NIC
               - "{{ networkName.parameter }}" .123
+
+              # get a public IPv4 from pool and NAT it to primary NIC and open firewall
               - internet 22
+
+              # assign next available IPv4 from this subnet to secondary NIC
               - SecondaryNetwork
+
+              # assign the given static IPv4 to third NIC
               - TertiaryNetwork 10.3.0.123
 
             monitoring: essentials
