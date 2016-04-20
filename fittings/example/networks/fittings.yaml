@@ -86,7 +86,7 @@ blueprints:
             appliance: 'Ubuntu 14'
 
             glue:
-              - "{{ networkName.parameter }}" 10.1.0.123
+              - "{{ networkName.parameter }}" .123
               - internet 22
               - SecondaryNetwork
               - TertiaryNetwork 10.3.0.123
