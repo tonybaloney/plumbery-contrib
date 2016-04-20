@@ -87,8 +87,8 @@ blueprints:
 
             glue:
 
-              # in this case this will assign 10.1.0.123 to the primary NIC
-              - "{{ networkName.parameter }}" .123
+              # this will actually assign 10.1.0.123 to the primary NIC
+              - "{{ networkName.parameter }} .123"
 
               # get a public IPv4 from pool and NAT it to primary NIC and open firewall
               - internet 22
