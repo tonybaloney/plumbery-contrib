@@ -40,8 +40,7 @@ defaults:
 
   I-REF-MSSQL-Node:
     description: '#windows #kit #sql-server'
-#    appliance: 'Win2012 R2 DC 2 CPU'
-    appliance: 'Win2012 DC with MS SQL 2014 Ent'
+    appliance: 'Win2012 R2 Datacenter 64-bit MS SQL 2014 Ent'
     cpu: 4
     memory: 8
     glue:
