@@ -81,7 +81,7 @@ blueprints:
               - "connect to this server in a terminal window:"
               - "$ ssh ubuntu@{{ node.public }}"
               - "check network configuration with:"
-              - "$ ifconfig"
+              - "$ ifconfig -a"
 
             appliance: 'Ubuntu 14'
 
