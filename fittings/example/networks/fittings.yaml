@@ -88,7 +88,7 @@ blueprints:
             glue:
 
               # this will actually assign 10.1.0.123 to the primary NIC
-              - "{{ networkName.parameter }} .123"
+              - primary .123
 
               # get a public IPv4 from pool and NAT it to primary NIC and open firewall
               - internet 22
@@ -105,6 +105,32 @@ blueprints:
 
               packages:
                 - ntp
+
+              write_files:
+
+                - path: /root/etc-network-interfaces.part
+                  content: |
+                    auto eth1
+                    iface eth1 inet static
+                        address {{ node.SecondaryNetwork.private }}
+                        netmask {{ node.SecondaryNetwork.netmask }}
+                        gateway {{ node.SecondaryNetwork.gateway }}
+
+                    iface eth1 inet6 static
+                        address {{ node.SecondaryNetwork.ipv6 }}
+                        netmask {{ node.SecondaryNetwork.netmask.ipv6 }}
+                        gateway {{ node.SecondaryNetwork.gateway.ipv6 }}
+
+                    auto eth2
+                    iface eth2 inet static
+                        address {{ node.TertiaryNetwork.private }}
+                        netmask {{ node.TertiaryNetwork.netmask }}
+                        gateway {{ node.TertiaryNetwork.gateway }}
+
+                    iface eth1 inet6 static
+                        address {{ node.TertiaryNetwork.ipv6 }}
+                        netmask {{ node.TertiaryNetwork.netmask.ipv6 }}
+                        gateway {{ node.TertiaryNetwork.gateway.ipv6 }}
 
               runcmd:
                 - echo "===== Handling ubuntu identity"
