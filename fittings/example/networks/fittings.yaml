@@ -28,7 +28,7 @@ parameters:
     information:
       - "the name of the main node to be deployed"
     type: str
-    default: networks01
+    default: node1
 
 links:
   documentation: https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/fittings/example/networks
@@ -82,22 +82,28 @@ blueprints:
               - "$ ssh ubuntu@{{ node.public }}"
               - "check network configuration with:"
               - "$ ifconfig -a"
+              - "$ ethtool eth0"
+              - "$ ping 10.1.0.1"
+              - "$ ethtool eth1"
+              - "$ ping 10.2.0.1"
+              - "$ ethtool eth2"
+              - "$ ping 10.3.0.1"
 
             appliance: 'Ubuntu 14'
 
             glue:
 
-              # this will actually assign 10.1.0.123 to the primary NIC
-              - primary .123
+              # this will actually assign 10.1.0.11 to the primary NIC
+              - primary .11
 
               # get a public IPv4 from pool and NAT it to primary NIC and open firewall
               - internet 22
 
-              # assign next available IPv4 from this subnet to secondary NIC
-              - SecondaryNetwork
+              # add secondary NIC
+              - SecondaryNetwork .12
 
-              # assign the given static IPv4 to third NIC
-              - TertiaryNetwork 10.3.0.123
+              # add third NIC
+              - TertiaryNetwork 10.3.0.13
 
             monitoring: essentials
 
@@ -105,32 +111,24 @@ blueprints:
 
               packages:
                 - ntp
+                - ethtool
 
               write_files:
 
                 - path: /root/etc-network-interfaces.part
                   content: |
+
                     auto eth1
                     iface eth1 inet static
-                        address {{ node.SecondaryNetwork.private }}
-                        netmask {{ node.SecondaryNetwork.netmask }}
-                        gateway {{ node.SecondaryNetwork.gateway }}
-
-                    iface eth1 inet6 static
-                        address {{ node.SecondaryNetwork.ipv6 }}
-                        netmask {{ node.SecondaryNetwork.netmask.ipv6 }}
-                        gateway {{ node.SecondaryNetwork.gateway.ipv6 }}
+                        address 10.2.0.12
+                        netmask 255.255.255.0
+                        gateway 10.2.0.1
 
                     auto eth2
                     iface eth2 inet static
-                        address {{ node.TertiaryNetwork.private }}
-                        netmask {{ node.TertiaryNetwork.netmask }}
-                        gateway {{ node.TertiaryNetwork.gateway }}
-
-                    iface eth1 inet6 static
-                        address {{ node.TertiaryNetwork.ipv6 }}
-                        netmask {{ node.TertiaryNetwork.netmask.ipv6 }}
-                        gateway {{ node.TertiaryNetwork.gateway.ipv6 }}
+                        address 10.3.0.13
+                        netmask 255.255.255.0
+                        gateway 10.3.0.1
 
               runcmd:
                 - echo "===== Handling ubuntu identity"
@@ -138,6 +136,12 @@ blueprints:
                 - cp -n /etc/ssh/ssh_host_rsa_key.pub /home/ubuntu/.ssh/id_rsa.pub
                 - chown ubuntu:ubuntu /home/ubuntu/.ssh/*
                 - sed -i "/StrictHostKeyChecking/s/^.*$/    StrictHostKeyChecking no/" /etc/ssh/ssh_config
+
+                - echo "===== Configuring network interfaces"
+                - cp -n /etc/network/interfaces /etc/network/interfaces.origin
+                - cat /etc/network/interfaces.origin /root/etc-network-interfaces.part >/etc/network/interfaces
+                - ifup eth1
+                - ifup eth2
 
   - secondary:
 
