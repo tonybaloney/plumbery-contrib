@@ -1,0 +1,250 @@
+---
+
+information: |
+  Mesosphere cluster, with 3 masters and 9 slaves
+  A job submitted to Marathon is dispatched among slaves.
+
+parameters:
+
+  locationId:
+    information:
+      - "the target data centre for this deployment"
+    type: locations.list
+    default: AU10
+
+  domainName:
+    information:
+      - "the name of the network domain to be deployed"
+    type: str
+    default: MesosphereClusterFox
+
+  networkName:
+    information:
+      - "the name of the Ethernet VLAN to be deployed"
+    type: str
+    default: MesosphereClusterNetwork
+
+links:
+  documentation: https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/fittings/containers/mesosphere-cluster
+
+defaults:
+
+  domain:
+    name: "{{ domainName.parameter }}"
+    ipv4: auto
+
+  ethernet:
+    name: "{{ networkName.parameter }}"
+    subnet: 10.0.0.0
+
+  mesosphere-master:
+
+    information:
+      - "a Mesosphere master node"
+      - "connect remotely with:"
+      - "$ ssh ubuntu@{{ node.public }}"
+      - "check Mesos interface at http://{{ node.public }}:5050/"
+      - "check Marathon interface at http://{{ node.public }}:8080/"
+
+    appliance: 'Ubuntu 14'
+    cpu: 8
+    memory: 32
+    glue:
+      - internet 22 5050 8080
+
+    monitoring: essentials
+
+    cloud-config:
+
+      write_files:
+
+        - path: /etc/zookeeper/conf/zoo.cfg
+          content: |
+            server.1={{ master1.private }}:2888:3888
+            server.2={{ master2.private }}:2888:3888
+            server.3={{ master3.private }}:2888:3888
+
+      runcmd:
+
+        - echo "===== Installing Mesosphere"
+        - apt-key adv --keyserver keyserver.ubuntu.com --recv E56151BF
+        - DISTRO=$(lsb_release -is | tr '[:upper:]' '[:lower:]')
+        - CODENAME=$(lsb_release -cs)
+        - echo "deb http://repos.mesosphere.io/${DISTRO} ${CODENAME} main" | sudo tee /etc/apt/sources.list.d/mesosphere.list
+        - apt-get -y update
+        - apt-get -y install mesosphere
+
+        - echo "===== List Zookeeper connections"
+        - sed -i "s/localhost:2181/{{ master1.private }}:2181,{{ master2.private }}:2181,{{ master3.private }}:2181/" /etc/mesos/zk
+
+        - echo "===== Configure Marathon"
+        - mkdir -p /etc/marathon/conf
+        - cp /etc/mesos-master/hostname /etc/marathon/conf
+        - cp /etc/mesos/zk /etc/marathon/conf/master
+        - echo "zk://{{ master1.private }}:2181,{{ master2.private }}:2181,{{ master3.private }}:2181/marathon" | sudo tee /etc/marathon/conf/zk
+
+        - echo "===== Configure node address"
+        - echo "{{ node.private }}" | sudo tee /etc/mesos-master/ip
+        - echo "{{ node.private }}" | sudo tee /etc/mesos-master/hostname
+
+        - echo "===== Stop slave service"
+        - stop mesos-slave
+        - echo manual | sudo tee /etc/init/mesos-slave.override
+
+        - echo "===== Start Mesos"
+        - restart zookeeper
+        - start mesos-master
+        - start marathon
+
+  mesosphere-slave:
+
+    appliance: 'Ubuntu 14'
+    cpu: 8
+    memory: 32
+
+    monitoring: essentials
+
+    cloud-config:
+
+      runcmd:
+
+        - echo "===== Installing Mesos"
+        - apt-key adv --keyserver keyserver.ubuntu.com --recv E56151BF
+        - DISTRO=$(lsb_release -is | tr '[:upper:]' '[:lower:]')
+        - CODENAME=$(lsb_release -cs)
+        - echo "deb http://repos.mesosphere.io/${DISTRO} ${CODENAME} main" | sudo tee /etc/apt/sources.list.d/mesosphere.list
+        - apt-get -y update
+        - apt-get -y install mesos
+
+        - echo "===== List Zookeeper connections"
+        - sed -i "s/localhost:2181/{{ master1.private }}:2181,{{ master2.private }}:2181,{{ master3.private }}:2181/" /etc/mesos/zk
+
+        - echo "===== Configure node address"
+        - echo "{{ node.private }}" | sudo tee /etc/mesos-slave/ip
+        - echo "{{ node.private }}" | sudo tee /etc/mesos-slave/hostname
+
+        - echo "===== Only run slave service"
+        - stop zookeeper
+        - echo manual | sudo tee /etc/init/zookeeper.override
+        - echo manual | sudo tee /etc/init/mesos-master.override
+        - stop mesos-master
+
+        - echo "===== Start Mesos"
+        - start mesos-slave
+
+  cloud-config:
+
+    hostname: "{{ node.name }}"
+
+    packages:
+      - ntp
+
+    write_files:
+
+      - path: /root/hosts.awk
+        content: |
+          #!/usr/bin/awk -f
+          /^{{ master1.private }}/ {next}
+          /^{{ master2.private }}/ {next}
+          /^{{ master3.private }}/ {next}
+          /^{{ slave1.private }}/ {next}
+          /^{{ slave2.private }}/ {next}
+          /^{{ slave3.private }}/ {next}
+          /^{{ slave4.private }}/ {next}
+          /^{{ slave5.private }}/ {next}
+          /^{{ slave6.private }}/ {next}
+          /^{{ slave7.private }}/ {next}
+          /^{{ slave8.private }}/ {next}
+          /^{{ slave9.private }}/ {next}
+          {print}
+          END {
+           print "{{ master1.private }}    master1"
+           print "{{ master2.private }}    master2"
+           print "{{ master3.private }}    master3"
+           print "{{ slave1.private }}    slave1"
+           print "{{ slave2.private }}    slave2"
+           print "{{ slave3.private }}    slave3"
+           print "{{ slave4.private }}    slave4"
+           print "{{ slave5.private }}    slave5"
+           print "{{ slave6.private }}    slave6"
+           print "{{ slave7.private }}    slave7"
+           print "{{ slave8.private }}    slave8"
+           print "{{ slave9.private }}    slave9"
+          }
+
+    runcmd:
+
+      - echo "===== Handling ubuntu identity"
+      - cp -n /etc/ssh/ssh_host_rsa_key /home/ubuntu/.ssh/id_rsa
+      - cp -n /etc/ssh/ssh_host_rsa_key.pub /home/ubuntu/.ssh/id_rsa.pub
+      - chown ubuntu:ubuntu /home/ubuntu/.ssh/*
+      - sed -i "/StrictHostKeyChecking/s/^.*$/    StrictHostKeyChecking no/" /etc/ssh/ssh_config
+
+      - echo "===== Updating /etc/hosts"
+      - cp -n /etc/hosts /etc/hosts.original
+      - awk -f /root/hosts.awk /etc/hosts >/etc/hosts.new && mv /etc/hosts.new /etc/hosts
+
+    ssh_keys:
+      rsa_private: |
+        {{ key.rsa_private }}
+      rsa_public: "{{ key.rsa_public }}"
+
+    users:
+      - default
+
+      - name: ubuntu
+        sudo: 'ALL=(ALL) NOPASSWD:ALL'
+        ssh-authorized-keys:
+          - "{{ key.rsa_public }}"
+          - "{{ local.rsa_public }}"
+
+    disable_root: true
+    ssh_pwauth: false
+
+---
+
+locationId: "{{ locationId.parameter }}"
+
+blueprints:
+
+  - masters:
+
+      nodes:
+        - master1:
+            default: mesosphere-master
+
+            cloud-config:
+
+              write_files:
+
+                - path: /etc/zookeeper/conf/myid
+                  content: |
+                    1
+
+        - master2:
+            default: mesosphere-master
+
+            cloud-config:
+
+              write_files:
+
+                - path: /etc/zookeeper/conf/myid
+                  content: |
+                    2
+
+        - master3:
+            default: mesosphere-master
+
+            cloud-config:
+
+              write_files:
+
+                - path: /etc/zookeeper/conf/myid
+                  content: |
+                    3
+
+  - slaves:
+
+      nodes:
+        - slave[1..9]:
+            default: mesosphere-slave
