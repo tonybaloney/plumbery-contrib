@@ -1,0 +1,221 @@
+---
+
+information:
+
+  - "A kit of multiple nodes using Microsoft Windows operating system"
+
+parameters:
+
+  locationId:
+    information:
+      - "the target data centre for this deployment"
+    type: locations.list
+    default: EU7
+
+  domainName:
+    information:
+      - "the name of the network domain to be deployed"
+    type: str
+    default: WindowsKitFox
+
+links:
+  documentation: https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/fittings/example/windows-kit
+
+defaults:
+
+  domain:
+    name: "{{ domainName.parameter }}"
+    description: "kit of multiple nodes using Microsoft Windows operating system"
+    service: essentials
+    ipv4: auto
+
+  I-REF-DC-Node:
+    description: '#windows #kit #directory-server'
+    appliance: 'Win2012 R2 DC 2 CPU'
+    cpu: 2
+    memory: 4
+    glue:
+      - primary .11
+    monitoring: essentials
+
+  I-REF-MSSQL-Node:
+    description: '#windows #kit #sql-server'
+    appliance: 'Win2012 R2 Datacenter 64-bit MS SQL 2014 Ent'
+    cpu: 4
+    memory: 8
+    glue:
+      - primary .12
+    monitoring: essentials
+
+  I-REF-IIS-Node:
+    description: '#windows #kit #web-server'
+    appliance: 'Win2012 R2 DC 2 CPU'
+    cpu: 2
+    memory: 4
+    glue:
+      - primary .13
+    monitoring: essentials
+
+  I-REF-EXCH-Node:
+    description: '#windows #kit #mail-server'
+    appliance: 'Win2012 R2 DC 2 CPU'
+    cpu: 2
+    memory: 2
+    glue:
+      - primary .14
+    monitoring: essentials
+
+  I-REF-CLI64-Node:
+    description: '#windows #kit #client'
+    appliance: 'Win2012 R2 DC 2 CPU'
+    cpu: 2
+    memory: 2
+    glue:
+      - primary .15
+    monitoring: essentials
+
+  I-REF-APP-Node:
+    description: '#windows #kit #application-server'
+    appliance: 'Win2008 R2 DC 64-bit 2 CPU'
+    cpu: 2
+    memory: 2
+    glue:
+      - primary .16
+    monitoring: essentials
+
+  I-REF-APPC-Node:
+    description: '#windows #kit #appc-server'
+    appliance: 'Win2012 R2 DC 2 CPU'
+    cpu: 2
+    memory: 2
+    glue:
+      - primary .17
+    monitoring: essentials
+
+  I-REF-APPG-Node:
+    description: '#windows #kit #appg-server'
+    appliance: 'Win2012 R2 DC 2 CPU'
+    cpu: 2
+    memory: 2
+    glue:
+      - primary .18
+    monitoring: essentials
+
+---
+
+locationId: "{{ locationId.parameter }}"
+
+basement: external
+
+blueprints:
+
+  - kit01:
+
+      ethernet:
+        name: Kit01-Network
+        subnet: 172.16.1.0
+
+      nodes:
+
+        - "I-REF-DC-001":
+            default: I-REF-DC-Node
+
+        - "I-REF-MSSQL-001":
+            default: I-REF-MSSQL-Node
+
+        - "I-REF-IIS-001":
+            default: I-REF-IIS-Node
+
+        - "I-REF-EXCH-001":
+            default: I-REF-EXCH-Node
+
+        - "I-REF-CLI64-001":
+            default: I-REF-CLI64-Node
+            glue:
+              - ExternalNetwork .11
+
+        - "I-REF-APP-001":
+            default: I-REF-APP-Node
+
+        - "I-REF-APPC-001":
+            default: I-REF-APPC-Node
+
+        - "I-REF-APPG-001":
+            default: I-REF-APPG-Node
+
+  - kit02:
+
+      ethernet:
+        name: Kit02-Network
+        subnet: 172.16.2.0
+
+      nodes:
+
+        - "I-REF-DC-002":
+            default: I-REF-DC-Node
+
+        - "I-REF-MSSQL-002":
+            default: I-REF-MSSQL-Node
+
+        - "I-REF-IIS-002":
+            default: I-REF-IIS-Node
+
+        - "I-REF-EXCH-002":
+            default: I-REF-EXCH-Node
+
+        - "I-REF-CLI64-002":
+            default: I-REF-CLI64-Node
+            glue:
+              - ExternalNetwork .12
+
+        - "I-REF-APP-002":
+            default: I-REF-APP-Node
+
+        - "I-REF-APPC-002":
+            default: I-REF-APPC-Node
+
+        - "I-REF-APPG-002":
+            default: I-REF-APPG-Node
+
+
+  - kit03:
+
+      ethernet:
+        name: Kit03-Network
+        subnet: 172.16.3.0
+
+      nodes:
+
+        - "I-REF-DC-003":
+            default: I-REF-DC-Node
+
+        - "I-REF-MSSQL-003":
+            default: I-REF-MSSQL-Node
+
+        - "I-REF-IIS-003":
+            default: I-REF-IIS-Node
+
+        - "I-REF-EXCH-003":
+            default: I-REF-EXCH-Node
+
+        - "I-REF-CLI64-003":
+            default: I-REF-CLI64-Node
+            glue:
+              - ExternalNetwork .13
+
+        - "I-REF-APP-003":
+            default: I-REF-APP-Node
+
+        - "I-REF-APPC-003":
+            default: I-REF-APPC-Node
+
+        - "I-REF-APPG-003":
+            default: I-REF-APPG-Node
+
+
+  - external:
+
+      ethernet:
+        name: ExternalNetwork
+        subnet: 192.168.110.0
+

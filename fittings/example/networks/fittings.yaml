@@ -1,0 +1,225 @@
+---
+
+information:
+
+  - "Multiple network interfaces"
+
+parameters:
+
+  locationId:
+    information:
+      - "the target data centre for this deployment"
+    type: locations.list
+    default: NA12
+
+  domainName:
+    information:
+      - "the name of the network domain to be deployed"
+    type: str
+    default: NetworksFox
+
+links:
+  documentation: https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/fittings/example/networks
+
+defaults:
+
+  domain:
+    name: "{{ domainName.parameter }}"
+    ipv4: auto
+
+  node:
+    description: '#demo #ubuntu'
+    appliance: 'Ubuntu 14'
+    monitoring: essentials
+
+  cloud-config:
+
+    packages:
+      - ntp
+      - ethtool
+
+    runcmd:
+      - echo "===== Handling ubuntu identity"
+      - cp -n /etc/ssh/ssh_host_rsa_key /home/ubuntu/.ssh/id_rsa
+      - cp -n /etc/ssh/ssh_host_rsa_key.pub /home/ubuntu/.ssh/id_rsa.pub
+      - chown ubuntu:ubuntu /home/ubuntu/.ssh/*
+      - sed -i "/StrictHostKeyChecking/s/^.*$/    StrictHostKeyChecking no/" /etc/ssh/ssh_config
+
+      - echo "===== Configuring network interfaces"
+      - cp -n /etc/network/interfaces /etc/network/interfaces.origin
+      - cat /etc/network/interfaces.origin /root/etc-network-interfaces.part >/etc/network/interfaces
+
+    ssh_keys:
+      rsa_private: |
+        {{ key.rsa_private }}
+      rsa_public: "{{ key.rsa_public }}"
+
+    users:
+      - default
+
+      - name: ubuntu
+        sudo: 'ALL=(ALL) NOPASSWD:ALL'
+        ssh-authorized-keys:
+          - "{{ key.rsa_public }}"
+          - "{{ local.rsa_public }}"
+
+    disable_root: true
+    ssh_pwauth: false
+
+---
+
+locationId: "{{ locationId.parameter }}"
+
+blueprints:
+
+  - primary:
+
+      ethernet:
+        name: PrimaryNetwork
+        subnet: 10.1.0.0
+
+      nodes:
+        - node1:
+            default: node
+
+            information:
+              - "multiple network interfaces have been added to this node"
+              - "connect to this server in a terminal window:"
+              - "$ ssh ubuntu@{{ node.public }}"
+              - "check network configuration with:"
+              - "$ ifconfig -a"
+              - "$ ethtool eth0"
+              - "$ ping 10.1.0.12"
+              - "$ ping 10.1.0.13"
+              - "$ ethtool eth1"
+              - "$ ping 10.2.0.12"
+              - "$ ethtool eth2"
+              - "$ ping 10.3.0.13"
+
+            glue:
+
+              # assign 10.1.0.11 to the primary NIC
+              - primary .11
+
+              # get a public IPv4 from pool and NAT it to primary NIC and open firewall
+              - internet 22
+
+              # add secondary NIC
+              - SecondaryNetwork .11
+
+              # add third NIC
+              - TertiaryNetwork 10.3.0.11
+
+            cloud-config:
+
+              write_files:
+
+                - path: /root/etc-network-interfaces.part
+                  content: |
+
+                    auto eth1
+                    iface eth1 inet static
+                        address 10.2.0.11
+                        netmask 255.255.255.0
+
+                    auto eth2
+                    iface eth2 inet static
+                        address 10.3.0.11
+                        netmask 255.255.255.0
+
+              runcmd:
+                - ifup eth1
+                - ifup eth2
+
+  - secondary:
+
+      ethernet:
+        name: SecondaryNetwork
+        subnet: 10.2.0.0
+
+      nodes:
+        - node2:
+            default: node
+
+            information:
+              - "multiple network interfaces have been added to this node"
+              - "connect to this server in a terminal window:"
+              - "$ ssh ubuntu@{{ node.public }}"
+              - "check network configuration with:"
+              - "$ ifconfig -a"
+              - "$ ping 10.2.0.11"
+              - "$ ping 10.1.0.11"
+              - "$ ping 10.1.0.13"
+
+            glue:
+
+              # use static address for primary NIC
+              - primary .12
+
+              # get a public IPv4 from pool and NAT it to primary NIC and open firewall
+              - internet 22
+
+              # add secondary NIC
+              - PrimaryNetwork .12
+
+            cloud-config:
+
+              write_files:
+
+                - path: /root/etc-network-interfaces.part
+                  content: |
+
+                    auto eth1
+                    iface eth1 inet static
+                        address 10.1.0.12
+                        netmask 255.255.255.0
+
+              runcmd:
+                - ifup eth1
+
+  - tertiary:
+
+      ethernet:
+        name: TertiaryNetwork
+        subnet: 10.3.0.0
+
+      nodes:
+        - node3:
+            default: node
+
+            information:
+              - "multiple network interfaces have been added to this node"
+              - "connect to this server in a terminal window:"
+              - "$ ssh ubuntu@{{ node.public }}"
+              - "check network configuration with:"
+              - "$ ifconfig -a"
+              - "$ ping 10.3.0.11"
+              - "$ ping 10.1.0.11"
+              - "$ ping 10.1.0.12"
+
+            glue:
+
+              # use static address for primary NIC
+              - primary .13
+
+              # get a public IPv4 from pool and NAT it to primary NIC and open firewall
+              - internet 22
+
+              # add secondary NIC
+              - PrimaryNetwork .13
+
+            cloud-config:
+
+              write_files:
+
+                - path: /root/etc-network-interfaces.part
+                  content: |
+
+                    auto eth1
+                    iface eth1 inet static
+                        address 10.1.0.13
+                        netmask 255.255.255.0
+
+              runcmd:
+                - ifup eth1
+
