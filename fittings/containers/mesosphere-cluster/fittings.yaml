@@ -56,6 +56,23 @@ defaults:
 
     cloud-config:
 
+      bootcmd:
+
+        # remove apache
+        - apt-get remove apache2 -y
+        - apt-get autoremove -y
+
+        # automate acceptance of oracle licence
+        - echo "oracle-java8-installer shared/accepted-oracle-license-v1-1 select true" | sudo debconf-set-selections
+        - echo "oracle-java8-installer shared/accepted-oracle-license-v1-1 seen true" | sudo debconf-set-selections
+
+      apt_sources:
+        - source: "ppa:webupd8team/java"
+
+      packages:
+        - ntp
+        - oracle-java8-installer
+
       write_files:
 
         - path: /etc/zookeeper/conf/zoo.cfg
@@ -72,20 +89,20 @@ defaults:
         - CODENAME=$(lsb_release -cs)
         - echo "deb http://repos.mesosphere.io/${DISTRO} ${CODENAME} main" | sudo tee /etc/apt/sources.list.d/mesosphere.list
         - apt-get -y update
-        - apt-get -y install mesosphere
+        - apt-get -y install marathon mesosphere
 
         - echo "===== List Zookeeper connections"
         - sed -i "s/localhost:2181/{{ master1.private }}:2181,{{ master2.private }}:2181,{{ master3.private }}:2181/" /etc/mesos/zk
+
+        - echo "===== Configure node address"
+        - echo "{{ node.private }}" | sudo tee /etc/mesos-master/ip
+        - echo "{{ node.private }}" | sudo tee /etc/mesos-master/hostname
 
         - echo "===== Configure Marathon"
         - mkdir -p /etc/marathon/conf
         - cp /etc/mesos-master/hostname /etc/marathon/conf
         - cp /etc/mesos/zk /etc/marathon/conf/master
         - echo "zk://{{ master1.private }}:2181,{{ master2.private }}:2181,{{ master3.private }}:2181/marathon" | sudo tee /etc/marathon/conf/zk
-
-        - echo "===== Configure node address"
-        - echo "{{ node.private }}" | sudo tee /etc/mesos-master/ip
-        - echo "{{ node.private }}" | sudo tee /etc/mesos-master/hostname
 
         - echo "===== Stop slave service"
         - stop mesos-slave
@@ -105,6 +122,23 @@ defaults:
     monitoring: essentials
 
     cloud-config:
+
+      bootcmd:
+
+        # remove apache
+        - apt-get remove apache2 -y
+        - apt-get autoremove -y
+
+        # automate acceptance of oracle licence
+        - echo "oracle-java8-installer shared/accepted-oracle-license-v1-1 select true" | sudo debconf-set-selections
+        - echo "oracle-java8-installer shared/accepted-oracle-license-v1-1 seen true" | sudo debconf-set-selections
+
+      apt_sources:
+        - source: "ppa:webupd8team/java"
+
+      packages:
+        - ntp
+        - oracle-java8-installer
 
       runcmd:
 
@@ -135,9 +169,6 @@ defaults:
   cloud-config:
 
     hostname: "{{ node.name }}"
-
-    packages:
-      - ntp
 
     write_files:
 
