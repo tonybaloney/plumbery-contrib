@@ -75,7 +75,7 @@ defaults:
 
       write_files:
 
-        - path: /etc/zookeeper/conf/zoo.cfg
+        - path: /root/etc-zookeeper-conf-zoo.cfg
           content: |
             server.1={{ master1.private }}:2888:3888
             server.2={{ master2.private }}:2888:3888
@@ -84,34 +84,47 @@ defaults:
       runcmd:
 
         - echo "===== Installing Mesosphere"
-        - apt-key adv --keyserver keyserver.ubuntu.com --recv E56151BF
+        - apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv E56151BF
         - DISTRO=$(lsb_release -is | tr '[:upper:]' '[:lower:]')
         - CODENAME=$(lsb_release -cs)
         - echo "deb http://repos.mesosphere.io/${DISTRO} ${CODENAME} main" | sudo tee /etc/apt/sources.list.d/mesosphere.list
         - apt-get -y update
-        - apt-get -y install marathon mesosphere
+#        - apt-get -y install zookeeperd
+        - apt-get -y install mesosphere
 
-        - echo "===== List Zookeeper connections"
+        - echo "===== Configuring Zookeeper"
+        - cp -n /etc/zookeeper/conf_example/* /etc/zookeeper/conf
+        - cp -n /etc/zookeeper/conf/zoo.cfg /etc/zookeeper/conf/zoo.cfg.orig
+        - cat /etc/zookeeper/conf/zoo.cfg.orig /root/etc-zookeeper-conf-zoo.cfg >/etc/zookeeper/conf/zoo.cfg
+
+        - echo "===== Starting Zookeeper"
+        - /etc/init.d/zookeeper restart
+
+        - echo "===== Configuring Mesos "
+
+        - mkdir -p /etc/mesos-master
+        - echo "{{ node.private }}" | sudo tee /etc/mesos-master/ip
+        - echo "{{ node.name }}" | sudo tee /etc/mesos-master/hostname
+        - echo "2" | sudo tee /etc/mesos-master/quorum
+
+        - mkdir -p /etc/mesos
         - sed -i "s/localhost:2181/{{ master1.private }}:2181,{{ master2.private }}:2181,{{ master3.private }}:2181/" /etc/mesos/zk
 
-        - echo "===== Configure node address"
-        - echo "{{ node.private }}" | sudo tee /etc/mesos-master/ip
-        - echo "{{ node.private }}" | sudo tee /etc/mesos-master/hostname
+#        - echo "===== Preventing Mesos slave service"
+#        - stop mesos-slave
+#        - echo manual | sudo tee /etc/init/mesos-slave.override
 
-        - echo "===== Configure Marathon"
+        - echo "===== Starting Mesos"
+        - restart mesos-master
+
+        - echo "===== Configuring Marathon"
         - mkdir -p /etc/marathon/conf
         - cp /etc/mesos-master/hostname /etc/marathon/conf
         - cp /etc/mesos/zk /etc/marathon/conf/master
         - echo "zk://{{ master1.private }}:2181,{{ master2.private }}:2181,{{ master3.private }}:2181/marathon" | sudo tee /etc/marathon/conf/zk
 
-        - echo "===== Stop slave service"
-        - stop mesos-slave
-        - echo manual | sudo tee /etc/init/mesos-slave.override
-
-        - echo "===== Start Mesos"
-        - restart zookeeper
-        - start mesos-master
-        - start marathon
+        - echo "===== Starting Marathon"
+        - /etc/init.d/marathon start
 
   mesosphere-slave:
 
@@ -123,45 +136,34 @@ defaults:
 
     cloud-config:
 
-      bootcmd:
-
-        # remove apache
-        - apt-get remove apache2 -y
-        - apt-get autoremove -y
-
-        # automate acceptance of oracle licence
-        - echo "oracle-java8-installer shared/accepted-oracle-license-v1-1 select true" | sudo debconf-set-selections
-        - echo "oracle-java8-installer shared/accepted-oracle-license-v1-1 seen true" | sudo debconf-set-selections
-
-      apt_sources:
-        - source: "ppa:webupd8team/java"
-
       packages:
         - ntp
-        - oracle-java8-installer
+        - default-jre
 
       runcmd:
 
         - echo "===== Installing Mesos"
-        - apt-key adv --keyserver keyserver.ubuntu.com --recv E56151BF
+        - apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv E56151BF
         - DISTRO=$(lsb_release -is | tr '[:upper:]' '[:lower:]')
         - CODENAME=$(lsb_release -cs)
         - echo "deb http://repos.mesosphere.io/${DISTRO} ${CODENAME} main" | sudo tee /etc/apt/sources.list.d/mesosphere.list
         - apt-get -y update
         - apt-get -y install mesos
 
-        - echo "===== List Zookeeper connections"
-        - sed -i "s/localhost:2181/{{ master1.private }}:2181,{{ master2.private }}:2181,{{ master3.private }}:2181/" /etc/mesos/zk
-
-        - echo "===== Configure node address"
-        - echo "{{ node.private }}" | sudo tee /etc/mesos-slave/ip
-        - echo "{{ node.private }}" | sudo tee /etc/mesos-slave/hostname
-
-        - echo "===== Only run slave service"
+        - echo "===== Preventing Zookeeper service"
         - stop zookeeper
         - echo manual | sudo tee /etc/init/zookeeper.override
-        - echo manual | sudo tee /etc/init/mesos-master.override
+
+        - echo "===== Preventing Mesos master service"
         - stop mesos-master
+        - echo manual | sudo tee /etc/init/mesos-master.override
+
+        - echo "===== List Mesos masters to Zookeeper"
+        - sed -i "s/localhost:2181/{{ master1.private }}:2181,{{ master2.private }}:2181,{{ master3.private }}:2181/" /etc/mesos/zk
+
+        - echo "===== Configure Mesos node address"
+        - echo "{{ node.private }}" | sudo tee /etc/mesos-slave/ip
+        - echo "{{ node.private }}" | sudo tee /etc/mesos-slave/hostname
 
         - echo "===== Start Mesos"
         - start mesos-slave
