@@ -286,10 +286,20 @@ blueprints:
                   content: |
                     1
 
+                - path: /root/docker_hello.sh
+                  content: |
+                    #!/bin/bash
+                    sleep 7m
+                    cd /root
+                    curl {{ node.public }}:8080/v2/apps \
+                    -H 'Content-Type: application/json' \
+                    --include \
+                    -d @/root/docker_hello.json
+
                 - path: /root/docker_hello.json
                   content: |
                     {
-                      "id": "docker_hello",
+                      "id": "docker-hello",
                       "container": {
                         "docker": {
                           "image": "hello-world"
@@ -305,9 +315,8 @@ blueprints:
               runcmd:
 
                 - echo "===== Submitting some activities to Marathon"
-                - sleep 5m
-                - cd /root
-                - "curl -i -H 'Content-Type: application/json' -d@docker_hello.json {{ node.public }}:8080/v2/apps"
+                - chmod +x /root/docker_hello.sh
+                - /root/docker_hello.sh
 
         - master2:
             default: mesosphere-master
@@ -320,10 +329,20 @@ blueprints:
                   content: |
                     2
 
+                - path: /root/shell_hello.sh
+                  content: |
+                    #!/bin/bash
+                    sleep 7m
+                    cd /root
+                    curl {{ node.public }}:8080/v2/apps \
+                    -H 'Content-Type: application/json' \
+                    --include \
+                    -d @/root/shell_hello.json
+
                 - path: /root/shell_hello.json
                   content: |
                     {
-                        "id": "shell_hello",
+                        "id": "shell-hello",
                         "cmd": "echo hello; sleep 10",
                         "mem": 16,
                         "cpus": 0.1,
@@ -335,9 +354,8 @@ blueprints:
               runcmd:
 
                 - echo "===== Submitting some activities to Marathon"
-                - sleep 5m
-                - cd /root
-                - "curl -i -H 'Content-Type: application/json' -d@shell_hello.json {{ node.public }}:8080/v2/apps"
+                - chmod +x /root/shell_hello.sh
+                - /root/shell_hello.sh
 
         - master3:
             default: mesosphere-master
