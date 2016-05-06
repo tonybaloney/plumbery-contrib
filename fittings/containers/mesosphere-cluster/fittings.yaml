@@ -30,14 +30,17 @@ links:
 
 defaults:
 
+  # nodes are deployed in a single network domain
   domain:
     name: "{{ domainName.parameter }}"
     ipv4: auto
 
+  # nodes are deployed on a single VLAN
   ethernet:
     name: "{{ networkName.parameter }}"
     subnet: 10.0.0.0
 
+  # settings for any Mesos master node
   mesosphere-master:
 
     information:
@@ -50,6 +53,8 @@ defaults:
     appliance: 'Ubuntu 14'
     cpu: 8
     memory: 32
+
+    # :5050 is the Mesos web UI, :8080 is the Marathon web UI
     glue:
       - internet 22 5050 8080
 
@@ -100,7 +105,7 @@ defaults:
         - mkdir -p /etc/mesos-master
         - echo "{{ node.private }}" | sudo tee /etc/mesos-master/ip
 
-        # use public address and allow redirection to leading master via web interface
+        # allow web redirection to leading master over public Internet
         - echo "{{ node.public }}" | sudo tee /etc/mesos-master/hostname
 
         - echo "2" | sudo tee /etc/mesos-master/quorum
@@ -129,6 +134,10 @@ defaults:
     appliance: 'Ubuntu 14'
     cpu: 8
     memory: 32
+
+    disks:
+      - 1 500 standard
+
     glue:
       - internet 22
 
@@ -154,6 +163,12 @@ defaults:
         - oracle-java8-installer
 
       runcmd:
+
+        - echo "===== Growing LVM with added disk"
+        - pvcreate /dev/sdb
+        - vgextend rootvol00 /dev/sdb
+        - lvextend -l +100%FREE /dev/mapper/rootvol00-rootlvol00
+        - resize2fs /dev/mapper/rootvol00-rootlvol00
 
         - echo "===== Installing Mesos"
         - apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv E56151BF
@@ -183,6 +198,7 @@ defaults:
         - echo "===== Starting Mesos"
         - service mesos-slave restart
 
+  # a couple of directives for all nodes
   cloud-config:
 
     hostname: "{{ node.name }}"
@@ -258,6 +274,7 @@ blueprints:
   - masters:
 
       nodes:
+
         - master1:
             default: mesosphere-master
 
@@ -269,6 +286,29 @@ blueprints:
                   content: |
                     1
 
+                - path: /root/docker_hello.json
+                  content: |
+                    {
+                      "id": "docker_hello",
+                      "container": {
+                        "docker": {
+                          "image": "hello-world"
+                        },
+                        "type": "DOCKER",
+                        "volumes": []
+                      },
+                      "cpus": 0.2,
+                      "mem": 32.0,
+                      "instances": 1
+                    }
+
+              runcmd:
+
+                - echo "===== Submitting some activities to Marathon"
+                - sleep 5m
+                - cd /root
+                - "curl -i -H 'Content-Type: application/json' -d@docker_hello.json {{ node.public }}:8080/v2/apps"
+
         - master2:
             default: mesosphere-master
 
@@ -279,6 +319,25 @@ blueprints:
                 - path: /etc/zookeeper/conf/myid
                   content: |
                     2
+
+                - path: /root/shell_hello.json
+                  content: |
+                    {
+                        "id": "shell_hello",
+                        "cmd": "echo hello; sleep 10",
+                        "mem": 16,
+                        "cpus": 0.1,
+                        "instances": 1,
+                        "disk": 0.0,
+                        "ports": [0]
+                    }
+
+              runcmd:
+
+                - echo "===== Submitting some activities to Marathon"
+                - sleep 5m
+                - cd /root
+                - "curl -i -H 'Content-Type: application/json' -d@shell_hello.json {{ node.public }}:8080/v2/apps"
 
         - master3:
             default: mesosphere-master

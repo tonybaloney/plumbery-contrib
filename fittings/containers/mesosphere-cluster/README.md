@@ -17,18 +17,19 @@ We will be using Ubuntu 14.04 servers for this guide.
 * Deploy 12 Ubuntu nodes -- 3 masters and 9 slaves
 * Provide a lot of resources to each slave
 * Monitor all nodes in the real-time dashboard provided by Dimension Data
-* Assign a public IPv4 address to each master node
-* Add address translation rules to ensure Internet connectivity with each master
+* Assign a public IPv4 address to each node
+* Add address translation rules to ensure Internet connectivity with each node
 * Add firewall rule to accept TCP traffic on ports 22, 5050 and 8080 to each master
+* Add firewall rule to accept TCP traffic on port 22 to each slave
 * Update the operating system of each node
 * Synchronise node clock of each node
 * Install a new SSH key to secure remote communications
 * Configure SSH to reject passwords and to prevent access from root account
 * Update `etc/hosts` and `hostnames` to bind IPv6 addresses to host names
-* Install Docker Engine at all servers
-* Install Consul on the manager node to implement dynamic discovery back-end
-* Run Docker Swarm Manager at the queen
-* Run Docker Swarm at every other bee
+* Install Mesosphere at all master nodes, and Mesos at all slaves
+* Configure Zookeeper, Mesos-master and Marathon at each master node
+* Configure Mesos at each slave node
+* Restart services to launch the cluster
 
 ## Fittings plan
 
@@ -50,26 +51,27 @@ at any time with the following command:
 
     $ python -m plumbery fittings.yaml information
 
-In this use case you can use the IPv4 assigned to the manager for direct ssh
-connection.
+In this use case you can check the Mesos cluster from web access to one master node.
 
-    $ ssh ubuntu@<ipv4_of_the_queen_here>
+    http://<ipv4_of_one_master_here>:5050
 
-From there you will check both the status of the local Docker Engine, and the
-status from the full Docker Swarm:
+The targeted master may redirect you to the current leading master of the cluster.
+From there you can check on the left part of the screen how many slaves have registered to the cluster:
 
-    $ docker info
-    $ docker -H :4000 info
+![Slaves](slaves.png)
 
-Next step is to run a new Redis container somewhere in the swarm:
+Also, the total quantity of shared resources is shown on screen:
 
-    $ docker -H :4000 run --name some-redis -d redis
+![Resources](resources.png)
 
-And, of course, you may want to identify which node is running redis
-exactly:
+To get additional information about each of your slave machines,
+you can click on the "Slaves" link at the top of the interface.
+This will give you an overview of each machine's resource contribution,
+as well as links to a page for each slave.
 
-    $ docker -H :4000 ps -l | grep redis
+To check the orchestration of activities you can go to any Marathon web interface:
 
+    http://<ipv4_of_one_master_here>:8080
 
 ## Destruction commands
 
