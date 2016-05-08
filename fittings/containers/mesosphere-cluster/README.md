@@ -5,7 +5,9 @@ This is done with [plumbery](https://developer.dimensiondata.com/display/PLUM/Pl
 
 Mesosphere is a system that combines a number of components to effectively manage server clustering and highly available deployments on top of an existing operating system layer. Unlike systems like CoreOS, Mesosphere is not a specialized operating system and is instead a set of packages.
 
-In this guide, we will go over how to configure a highly available cluster in Mesosphere. This configuration will set us up with failover in case any of our master nodes go down as well as a pool of slave servers to handle the tasks that are scheduled.
+![Layout](layout.png)
+
+In this guide, we will go over how to configure a highly available cluster in Mesosphere. This configuration will set us up with failover in case any of our master nodes go down as well as a pool of slave nodes to handle the tasks that are scheduled.
 
 We will be using Ubuntu 14.04 servers for this guide.
 
@@ -30,6 +32,7 @@ We will be using Ubuntu 14.04 servers for this guide.
 * Configure Zookeeper, Mesos-master and Marathon at each master node
 * Configure Mesos at each slave node
 * Restart services to launch the cluster
+* Submit a sample job via the API to feed the cluster
 
 ## Fittings plan
 
@@ -51,11 +54,23 @@ at any time with the following command:
 
     $ python -m plumbery fittings.yaml information
 
-In this use case you can check the Mesos cluster from web access to one master node.
+To check the orchestration of activities you can go to any Marathon web interface:
+
+    http://<ipv4_of_one_master_here>:8080
+
+![Marathon](marathon.png)
+
+This will show how Marathon is managing the job that was submitted during the
+setup of the full cluster.
+
+To get more information you can check the Mesos cluster from web access to one master node.
 
     http://<ipv4_of_one_master_here>:5050
 
 The targeted master may redirect you to the current leading master of the cluster.
+
+![Mesos](mesos.png)
+
 From there you can check on the left part of the screen how many slaves have registered to the cluster:
 
 ![Slaves](slaves.png)
@@ -68,10 +83,6 @@ To get additional information about each of your slave machines,
 you can click on the "Slaves" link at the top of the interface.
 This will give you an overview of each machine's resource contribution,
 as well as links to a page for each slave.
-
-To check the orchestration of activities you can go to any Marathon web interface:
-
-    http://<ipv4_of_one_master_here>:8080
 
 ## Destruction commands
 

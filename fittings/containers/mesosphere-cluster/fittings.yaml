@@ -1,8 +1,8 @@
 ---
 
 information: |
-  Mesosphere cluster, with 3 masters and 9 slaves
-  A job submitted to Marathon is dispatched among slaves.
+  Mesosphere cluster, with 3 masters and 9 agents
+  A job submitted to Marathon is dispatched among agents.
 
 parameters:
 
@@ -24,6 +24,24 @@ parameters:
     type: str
     default: MesosphereClusterNetwork
 
+  cpuPerNode:
+    information:
+      - "the quantity of CPU given to one Mesos node"
+    type: [4..32]
+    default: 8
+
+  memoryPerNode:
+    information:
+      - "the quantity of RAM given to one Mesos node, in GB"
+    type: [8..256]
+    default: 32
+
+  diskPerNode:
+    information:
+      - "the quantity of storage given to one Mesos node, in GB"
+    type: [100..1000]
+    default: 500
+
 links:
   documentation: https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/fittings/containers/mesosphere-cluster
   credit: https://open.mesosphere.com/getting-started/install/
@@ -40,15 +58,15 @@ defaults:
     name: "{{ networkName.parameter }}"
     subnet: 10.0.0.0
 
-  # settings for any Mesos master node
+  # settings for any Meso master node
   mesosphere-master:
 
     information:
       - "a Mesosphere master node"
       - "connect remotely with:"
       - "$ ssh ubuntu@{{ node.public }}"
-      - "check Mesos interface at http://{{ node.public }}:5050/"
       - "check Marathon interface at http://{{ node.public }}:8080/"
+      - "check Mesos interface at http://{{ node.public }}:5050/"
 
     appliance: 'Ubuntu 14'
     cpu: 8
@@ -93,12 +111,6 @@ defaults:
 
         - echo "2" | sudo tee /etc/mesos-master/quorum
 
-        # support docker containers as well
-        - echo "docker,mesos" | sudo tee /etc/mesos-master/containerizers
-
-        # afford long delays to pull a docker image
-        - echo "5mins" | sudo tee /etc/mesos-master/executor_registration_timeout
-
         - mkdir -p /etc/mesos
         - sed -i "s/localhost:2181/{{ master1.private }}:2181,{{ master2.private }}:2181,{{ master3.private }}:2181/" /etc/mesos/zk
 
@@ -118,14 +130,15 @@ defaults:
         - echo "===== Starting Marathon"
         - service marathon restart
 
-  mesosphere-slave:
+  # settings for any Meso agent node
+  mesosphere-agent:
 
     appliance: 'Ubuntu 14'
-    cpu: 8
-    memory: 32
+    cpu: "{{ cpuPerNode.parameter }}"
+    memory: "{{ memoryPerNode.parameter }}"
 
     disks:
-      - 1 500 standard
+      - "1 {{ diskPerNode.parameter }} standard"
 
     glue:
       - internet 22
@@ -141,6 +154,10 @@ defaults:
         - vgextend rootvol00 /dev/sdb
         - lvextend -l +100%FREE /dev/mapper/rootvol00-rootlvol00
         - resize2fs /dev/mapper/rootvol00-rootlvol00
+
+        - echo "===== Installing Docker Engine"
+        - curl -sSL https://get.docker.com/ | sh
+        - usermod -aG docker ubuntu
 
         - echo "===== Installing Mesos"
 
@@ -191,29 +208,29 @@ defaults:
           /^{{ master1.private }}/ {next}
           /^{{ master2.private }}/ {next}
           /^{{ master3.private }}/ {next}
-          /^{{ slave1.private }}/ {next}
-          /^{{ slave2.private }}/ {next}
-          /^{{ slave3.private }}/ {next}
-          /^{{ slave4.private }}/ {next}
-          /^{{ slave5.private }}/ {next}
-          /^{{ slave6.private }}/ {next}
-          /^{{ slave7.private }}/ {next}
-          /^{{ slave8.private }}/ {next}
-          /^{{ slave9.private }}/ {next}
+          /^{{ node1.private }}/ {next}
+          /^{{ node2.private }}/ {next}
+          /^{{ node3.private }}/ {next}
+          /^{{ node4.private }}/ {next}
+          /^{{ node5.private }}/ {next}
+          /^{{ node6.private }}/ {next}
+          /^{{ node7.private }}/ {next}
+          /^{{ node8.private }}/ {next}
+          /^{{ node9.private }}/ {next}
           {print}
           END {
            print "{{ master1.private }}    master1"
            print "{{ master2.private }}    master2"
            print "{{ master3.private }}    master3"
-           print "{{ slave1.private }}    slave1"
-           print "{{ slave2.private }}    slave2"
-           print "{{ slave3.private }}    slave3"
-           print "{{ slave4.private }}    slave4"
-           print "{{ slave5.private }}    slave5"
-           print "{{ slave6.private }}    slave6"
-           print "{{ slave7.private }}    slave7"
-           print "{{ slave8.private }}    slave8"
-           print "{{ slave9.private }}    slave9"
+           print "{{ node1.private }}    node1"
+           print "{{ node2.private }}    node2"
+           print "{{ node3.private }}    node3"
+           print "{{ node4.private }}    node4"
+           print "{{ node5.private }}    node5"
+           print "{{ node6.private }}    node6"
+           print "{{ node7.private }}    node7"
+           print "{{ node8.private }}    node8"
+           print "{{ node9.private }}    node9"
           }
 
     bootcmd:
@@ -244,10 +261,6 @@ defaults:
       - echo "===== Updating /etc/hosts"
       - cp -n /etc/hosts /etc/hosts.original
       - awk -f /root/hosts.awk /etc/hosts >/etc/hosts.new && mv /etc/hosts.new /etc/hosts
-
-      - echo "===== Installing Docker Engine"
-      - curl -sSL https://get.docker.com/ | sh
-      - usermod -aG docker ubuntu
 
     ssh_keys:
       rsa_private: |
@@ -287,49 +300,6 @@ blueprints:
                   content: |
                     1
 
-                - path: /root/docker_hello.sh
-                  content: |
-                    #!/bin/bash
-                    sleep 7m
-                    cd /root
-                    curl {{ node.public }}:8080/v2/apps \
-                    -H 'Content-Type: application/json' \
-                    --include \
-                    -d @/root/docker_hello.json
-
-                - path: /root/docker_hello.json
-                  content: |
-                    {
-                      "id": "docker-hello",
-                      "container": {
-                        "docker": {
-                          "image": "hello-world"
-                        },
-                        "type": "DOCKER",
-                        "volumes": []
-                      },
-                      "cpus": 0.2,
-                      "mem": 32.0,
-                      "instances": 1
-                    }
-
-              runcmd:
-
-                - echo "===== Submitting some activities to Marathon"
-                - chmod +x /root/docker_hello.sh
-                - /root/docker_hello.sh
-
-        - master2:
-            default: mesosphere-master
-
-            cloud-config:
-
-              write_files:
-
-                - path: /etc/zookeeper/conf/myid
-                  content: |
-                    2
-
                 - path: /root/shell_hello.sh
                   content: |
                     #!/bin/bash
@@ -358,6 +328,17 @@ blueprints:
                 - chmod +x /root/shell_hello.sh
                 - /root/shell_hello.sh
 
+        - master2:
+            default: mesosphere-master
+
+            cloud-config:
+
+              write_files:
+
+                - path: /etc/zookeeper/conf/myid
+                  content: |
+                    2
+
         - master3:
             default: mesosphere-master
 
@@ -369,8 +350,8 @@ blueprints:
                   content: |
                     3
 
-  - slaves:
+  - nodes:
 
       nodes:
-        - slave[1..9]:
-            default: mesosphere-slave
+        - node[1..9]:
+            default: mesosphere-agent
