@@ -4,7 +4,10 @@
 
 - [First example with Ubuntu node](example/first)
 - [Multiple disks added with LVM](example/disks)
+- [Multiple network interfaces](example/networks)
+- [Plumbery in the cloud, with all reference fittings plans](example/plumbery)
 - [Ubuntu desktop](example/ubuntu-desktop)
+- [Kit of multiple Windows nodes](example/windows-kit)
 - [The master plan to conquer the world](example/gigafox)
 
 ## Application services
@@ -18,6 +21,7 @@
 - [Docker node](containers/docker)
 - [Kubernetes node](containers/kubernetes)
 - [Docker Swarm](containers/docker-swarm)
+- [Mesosphere cluster with Docker, on 3 masters and 9 nodes](containers/mesosphere-cluster)
 
 ## Database services
 
