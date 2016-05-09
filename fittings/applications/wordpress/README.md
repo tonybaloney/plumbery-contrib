@@ -1,6 +1,6 @@
 # WordPress blogging server
 
-The objective of this use case is to deploy a Stackstorm server, at the [Managed Cloud Platform from Dimension Data](http://cloud.dimensiondata.com/eu/en/).
+The objective of this use case is to deploy a Wordpress server, at the [Managed Cloud Platform from Dimension Data](http://cloud.dimensiondata.com/eu/en/).
 This is done with [plumbery](https://developer.dimensiondata.com/display/PLUM/Plumbery) and a template that is provided below.
 
 ![WordPress](wordpress.png)
