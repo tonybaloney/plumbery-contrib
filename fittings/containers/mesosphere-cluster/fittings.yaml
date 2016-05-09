@@ -1,7 +1,7 @@
 ---
 
 information: |
-  Mesosphere cluster, with 3 masters and 9 agents
+  Mesosphere cluster with Docker, on 3 masters and 9 agents
   A job submitted to Marathon is dispatched among agents.
 
 parameters:
@@ -64,13 +64,16 @@ defaults:
     information:
       - "a Mesosphere master node"
       - "connect remotely with:"
-      - "$ ssh ubuntu@{{ node.public }}"
+      - "$ ssh centos@{{ node.public }}"
       - "check Marathon interface at http://{{ node.public }}:8080/"
       - "check Mesos interface at http://{{ node.public }}:5050/"
 
-    appliance: 'Ubuntu 14'
+    appliance: 'CentOS 7'
     cpu: 8
     memory: 32
+
+    disks:
+      - "1 100 standard"
 
     # :5050 is the Mesos web UI, :8080 is the Marathon web UI
     glue:
@@ -80,60 +83,60 @@ defaults:
 
     cloud-config:
 
+      write_files:
+
+        - path: /root/zoo.cfg.addition
+          content: |
+            server.1={{ master1.private }}:2888:3888
+            server.2={{ master2.private }}:2888:3888
+            server.3={{ master3.private }}:2888:3888
+
       runcmd:
 
         - echo "===== Installing Mesosphere"
-
-        - apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv E56151BF
-        - DISTRO=$(lsb_release -is | tr '[:upper:]' '[:lower:]')
-        - CODENAME=$(lsb_release -cs)
-        - echo "deb http://repos.mesosphere.io/${DISTRO} ${CODENAME} main" | sudo tee /etc/apt/sources.list.d/mesosphere.list
-        - apt-get -y update
-
-        - apt-get -y install mesosphere
+        - rpm -Uvh http://repos.mesosphere.com/el/7/noarch/RPMS/mesosphere-el-repo-7-1.noarch.rpm
+        - yum install -y mesos marathon mesosphere-zookeeper
 
         - echo "===== Configuring Zookeeper"
-        - cp -n /etc/zookeeper/conf_example/* /etc/zookeeper/conf
-        - sed -i "s/#server.1=zookeeper1/server.1={{ master1.private }}/" /etc/zookeeper/conf/zoo.cfg
-        - sed -i "s/#server.2=zookeeper2/server.2={{ master2.private }}/" /etc/zookeeper/conf/zoo.cfg
-        - sed -i "s/#server.3=zookeeper3/server.3={{ master3.private }}/" /etc/zookeeper/conf/zoo.cfg
+        - cp -n /etc/zookeeper/conf/zoo.cfg /etc/zookeeper/conf/zoo.cfg.orig
+        - cat /etc/zookeeper/conf/zoo.cfg.orig /root/zoo.cfg.addition >/etc/zookeeper/conf/zoo.cfg
 
         - echo "===== Starting Zookeeper"
-        - service zookeeper restart
+        - systemctl start zookeeper
 
         - echo "===== Configuring Mesos "
 
         - mkdir -p /etc/mesos-master
-        - echo "{{ node.private }}" | sudo tee /etc/mesos-master/ip
+        - echo "{{ node.private }}" | tee /etc/mesos-master/ip
 
         # allow web redirection to leading master over public Internet
-        - echo "{{ node.public }}" | sudo tee /etc/mesos-master/hostname
+        - echo "{{ node.public }}" | tee /etc/mesos-master/hostname
 
-        - echo "2" | sudo tee /etc/mesos-master/quorum
+        - echo "2" | tee /etc/mesos-master/quorum
 
         - mkdir -p /etc/mesos
         - sed -i "s/localhost:2181/{{ master1.private }}:2181,{{ master2.private }}:2181,{{ master3.private }}:2181/" /etc/mesos/zk
 
         - echo "===== Disabling Mesos slave service"
-        - service mesos-slave stop
-        - echo "manual" | sudo tee /etc/init/mesos-slave.override
+        - systemctl stop mesos-slave
+        - systemctl disable mesos-slave
 
         - echo "===== Starting Mesos"
-        - service mesos-master restart
+        - systemctl restart mesos-master
 
         - echo "===== Configuring Marathon"
         - mkdir -p /etc/marathon/conf
         - cp /etc/mesos-master/hostname /etc/marathon/conf
         - cp /etc/mesos/zk /etc/marathon/conf/master
-        - echo "zk://{{ master1.private }}:2181,{{ master2.private }}:2181,{{ master3.private }}:2181/marathon" | sudo tee /etc/marathon/conf/zk
+        - echo "zk://{{ master1.private }}:2181,{{ master2.private }}:2181,{{ master3.private }}:2181/marathon" | tee /etc/marathon/conf/zk
 
         - echo "===== Starting Marathon"
-        - service marathon restart
+        - systemctl restart marathon
 
   # settings for any Meso agent node
   mesosphere-agent:
 
-    appliance: 'Ubuntu 14'
+    appliance: 'CentOS 7'
     cpu: "{{ cpuPerNode.parameter }}"
     memory: "{{ memoryPerNode.parameter }}"
 
@@ -149,51 +152,31 @@ defaults:
 
       runcmd:
 
-        - echo "===== Growing LVM with added disk"
-        - pvcreate /dev/sdb
-        - vgextend rootvol00 /dev/sdb
-        - lvextend -l +100%FREE /dev/mapper/rootvol00-rootlvol00
-        - resize2fs /dev/mapper/rootvol00-rootlvol00
-
-        - echo "===== Installing Docker Engine"
-        - curl -sSL https://get.docker.com/ | sh
-        - usermod -aG docker ubuntu
-
         - echo "===== Installing Mesos"
-
-        - apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv E56151BF
-        - DISTRO=$(lsb_release -is | tr '[:upper:]' '[:lower:]')
-        - CODENAME=$(lsb_release -cs)
-        - echo "deb http://repos.mesosphere.io/${DISTRO} ${CODENAME} main" | sudo tee /etc/apt/sources.list.d/mesosphere.list
-        - apt-get -y update
-
-        - apt-get -y install mesos
+        - rpm -Uvh http://repos.mesosphere.com/el/7/noarch/RPMS/mesosphere-el-repo-7-1.noarch.rpm
+        - yum install -y mesos
 
         - echo "===== Configuring Mesos"
 
         - mkdir -p /etc/mesos-slave
-        - echo "{{ node.private }}" | sudo tee /etc/mesos-slave/ip
-        - echo "{{ node.name }}" | sudo tee /etc/mesos-slave/hostname
+        - echo "{{ node.private }}" | tee /etc/mesos-slave/ip
+        - echo "{{ node.name }}" | tee /etc/mesos-slave/hostname
 
         # support docker containers as well
-        - echo "docker,mesos" | sudo tee /etc/mesos-slave/containerizers
+        - echo "docker,mesos" | tee /etc/mesos-slave/containerizers
 
         # afford long delays to pull a docker image
-        - echo "5mins" | sudo tee /etc/mesos-slave/executor_registration_timeout
+        - echo "5mins" | tee /etc/mesos-slave/executor_registration_timeout
 
         - mkdir -p /etc/mesos
         - sed -i "s/localhost:2181/{{ master1.private }}:2181,{{ master2.private }}:2181,{{ master3.private }}:2181/" /etc/mesos/zk
 
-        - echo "===== Disabling Zookeeper"
-        - service zookeeper stop
-        - echo "manual" | sudo tee /etc/init/zookeeper.override
-
         - echo "===== Disabling Mesos master service"
-        - service mesos-master stop
-        - echo "manual" | sudo tee /etc/init/mesos-master.override
+        - systemctl stop mesos-master
+        - systemctl disable mesos-master
 
         - echo "===== Starting Mesos"
-        - service mesos-slave restart
+        - systemctl start mesos-slave
 
   # a couple of directives for all nodes
   cloud-config:
@@ -233,34 +216,67 @@ defaults:
            print "{{ node9.private }}    node9"
           }
 
-    bootcmd:
+      # use docker repo
+      - path: /etc/yum.repos.d/docker.repo
+        content: |
+          [dockerrepo]
+          name=Docker Repository
+          baseurl=https://yum.dockerproject.org/repo/main/centos/$releasever/
+          enabled=1
+          gpgcheck=1
+          gpgkey=https://yum.dockerproject.org/gpg
 
-      # remove apache
-      - apt-get remove apache2 -y
-      - apt-get autoremove -y
-
-      # automate acceptance of oracle licence
-      - echo "oracle-java8-installer shared/accepted-oracle-license-v1-1 select true" | sudo debconf-set-selections
-      - echo "oracle-java8-installer shared/accepted-oracle-license-v1-1 seen true" | sudo debconf-set-selections
-
-    apt_sources:
-      - source: "ppa:webupd8team/java"
+      # 'Mesos > 0.21.0' requires 'subversion > 1.8' devel package
+      - path: /etc/yum.repos.d/wandisco-svn.repo
+        content: |
+          [WANdiscoSVN]
+          name=WANdisco SVN Repo 1.9
+          enabled=1
+          baseurl=http://opensource.wandisco.com/centos/7/svn-1.9/RPMS/$basearch/
+          gpgcheck=1
+          gpgkey=http://opensource.wandisco.com/RPM-GPG-KEY-WANdisco
 
     packages:
       - ntp
-      - oracle-java8-installer
+      - wget
+      - git
 
     runcmd:
 
-      - echo "===== Handling ubuntu identity"
-      - cp -n /etc/ssh/ssh_host_rsa_key /home/ubuntu/.ssh/id_rsa
-      - cp -n /etc/ssh/ssh_host_rsa_key.pub /home/ubuntu/.ssh/id_rsa.pub
-      - chown ubuntu:ubuntu /home/ubuntu/.ssh/*
+      - echo "===== Growing LVM with added disk"
+      - pvcreate /dev/sdb
+      - vgextend centos /dev/sdb
+      - lvextend -l +100%FREE /dev/mapper/centos-root
+      - xfs_growfs /dev/mapper/centos-root
+
+      - echo "===== Handling centos identity"
+      - cp -n /etc/ssh/ssh_host_rsa_key /home/centos/.ssh/id_rsa
+      - cp -n /etc/ssh/ssh_host_rsa_key.pub /home/centos/.ssh/id_rsa.pub
+      - chown centos:centos /home/centos/.ssh/*
       - sed -i "/StrictHostKeyChecking/s/^.*$/    StrictHostKeyChecking no/" /etc/ssh/ssh_config
 
       - echo "===== Updating /etc/hosts"
       - cp -n /etc/hosts /etc/hosts.original
       - awk -f /root/hosts.awk /etc/hosts >/etc/hosts.new && mv /etc/hosts.new /etc/hosts
+
+      - echo "===== Installing EPEL"
+      - wget http://repos.fedorapeople.org/repos/dchen/apache-maven/epel-apache-maven.repo -O /etc/yum.repos.d/epel-apache-maven.repo
+      - yum install -y epel-release
+
+      - echo "===== Updating systemd"
+      - yum update systemd
+
+      - echo "===== Installing essential development tools"
+      - yum groupinstall -y "Development Tools"
+
+      - echo "===== Installing other Mesos dependencies"
+      - yum install -y apache-maven python-devel java-1.8.0-openjdk-devel zlib-devel libcurl-devel openssl-devel cyrus-sasl-devel cyrus-sasl-md5 apr-devel subversion-devel apr-util-devel
+
+      - echo "===== Installing Docker Engine"
+      - yum install -y docker-engine
+      - systemctl start docker
+      - docker pull python:3
+      - docker pull hello-world
 
     ssh_keys:
       rsa_private: |
@@ -270,7 +286,7 @@ defaults:
     users:
       - default
 
-      - name: ubuntu
+      - name: centos
         sudo: 'ALL=(ALL) NOPASSWD:ALL'
         ssh-authorized-keys:
           - "{{ key.rsa_public }}"
@@ -296,14 +312,13 @@ blueprints:
 
               write_files:
 
-                - path: /etc/zookeeper/conf/myid
+                - path: /var/lib/zookeeper/myid
                   content: |
                     1
 
                 - path: /root/shell_hello.sh
                   content: |
                     #!/bin/bash
-                    sleep 7m
                     cd /root
                     curl {{ node.public }}:8080/v2/apps \
                     -H 'Content-Type: application/json' \
@@ -322,11 +337,46 @@ blueprints:
                         "ports": [0]
                     }
 
+                - path: /root/docker_hello.sh
+                  content: |
+                    #!/bin/bash
+                    cd /root
+                    curl {{ node.public }}:8080/v2/apps \
+                    -H 'Content-Type: application/json' \
+                    --include \
+                    -d @/root/docker_hello.json
+
+                - path: /root/docker_hello.json
+                  content: |
+                    {
+                      "id": "docker-hello",
+                      "cmd": "python3 -m http.server 8080",
+                      "cpus": 0.5,
+                      "mem": 32.0,
+                      "container": {
+                        "type": "DOCKER",
+                        "docker": {
+                          "image": "python:3",
+                          "network": "BRIDGE",
+                          "portMappings": [
+                            { "containerPort": 8080, "hostPort": 0 }
+                          ]
+                        }
+                      }
+                    }
+
               runcmd:
+
+                - echo "===== Waiting for system to be stable"
+                - sleep 7m
 
                 - echo "===== Submitting some activities to Marathon"
                 - chmod +x /root/shell_hello.sh
                 - /root/shell_hello.sh
+
+                - echo "===== Submitting some activities to Docker"
+                - chmod +x /root/docker_hello.sh
+                - /root/docker_hello.sh
 
         - master2:
             default: mesosphere-master
@@ -335,7 +385,7 @@ blueprints:
 
               write_files:
 
-                - path: /etc/zookeeper/conf/myid
+                - path: /var/lib/zookeeper/myid
                   content: |
                     2
 
@@ -346,11 +396,11 @@ blueprints:
 
               write_files:
 
-                - path: /etc/zookeeper/conf/myid
+                - path: /var/lib/zookeeper/myid
                   content: |
                     3
 
-  - nodes:
+  - agents:
 
       nodes:
         - node[1..9]:
