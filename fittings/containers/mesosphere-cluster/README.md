@@ -1,23 +1,34 @@
-# Mesosphere cluster, with 3 masters and 9 slaves
+# Mesosphere cluster with Docker, on 3 masters and 9 slaves
 
 The objective of this use case is to deploy a large cluster of Mesosphere nodes at the [Managed Cloud Platform from Dimension Data](http://cloud.dimensiondata.com/eu/en/).
 This is done with [plumbery](https://developer.dimensiondata.com/display/PLUM/Plumbery) and a template that is provided below.
 
 Mesosphere is a system that combines a number of components to effectively manage server clustering and highly available deployments on top of an existing operating system layer. Unlike systems like CoreOS, Mesosphere is not a specialized operating system and is instead a set of packages.
 
+Apache Mesos is an open source cluster manager developed at UC Berkeley. It provides resource isolation and sharing across distributed applications. The figure below shows the main components of Mesos.
+
+![Architecture](architecture.png)
+
+Mesos consists of a master daemon that manages slave daemons running on each cluster node. Mesos frameworks are applications that run on Mesos and run tasks on these slaves. Slaves are either physical or virtual machines, typically from the same provider.
+
+Mesos uses a two-level scheduling mechanism where resource offers are made to frameworks. The Mesos master node decides how many resources to offer each framework, while each framework determines the resources it accepts and what application to execute on those resources.
+
+Marathon is a container orchestration platform running on Mesos. Multiple container formats are supported and Docker is certainly the most common one!
+
+In this use case, we configure a highly available cluster in Mesosphere. This configuration will failover in case any master nodes goes down. It also has a pool of slave nodes to handle the tasks that are scheduled.
+
 ![Layout](layout.png)
 
-In this guide, we will go over how to configure a highly available cluster in Mesosphere. This configuration will set us up with failover in case any of our master nodes go down as well as a pool of slave nodes to handle the tasks that are scheduled.
-
-We will be using Ubuntu 14.04 servers for this guide.
+We will be using CentOS 7 servers for this guide.
+Docker is installed everywhere so that the cluster can run any kind of containers.
 
 ## Requirements for this use case
 
 * Select a MCP location
 * Add a Network Domain
 * Add an Ethernet network
-* Deploy 12 Ubuntu nodes -- 3 masters and 9 slaves
-* Provide a lot of resources to each slave
+* Deploy 12 CentOS nodes -- 3 masters and 9 slaves
+* Provide additional CPU, RAM, and disk to each node
 * Monitor all nodes in the real-time dashboard provided by Dimension Data
 * Assign a public IPv4 address to each node
 * Add address translation rules to ensure Internet connectivity with each node
@@ -28,11 +39,14 @@ We will be using Ubuntu 14.04 servers for this guide.
 * Install a new SSH key to secure remote communications
 * Configure SSH to reject passwords and to prevent access from root account
 * Update `etc/hosts` and `hostnames` to bind IPv6 addresses to host names
+* Extend the file system via LVM
+* Install Docker at all nodes
 * Install Mesosphere at all master nodes, and Mesos at all slaves
 * Configure Zookeeper, Mesos-master and Marathon at each master node
 * Configure Mesos at each slave node
 * Restart services to launch the cluster
-* Submit a sample job via the API to feed the cluster
+* Submit a sample shell job via the Marathon API to feed the cluster
+* Run a sample Docker container via the Marathon API to feed the cluster
 
 ## Fittings plan
 
@@ -60,7 +74,7 @@ To check the orchestration of activities you can go to any Marathon web interfac
 
 ![Marathon](marathon.png)
 
-This will show how Marathon is managing the job that was submitted during the
+This will show how Marathon is managing job that were submitted during the
 setup of the full cluster.
 
 To get more information you can check the Mesos cluster from web access to one master node.
