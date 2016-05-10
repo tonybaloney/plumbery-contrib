@@ -69,6 +69,7 @@ defaults:
       - "check Mesos interface at http://{{ node.public }}:5050/"
 
     appliance: 'CentOS 7'
+
     cpu: 8
     memory: 32
 
@@ -137,6 +138,7 @@ defaults:
   mesosphere-agent:
 
     appliance: 'CentOS 7'
+
     cpu: "{{ cpuPerNode.parameter }}"
     memory: "{{ memoryPerNode.parameter }}"
 
@@ -240,6 +242,7 @@ defaults:
       - ntp
       - wget
       - git
+      - tar
 
     runcmd:
 
