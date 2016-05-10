@@ -1,0 +1,204 @@
+---
+
+information:
+  - "GitLab Community Edition and Samba server, core internal services for developers"
+
+parameters:
+
+  locationId:
+    information:
+      - "the target data centre for this deployment"
+    type: locations.list
+    default: NA9
+
+  domainName:
+    information:
+      - "the name of the network domain to be deployed"
+    type: str
+    default: GitlabFox
+
+  networkName:
+    information:
+      - "the name of the Ethernet VLAN to be deployed"
+    type: str
+    default: GitlabNetwork
+
+  nodeName:
+    information:
+      - "the name of the main node to be deployed"
+    type: str
+    default: gitlab01
+
+links:
+  documentation: https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/fittings/devops/gitlab
+  credit: https://about.gitlab.com/downloads/#centos7
+
+defaults:
+
+  cloud-config:
+
+    ssh_keys:
+      rsa_private: |
+        {{ key.rsa_private }}
+      rsa_public: "{{ key.rsa_public }}"
+
+    users:
+      - default
+
+      - name: centos
+        sudo: 'ALL=(ALL) NOPASSWD:ALL'
+        ssh-authorized-keys:
+          - "{{ key.rsa_public }}"
+          - "{{ local.rsa_public }}"
+
+    disable_root: true
+    ssh_pwauth: false
+
+---
+
+locationId: "{{ locationId.parameter }}"
+
+blueprints:
+
+  - gitlab:
+
+      domain:
+        name: "{{ domainName.parameter }}"
+        service: essentials
+        ipv4: auto
+
+      ethernet:
+        name: "{{ networkName.parameter }}"
+        subnet: 192.168.20.0
+
+      nodes:
+
+        - "{{ nodeName.parameter }}":
+
+            description: "#gitlab #samba #centos"
+
+            information:
+              - "ssh centos@{{ node.public }}"
+              - "open a browser at http://{{ node.public }}/ to view it live"
+
+            appliance: 'CentOS 7'
+
+            # up to 500 GitLab users
+            cpu: 2
+
+            # up to 1000 GitLab users
+            memory: 4
+
+            disks:
+              - 1 500 standard
+
+            monitoring: essentials
+
+            glue:
+              - internet icmp 22 80 443 139 445 udp:137..138
+
+            cloud-config:
+
+              packages:
+                - ntp
+                - tar
+                - wget
+                - git
+
+              hostname: "{{ node.name }}"
+
+              write_files:
+
+                - path: /root/hosts.awk
+                  content: |
+                    #!/usr/bin/awk -f
+                    /^{{ {{ nodeName.parameter }}.private }}/ {next}
+                    {print}
+                    END {
+                     print "{{ {{ nodeName.parameter }}.private }}    {{ nodeName.parameter }}"
+                    }
+
+                - path: /root/etc-samba-smb.conf
+                  content: |
+                    [global]
+                    workgroup = WORKGROUP
+                    server string = Samba Server %v
+                    netbios name = gitlab
+                    security = user
+                    map to guest = bad user
+                    dns proxy = no
+                    #============================ Share Definitions ==============================
+                    [Anonymous]
+                    path = /samba/anonymous
+                    browsable =yes
+                    writable = yes
+                    guest ok = yes
+                    read only = no
+
+              runcmd:
+
+                - echo "===== Growing LVM with added disk"
+                - pvcreate /dev/sdb
+                - vgextend centos /dev/sdb
+                - lvextend -l +100%FREE /dev/mapper/centos-root
+                - xfs_growfs /dev/mapper/centos-root
+
+                - echo "===== Handling centos identity"
+                - cp -n /etc/ssh/ssh_host_rsa_key /home/centos/.ssh/id_rsa
+                - cp -n /etc/ssh/ssh_host_rsa_key.pub /home/centos/.ssh/id_rsa.pub
+                - chown centos:centos /home/centos/.ssh/*
+                - sed -i "/StrictHostKeyChecking/s/^.*$/    StrictHostKeyChecking no/" /etc/ssh/ssh_config
+
+                - echo "===== Updating /etc/hosts"
+                - cp -n /etc/hosts /etc/hosts.original
+                - awk -f /root/hosts.awk /etc/hosts >/etc/hosts.new && mv /etc/hosts.new /etc/hosts
+
+                - echo "===== Installing EPEL"
+                - wget http://repos.fedorapeople.org/repos/dchen/apache-maven/epel-apache-maven.repo -O /etc/yum.repos.d/epel-apache-maven.repo
+                - yum install -y epel-release
+
+                - echo "===== Updating systemd"
+                - yum update systemd
+
+                - echo "===== Installing essential development tools"
+                - yum groupinstall -y "Development Tools"
+
+                - echo "===== Installing GitLab dependencies"
+                - yum install -y curl policycoreutils openssh-server openssh-clients
+                - systemctl enable sshd
+                - systemctl start sshd
+                - yum install -y postfix
+                - systemctl enable postfix
+                - systemctl start postfix
+                - firewall-cmd --permanent --add-service=http
+                - firewall-cmd --permanent --add-service=https
+                - systemctl reload firewalld
+
+                - echo "===== Installing GitLab"
+                - curl -sS https://packages.gitlab.com/install/repositories/gitlab/gitlab-ce/script.rpm.sh | bash
+                - yum install -y gitlab-ce
+
+                - echo "===== Configuring and launching GitLab"
+                - gitlab-ctl reconfigure
+
+                - echo "===== Installing Samba"
+                - yum install -y samba samba-client samba-common
+                - cp -n /etc/samba/smb.conf /etc/samba/smb.conf.orig
+                - cp /root/etc-samba-smb.conf /etc/samba/smb.conf
+                - mkdir -p /samba/anonymous
+                - echo "hello world" | tee /samba/anonymous/welcome.txt
+                - systemctl enable smb.service
+                - systemctl enable nmb.service
+                - systemctl restart smb.service
+                - systemctl restart nmb.service
+
+                - echo "===== Allowing Samba in firewall"
+                - firewall-cmd --permanent --zone=public --add-service=samba
+                - firewall-cmd --reload
+
+                - echo "===== Allowing anonymous access"
+                - cd /samba
+                - chmod -R 0755 anonymous/
+                - chown -R nobody:nobody anonymous/
+                - ls -l anonymous/
+                - chcon -t samba_share_t -R anonymous/
