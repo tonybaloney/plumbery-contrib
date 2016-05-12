@@ -1,0 +1,229 @@
+---
+
+information:
+  - "ScaleIO cluster on 3 Docker hosts"
+
+parameters:
+
+  locationId:
+    information:
+      - "the target data centre for this deployment"
+    type: locations.list
+    default: EU7
+
+  domainName:
+    information:
+      - "the name of the network domain to be deployed"
+    type: str
+    default: ScaleioFox
+
+  networkName:
+    information:
+      - "the name of the Ethernet VLAN to be deployed"
+    type: str
+    default: ScaleioNetwork
+
+  cpuPerNode:
+    information:
+      - "the quantity of CPU given to one ScaleIO node"
+    type: [4..32]
+    default: 8
+
+  memoryPerNode:
+    information:
+      - "the quantity of RAM given to one ScaleIO node, in GB"
+    type: [8..256]
+    default: 32
+
+  diskPerNode:
+    information:
+      - "the quantity of storage given to one ScaleIO node, in GB"
+    type: [100..1000]
+    default: 500
+
+links:
+  documentation: https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/fittings/storage/scaleio
+  credit: https://github.com/djannot/scaleio-docker
+
+defaults:
+
+  domain:
+    name: "{{ domainName.parameter }}"
+    ipv4: auto
+
+  ethernet:
+    name: "{{ networkName.parameter }}"
+    subnet: 10.0.1.0
+
+  docker-node:
+
+    appliance: 'CentOS 6'
+
+    cpu: "{{ cpuPerNode.parameter }}"
+    memory: "{{ memoryPerNode.parameter }}"
+
+    disks:
+      - "1 {{ diskPerNode.parameter }} economy"
+
+    monitoring: essentials
+
+  cloud-config:
+
+    hostname: "{{ node.name }}"
+
+    packages:
+      - ntp
+      - wget
+      - git
+      - tar
+
+    write_files:
+
+      - path: /root/hosts.awk
+        content: |
+          #!/usr/bin/awk -f
+          /^{{ node1.private }}/ {next}
+          /^{{ node2.private }}/ {next}
+          /^{{ node3.private }}/ {next}
+          {print}
+          END {
+           print "{{ node1.private }}    node1"
+           print "{{ node2.private }}    node2"
+           print "{{ node3.private }}    node3"
+          }
+
+      - path: /etc/yum.repos.d/docker.repo
+        content: |
+          [dockerrepo]
+          name=Docker Repository
+          baseurl=https://yum.dockerproject.org/repo/main/centos/6
+          enabled=1
+          gpgcheck=1
+          gpgkey=https://yum.dockerproject.org/gpg
+
+    runcmd:
+
+      - echo "===== Updating /etc/hosts"
+      - cp -n /etc/hosts /etc/hosts.original
+      - awk -f /root/hosts.awk /etc/hosts >/etc/hosts.new && mv /etc/hosts.new /etc/hosts
+
+      - echo "===== Handling centos identity"
+      - cp -n /etc/ssh/ssh_host_rsa_key /home/centos/.ssh/id_rsa
+      - cp -n /etc/ssh/ssh_host_rsa_key.pub /home/centos/.ssh/id_rsa.pub
+      - chown centos:centos /home/centos/.ssh/*
+
+      - echo "===== Installing Docker Engine"
+      - yum update
+      - yum install -y docker-engine
+      - usermod -aG docker centos
+      - service docker start
+      - chkconfig docker on
+
+      - echo "===== Testing Docker"
+      - docker run hello-world
+
+    ssh_keys:
+      rsa_private: |
+        {{ key.rsa_private }}
+      rsa_public: "{{ key.rsa_public }}"
+
+    users:
+      - default
+
+      - name: centos
+        sudo: 'ALL=(ALL) NOPASSWD:ALL'
+        ssh-authorized-keys:
+          - "{{ key.rsa_public }}"
+          - "{{ local.rsa_public }}"
+
+    disable_root: true
+    ssh_pwauth: true
+
+---
+
+locationId: "{{ locationId.parameter }}"
+
+blueprints:
+
+  - cluster:
+
+      nodes:
+
+        - node1:
+            default: docker-node
+
+            information:
+              - "ScaleIO Primary MDM and SDS and API gateway"
+              - "ssh centos@{{ node.public }}"
+              - "cat /var/log/cloud-init-output.log"
+
+            glue:
+              - internet icmp 22 80 443
+
+            cloud-config:
+
+              runcmd:
+
+                - echo "===== Getting Dockerfile"
+                - mkdir /home/centos/scaleio-primary-mdm
+                - cd /home/centos/scaleio-primary-mdm
+                - wget -q https://raw.githubusercontent.com/djannot/scaleio-docker/master/scaleio-primary-mdm/Dockerfile
+
+                - echo "===== Building container"
+                - docker build -t scaleio-primary-mdm-1.31:custom .
+
+                - echo "===== Running container"
+#                - docker run -d –p 80:80 -p 443:443 -p 6611:6611 -p 9011:9011 -p 7072:7072 --privileged -e IP_DOCKER_HOST={{ node1.private }} -e IP_SECONDARY_MDM={{ node2.private }} -e IP_TB={{ node3.private }} -e DEVICE_LIST=/dev/sdb scaleio-primary-mdm-1.31
+
+        - node2:
+            default: docker-node
+
+            information:
+              - "ScaleIO Secondary MDM and SDS"
+              - "ssh centos@{{ node.public }}"
+              - "cat /var/log/cloud-init-output.log"
+
+            glue:
+              - internet icmp 22
+
+            cloud-config:
+
+              runcmd:
+
+                - echo "===== Getting Dockerfile"
+                - mkdir /home/centos/scaleio-secondary-mdm
+                - cd /home/centos/scaleio-secondary-mdm
+                - wget -q https://raw.githubusercontent.com/djannot/scaleio-docker/master/scaleio-secondary-mdm/Dockerfile
+
+                - echo "===== Building container"
+                - docker build -t scaleio-secondary-mdm-1.31:custom .
+
+                - echo "===== Running container"
+#                - docker run -d -p 6611:6611 -p 9011:9011 -p 7072:7072 --privileged scaleio-secondary-mdm-1.31
+
+        - node3:
+            default: docker-node
+
+            information:
+              - "ScaleIO Primary MDM and SDS and API gateway"
+              - "ssh centos@{{ node.public }}"
+              - "cat /var/log/cloud-init-output.log"
+
+            glue:
+              - internet icmp 22 80 443
+
+            cloud-config:
+
+              runcmd:
+
+                - echo "===== Getting Dockerfile"
+                - mkdir /home/centos/scaleio-tb
+                - cd /home/centos/scaleio-tb
+                - wget -q https://raw.githubusercontent.com/djannot/scaleio-docker/master/scaleio-tb/Dockerfile
+
+                - echo "===== Building container"
+                - docker build -t scaleio-tb-1.31:custom .
+
+                - echo "===== Running container"
+#                - docker run -d -p 9011:9011 -p 7072:7072 --privileged scaleio-tb-1.31
+
