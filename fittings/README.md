@@ -18,6 +18,7 @@
 
 ## Container services
 
+- [Rancher, a complete platform for running containers](containers/rancher)
 - [Docker node](containers/docker)
 - [Kubernetes node](containers/kubernetes)
 - [Docker Swarm](containers/docker-swarm)

@@ -1,0 +1,158 @@
+---
+
+information:
+  - "Rancher, a complete platform for running containers"
+
+parameters:
+
+  locationId:
+    information:
+      - "the target data centre for this deployment"
+    type: locations.list
+    default: EU7
+
+  domainName:
+    information:
+      - "the name of the network domain to be deployed"
+    type: str
+    default: RancherFox
+
+  networkName:
+    information:
+      - "the name of the Ethernet VLAN to be deployed"
+    type: str
+    default: RancherNetwork
+
+  nodeName:
+    information:
+      - "the name of the main node to be deployed"
+    type: str
+    default: rancher01
+
+links:
+  documentation: https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/fittings/containers/rancher
+  credit: http://docs.rancher.com/rancher/latest/en/quick-start-guide/
+
+defaults:
+
+  domain:
+    name: "{{ domainName.parameter }}"
+    service: essentials
+    ipv4: auto
+
+  ethernet:
+    name: "{{ networkName.parameter }}"
+    subnet: 192.168.20.0
+
+  rancher-node:
+
+    description: "#rancher #ubuntu"
+
+    information:
+      - "go to the rancher web UI:"
+      - "http://{{ node.public }}:8080"
+      - "go to the rancher web UI:"
+      - "ssh ubuntu@{{ node.public }}"
+
+    # plenty of compute power
+    #
+    appliance: 'Ubuntu 14'
+    cpu: 32
+    memory: 256
+
+    # enough storage space
+    #
+    disks:
+      - 1 1000 standard
+
+    # make the node accessible from the Internet
+    #
+    glue:
+      - internet icmp 22 80 4040 8080
+
+    # allow for monitoring from the global dashboard
+    #
+    monitoring: essentials
+
+    # contextualise this node
+    #
+    cloud-config:
+
+      hostname: "{{ node.name }}"
+
+      packages:
+        - ntp
+
+      write_files:
+
+        - path: /root/hosts.awk
+          content: |
+            #!/usr/bin/awk -f
+            /^{{ node.private }}/ {next}
+            /^{{ node.ipv6 }}/ {next}
+            {print}
+            END {
+             print "{{ node.private }}    {{ node.name }}"
+             print "{{ node.ipv6 }}    {{ node.name }}"
+            }
+
+      runcmd:
+
+        - echo "===== Growing LVM with added disk"
+        - pvcreate /dev/sdb
+        - vgextend rootvol00 /dev/sdb
+        - lvextend -l +100%FREE /dev/mapper/rootvol00-rootlvol00
+        - resize2fs /dev/mapper/rootvol00-rootlvol00
+
+        - echo "===== Updating /etc/hosts"
+        - cp -n /etc/hosts /etc/hosts.original
+        - awk -f /root/hosts.awk /etc/hosts >/etc/hosts.new && mv /etc/hosts.new /etc/hosts
+
+        - echo "===== Handling ubuntu identity"
+        - cp -n /etc/ssh/ssh_host_rsa_key /home/ubuntu/.ssh/id_rsa
+        - cp -n /etc/ssh/ssh_host_rsa_key.pub /home/ubuntu/.ssh/id_rsa.pub
+        - chown ubuntu:ubuntu /home/ubuntu/.ssh/*
+        - sed -i "/StrictHostKeyChecking/s/^.*$/    StrictHostKeyChecking no/" /etc/ssh/ssh_config
+
+        - echo "===== Installing Docker Engine"
+        - apt-get remove apache2 -y
+        - apt-get autoremove -y
+        - curl -sSL https://get.docker.com/ | sh
+        - usermod -aG docker ubuntu
+
+        - echo "===== Checking Docker installation"
+        - docker run hello-world
+
+        - echo "===== Adding Rancher"
+        - docker run -d --restart=always -p 8080:8080 rancher/server
+        - docker pull rancher/agent
+
+  cloud-config:
+
+    ssh_keys:
+      rsa_private: |
+        {{ key.rsa_private }}
+      rsa_public: "{{ key.rsa_public }}"
+
+    users:
+      - default
+
+      - name: ubuntu
+        sudo: 'ALL=(ALL) NOPASSWD:ALL'
+        ssh-authorized-keys:
+          - "{{ key.rsa_public }}"
+          - "{{ local.rsa_public }}"
+
+    disable_root: true
+    ssh_pwauth: false
+
+---
+
+locationId: "{{ locationId.parameter }}"
+
+blueprints:
+
+  - rancher:
+      nodes:
+        - "{{ nodeName.parameter }}":
+            default: rancher-node
