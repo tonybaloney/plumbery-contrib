@@ -4,7 +4,7 @@ The objective of this use case is to deploy a cluster of Ceph nodes at the [Mana
 This is done with [plumbery](https://developer.dimensiondata.com/display/PLUM/Plumbery) and a template that is provided below.
 
 The cluster is built from an `admin` node that is running `ceph-deploy`.
-It has 3 monitoring nodes, 3 storage nodes, and 2 gateway node.
+It has 3 monitoring nodes, 3 storage nodes, and 2 gateway nodes.
 
 ## Requirements for this use case
 

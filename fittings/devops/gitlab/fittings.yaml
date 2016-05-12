@@ -9,7 +9,7 @@ parameters:
     information:
       - "the target data centre for this deployment"
     type: locations.list
-    default: NA9
+    default: EU6
 
   domainName:
     information:
@@ -123,12 +123,12 @@ blueprints:
                     [global]
                     workgroup = WORKGROUP
                     server string = Samba Server %v
-                    netbios name = gitlab
+                    netbios name = {{ node.name }}
                     security = user
                     map to guest = bad user
                     dns proxy = no
-                    #============================ Share Definitions ==============================
-                    [Anonymous]
+
+                    [anonymous]
                     path = /samba/anonymous
                     browsable =yes
                     writable = yes

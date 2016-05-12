@@ -72,10 +72,10 @@ To check the orchestration of activities you can go to any Marathon web interfac
 
     http://<ipv4_of_one_master_here>:8080
 
-![Marathon](marathon.png)
-
 This will show how Marathon is managing job that were submitted during the
 setup of the full cluster.
+
+![Marathon](marathon.png)
 
 To get more information you can check the Mesos cluster from web access to one master node.
 
