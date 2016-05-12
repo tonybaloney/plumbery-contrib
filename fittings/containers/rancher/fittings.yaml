@@ -51,7 +51,7 @@ defaults:
     information:
       - "go to the rancher web UI:"
       - "http://{{ node.public }}:8080"
-      - "go to the rancher web UI:"
+      - "get some insight if needed:"
       - "ssh ubuntu@{{ node.public }}"
 
     # plenty of compute power
