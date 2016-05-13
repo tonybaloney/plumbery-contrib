@@ -1,7 +1,7 @@
 ---
 
 information:
-  - "ScaleIO cluster on 3 Docker hosts"
+  - "ScaleIO cluster on 3 nodes"
 
 parameters:
 
@@ -27,13 +27,13 @@ parameters:
     information:
       - "the quantity of CPU given to one ScaleIO node"
     type: [4..32]
-    default: 8
+    default: 2
 
   memoryPerNode:
     information:
       - "the quantity of RAM given to one ScaleIO node, in GB"
     type: [8..256]
-    default: 32
+    default: 4
 
   diskPerNode:
     information:
@@ -73,9 +73,16 @@ defaults:
 
     packages:
       - ntp
-      - wget
-      - git
       - tar
+      - wget
+      - unzip
+      - libaio
+      - numactl
+      - mutt
+      - python
+      - python-paramiko
+      - java-1.6.0-openjdk
+      - which
 
     write_files:
 
@@ -92,15 +99,6 @@ defaults:
            print "{{ node3.private }}    node3"
           }
 
-      - path: /etc/yum.repos.d/docker.repo
-        content: |
-          [dockerrepo]
-          name=Docker Repository
-          baseurl=https://yum.dockerproject.org/repo/main/centos/6
-          enabled=1
-          gpgcheck=1
-          gpgkey=https://yum.dockerproject.org/gpg
-
     runcmd:
 
       - echo "===== Updating /etc/hosts"
@@ -112,15 +110,29 @@ defaults:
       - cp -n /etc/ssh/ssh_host_rsa_key.pub /home/centos/.ssh/id_rsa.pub
       - chown centos:centos /home/centos/.ssh/*
 
-      - echo "===== Installing Docker Engine"
-      - yum update
-      - yum install -y docker-engine
-      - usermod -aG docker centos
-      - service docker start
-      - chkconfig docker on
+      - echo "===== Updating the system"
+      - wget http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
+      - wget http://rpms.famillecollet.com/enterprise/remi-release-6.rpm
+      - rpm -Uvh remi-release-6*.rpm epel-release-6*.rpm
+      - yum -y install bash-completion
 
-      - echo "===== Testing Docker"
-      - docker run hello-world
+      - echo "===== Fetching EMC ScaleIO packages"
+      - mkdir -p /opt/emc/scaleio/siinstall
+      - cd /tmp
+
+      - wget -q http://downloads.emc.com/emc-com/usa/ScaleIO/ScaleIO_Linux_1.latest.zip
+      - unzip ScaleIO_Linux_1.latest.zip
+      - unzip ScaleIO_1.32.3_RHEL6_Download.zip
+      - cp ScaleIO_1.32.3_RHEL6_Download/* /opt/emc/scaleio/siinstall
+      - unzip ScaleIO_1.32.3_Gateway_for_Linux_Download.zip
+      - yes | cp ScaleIO_1.32.3_Gateway_for_Linux_Download/* /opt/emc/scaleio/siinstall
+
+#      - wget -q http://downloads.emc.com/emc-com/usa/ScaleIO/ScaleIO_Linux_v2.0.zip
+#      - unzip ScaleIO_Linux_v2.0.zip
+#      - unzip ScaleIO_2.0.0_RHEL6_Download.zip
+#      - cp ScaleIO_2.0.0_RHEL6_Download/* /opt/emc/scaleio/siinstall
+#      - unzip ScaleIO_2.0.0_Gateway_for_Linux_Download.zip
+#      - yes | cp ScaleIO_2.0.0_Gateway_for_Linux_Download/* /opt/emc/scaleio/siinstall
 
     ssh_keys:
       rsa_private: |
@@ -154,6 +166,8 @@ blueprints:
 
             information:
               - "ScaleIO Primary MDM and SDS and API gateway"
+              - "http://{{ node.public }}"
+              - "use password: {{ cluster.secret }}"
               - "ssh centos@{{ node.public }}"
               - "cat /var/log/cloud-init-output.log"
 
@@ -164,16 +178,53 @@ blueprints:
 
               runcmd:
 
-                - echo "===== Getting Dockerfile"
-                - mkdir /home/centos/scaleio-primary-mdm
-                - cd /home/centos/scaleio-primary-mdm
-                - wget -q https://raw.githubusercontent.com/djannot/scaleio-docker/master/scaleio-primary-mdm/Dockerfile
+                - echo "===== Installing ScaleIO software"
+                - umount /dev/shm
+                - mount -t tmpfs -o rw,nosuid,nodev,noexec,relatime,size=524288k shm /dev/shm
+                - rpm -Uvh /opt/emc/scaleio/siinstall/EMC-ScaleIO-mdm-*.x86_64.rpm
+                - rpm -Uvh /opt/emc/scaleio/siinstall/EMC-ScaleIO-sds-*.x86_64.rpm
+                - MDM_IP={{ node1.private }} rpm -Uvh /opt/emc/scaleio/siinstall/EMC-ScaleIO-sdc-*.x86_64.rpm
+                - GATEWAY_ADMIN_PASSWORD={{ cluster.secret }} rpm -Uvh /opt/emc/scaleio/siinstall/EMC-ScaleIO-gateway-*.rpm
+                - sed -i 's/mdm.ip.addresses=.*/mdm.ip.addresses={{ node1.private }},{{ node2.private }}/' /opt/emc/scaleio/gateway/webapps/ROOT/WEB-INF/classes/gatewayUser.properties
+                - sed -i 's/gateway-admin.password=.*/gateway-admin.password={{ cluster.secret }}/' /opt/emc/scaleio/gateway/webapps/ROOT/WEB-INF/classes/gatewayUser.properties
+                - service scaleio-gateway restart
 
-                - echo "===== Building container"
-                - docker build -t scaleio-primary-mdm-1.31:custom .
+                - echo "===== Setting primary MDM"
+                - scli --mdm --add_primary_mdm --primary_mdm_ip node1 --accept_license
+                - sleep 1m
 
-                - echo "===== Running container"
-#                - docker run -d –p 80:80 -p 443:443 -p 6611:6611 -p 9011:9011 -p 7072:7072 --privileged -e IP_DOCKER_HOST={{ node1.private }} -e IP_SECONDARY_MDM={{ node2.private }} -e IP_TB={{ node3.private }} -e DEVICE_LIST=/dev/sdb scaleio-primary-mdm-1.31
+                - echo "===== Setting password"
+                - scli --login --username admin --password admin
+                - scli --set_password --old_password admin --new_password {{ cluster.secret }}
+                - scli --login --username admin --password {{ cluster.secret }}
+
+                - echo "===== Adding secondary MDM"
+                - scli --add_secondary_mdm --mdm_ip node1 --secondary_mdm_ip node2
+                - sleep 20
+
+                - echo "===== Adding tie-break MDM"
+                - scli --add_tb --mdm_ip node1 --tb_ip node3
+                - sleep 20
+
+                - echo "===== Switching to cluster mode"
+                - scli --switch_to_cluster_mode --mdm_ip node1
+
+                - echo "===== Configuring domain, pool"
+                - scli --add_protection_domain --mdm_ip node1 --protection_domain_name domain1
+                - scli --add_storage_pool --protection_domain_name domain1 --storage_pool_name pool1
+
+                - echo "===== Adding SDS participating to the cluster"
+                - scli --sds --add_sds --mdm_ip node1 --sds_ip node3 --sds_ip_role all --protection_domain_name domain1 --storage_pool_name pool1 --device_path /dev/sdb --sds_name sds1 --no_test --force_clean --i_am_sure
+                - scli --sds --add_sds --mdm_ip node1 --sds_ip node1 --sds_ip_role all --protection_domain_name domain1 --storage_pool_name pool1 --device_path /dev/sdb --sds_name sds2 --no_test --force_clean --i_am_sure
+                - scli --sds --add_sds --mdm_ip node1 --sds_ip node2 --sds_ip_role all --protection_domain_name domain1 --storage_pool_name pool1 --device_path /dev/sdb --sds_name sds3 --no_test --force_clean --i_am_sure
+
+                - echo "===== Adding volume"
+                - scli --add_volume --protection_domain_name domain1 --storage_pool_name pool1 --size_gb 400 --volume_name volume1
+
+                - echo "===== Mapping volume to all SDC"
+                - scli --mdm_ip node1 --map_volume_to_sdc --volume_name volume1 --sdc_ip node1 --allow_multi_map
+                - scli --mdm_ip node1 --map_volume_to_sdc --volume_name volume1 --sdc_name node2 --allow_multi_map
+                - scli --mdm_ip node1 --map_volume_to_sdc --volume_name volume1 --sdc_name node3 --allow_multi_map
 
         - node2:
             default: docker-node
@@ -181,7 +232,6 @@ blueprints:
             information:
               - "ScaleIO Secondary MDM and SDS"
               - "ssh centos@{{ node.public }}"
-              - "cat /var/log/cloud-init-output.log"
 
             glue:
               - internet icmp 22
@@ -190,16 +240,13 @@ blueprints:
 
               runcmd:
 
-                - echo "===== Getting Dockerfile"
-                - mkdir /home/centos/scaleio-secondary-mdm
-                - cd /home/centos/scaleio-secondary-mdm
-                - wget -q https://raw.githubusercontent.com/djannot/scaleio-docker/master/scaleio-secondary-mdm/Dockerfile
+                - echo "===== Installing ScaleIO software"
+                - umount /dev/shm
+                - mount -t tmpfs -o rw,nosuid,nodev,noexec,relatime,size=524288k shm /dev/shm
 
-                - echo "===== Building container"
-                - docker build -t scaleio-secondary-mdm-1.31:custom .
-
-                - echo "===== Running container"
-#                - docker run -d -p 6611:6611 -p 9011:9011 -p 7072:7072 --privileged scaleio-secondary-mdm-1.31
+                - rpm -Uvh /opt/emc/scaleio/siinstall/EMC-ScaleIO-mdm-*.x86_64.rpm
+                - rpm -Uvh /opt/emc/scaleio/siinstall/EMC-ScaleIO-sds-*.x86_64.rpm
+                - MDM_IP={{ node1.private }} rpm -Uvh /opt/emc/scaleio/siinstall/EMC-ScaleIO-sdc-*.x86_64.rpm
 
         - node3:
             default: docker-node
@@ -207,23 +254,15 @@ blueprints:
             information:
               - "ScaleIO Primary MDM and SDS and API gateway"
               - "ssh centos@{{ node.public }}"
-              - "cat /var/log/cloud-init-output.log"
 
             glue:
-              - internet icmp 22 80 443
+              - internet icmp 22
 
             cloud-config:
 
               runcmd:
 
-                - echo "===== Getting Dockerfile"
-                - mkdir /home/centos/scaleio-tb
-                - cd /home/centos/scaleio-tb
-                - wget -q https://raw.githubusercontent.com/djannot/scaleio-docker/master/scaleio-tb/Dockerfile
-
-                - echo "===== Building container"
-                - docker build -t scaleio-tb-1.31:custom .
-
-                - echo "===== Running container"
-#                - docker run -d -p 9011:9011 -p 7072:7072 --privileged scaleio-tb-1.31
-
+                - echo "===== Installing ScaleIO software"
+                - rpm -Uvh /opt/emc/scaleio/siinstall/EMC-ScaleIO-tb-*.x86_64.rpm
+                - rpm -Uvh /opt/emc/scaleio/siinstall/EMC-ScaleIO-sds-*.x86_64.rpm
+                - MDM_IP={{ node1.private }} rpm -Uvh /opt/emc/scaleio/siinstall/EMC-ScaleIO-sdc-*.x86_64.rpm
