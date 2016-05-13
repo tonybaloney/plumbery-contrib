@@ -5,9 +5,8 @@
 - [First example with Ubuntu node](example/first)
 - [Multiple disks added with LVM](example/disks)
 - [Multiple network interfaces](example/networks)
-- [Plumbery in the cloud, with all reference fittings plans](example/plumbery)
-- [Ubuntu desktop](example/ubuntu-desktop)
 - [Kit of multiple Windows nodes](example/windows-kit)
+- [Ubuntu desktop](example/ubuntu-desktop)
 - [The master plan to conquer the world](example/gigafox)
 
 ## Application services
@@ -32,7 +31,9 @@
 
 ## DevOps services
 
+- [GitLab Community Edition and Samba server, core internal services for developers](devops/gitlab)
 - [Stackstorm server, event-based Ops](devops/stackstorm)
+- [Plumbery in the cloud, with all reference fittings plans](example/plumbery)
 
 ## Logging services
 
@@ -49,11 +50,12 @@
 
 ## Storage services
 
+- [GlusterFS cluster of 3 nodes](storage/glusterfs)
+- [Cluster of Ceph servers providing S3-like storage](storage/ceph)
+- [NFS server and client over IPv6 back-end network](storage/nfs)
 - [Personal storage with ownCloud](storage/owncloud)
 - [Samba file sharing server](storage/samba)
-- [NFS server and client over IPv6 back-end network](storage/nfs)
 - [Standalone minio s3-compatible object server](storage/minio)
-- [Cluster of Ceph servers providing S3-like storage](storage/ceph)
 
 ## Web services
 
