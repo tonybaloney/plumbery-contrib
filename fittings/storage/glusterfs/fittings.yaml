@@ -166,10 +166,6 @@ blueprints:
 
   - glusterfs:
 
-      ethernet:
-        accept:
-          - "{{ networkName.parameter }}"
-
       nodes:
 
         - node1:
