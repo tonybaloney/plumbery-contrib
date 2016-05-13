@@ -136,7 +136,7 @@ defaults:
       - mkdir /bricks/brick1/volume1
 
       - pvcreate /dev/sdc
-      - vgcreate vg_brick2 /dev/sdb
+      - vgcreate vg_brick2 /dev/sdc
       - lvcreate -l 100%FREE -n brick2 vg_brick2
       - /root/set_vdisk.sh /dev/vg_brick2/brick2 xfs /bricks/brick2
       - mkdir /bricks/brick2/volume2
