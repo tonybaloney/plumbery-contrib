@@ -48,8 +48,8 @@ defaults:
     information:
       - "GlusterFS node"
       - "ssh centos@{{ node.public }}"
-      - "gluster volume info"
-      - "gluster peer status"
+      - "sudo gluster volume info"
+      - "sudo gluster peer status"
 
     appliance: 'CentOS 7'
     cpu: 2
