@@ -1,0 +1,202 @@
+---
+
+information:
+  - "NetApp StorageGRID cluster"
+
+parameters:
+
+  locationId:
+    information:
+      - "the target data centre for this deployment"
+    type: locations.list
+    default: EU7
+
+  domainName:
+    information:
+      - "the name of the network domain to be deployed"
+    type: str
+    default: StoragegridFox
+
+  networkName:
+    information:
+      - "the name of the Ethernet VLAN to be deployed"
+    type: str
+    default: StoragegridNetwork
+
+  cpuPerNode:
+    information:
+      - "the quantity of CPU given to one StorageGRID node"
+    type: [4..32]
+    default: 8
+
+  memoryPerNode:
+    information:
+      - "the quantity of RAM given to one StorageGRID node, in GB"
+    type: [8..256]
+    default: 16
+
+links:
+  documentation: https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/fittings/storage/storagegrid
+
+defaults:
+
+  domain:
+    name: "{{ domainName.parameter }}"
+    ipv4: auto
+
+  ethernet:
+    name: "{{ networkName.parameter }}"
+    subnet: 10.0.3.0
+
+  storagegrid-node:
+
+    appliance: 'SuSE'
+
+    monitoring: essentials
+
+  cloud-config:
+
+    hostname: "{{ node.name }}"
+
+    packages:
+      - ntp
+      - wget
+      - git
+      - tar
+
+    write_files:
+
+      - path: /root/hosts.awk
+        content: |
+          #!/usr/bin/awk -f
+          /^{{ admin-node.private }}/ {next}
+          /^{{ gateway-node.private }}/ {next}
+          /^{{ installer-node.private }}/ {next}
+          /^{{ storage-node1.private }}/ {next}
+          /^{{ storage-node2.private }}/ {next}
+          /^{{ storage-node3.private }}/ {next}
+          /^{{ storage-node4.private }}/ {next}
+          {print}
+          END {
+           print "{{ admin-node.private }}    admin-node"
+           print "{{ gateway-node.private }}    gateway-node"
+           print "{{ installer-node.private }}    installer-node"
+           print "{{ storage-node1.private }}    storage-node1"
+           print "{{ storage-node2.private }}    storage-node2"
+           print "{{ storage-node3.private }}    storage-node3"
+           print "{{ storage-node4.private }}    storage-node4"
+          }
+
+    runcmd:
+
+      - echo "===== Handling linux identity"
+      - cp -n /etc/ssh/ssh_host_rsa_key /home/linux/.ssh/id_rsa
+      - cp -n /etc/ssh/ssh_host_rsa_key.pub /home/linux/.ssh/id_rsa.pub
+      - chown linux:linux /home/linux/.ssh/*
+
+      - echo "===== Updating /etc/hosts"
+      - cp -n /etc/hosts /etc/hosts.original
+      - awk -f /root/hosts.awk /etc/hosts >/etc/hosts.new && mv /etc/hosts.new /etc/hosts
+
+    ssh_keys:
+      rsa_private: |
+        {{ key.rsa_private }}
+      rsa_public: "{{ key.rsa_public }}"
+
+    users:
+      - default
+
+      - name: linux
+        sudo: 'ALL=(ALL) NOPASSWD:ALL'
+        ssh-authorized-keys:
+          - "{{ key.rsa_public }}"
+          - "{{ local.rsa_public }}"
+
+    disable_root: true
+    ssh_pwauth: true
+
+---
+
+locationId: "{{ locationId.parameter }}"
+
+blueprints:
+
+  - storagegrid:
+
+      nodes:
+
+        - admin-node:
+            default: storagegrid-node
+
+            information:
+              - "this is a StorageGRID administration node from NetApp"
+              - "get secret keys with following commands:"
+              - "ssh linux@{{ node.public }}"
+              - "cat /var/log/cloud-init-output.log"
+
+            cpu: 4
+            memory: 8
+
+            disks:
+              - 1 400 standard
+
+            glue:
+              - internet 22
+
+        - gateway-node:
+            default: storagegrid-node
+
+            information:
+              - "this is a StorageGRID gateway node from NetApp"
+              - "get secret keys with following commands:"
+              - "ssh linux@{{ node.public }}"
+              - "cat /var/log/cloud-init-output.log"
+
+            cpu: 4
+            memory: 8
+
+            disks:
+              - 1 100 standard
+
+            glue:
+              - internet 22
+
+        - installer-node:
+            default: storagegrid-node
+
+            information:
+              - "this is a StorageGRID installer node from NetApp"
+              - "get secret keys with following commands:"
+              - "ssh linux@{{ node.public }}"
+              - "cat /var/log/cloud-init-output.log"
+
+            cpu: 4
+            memory: 8
+
+            disks:
+              - 1 100 standard
+
+            glue:
+              - internet 22
+
+        - storage-node[1..4]:
+            default: storagegrid-node
+
+            information:
+              - "this is a StorageGRID storage node from NetApp"
+              - "get secret keys with following commands:"
+              - "ssh linux@{{ node.public }}"
+              - "cat /var/log/cloud-init-output.log"
+
+            cpu: "{{ cpuPerNode.parameter }}"
+            memory: "{{ memoryPerNode.parameter }}"
+
+            disks:
+              - 1 100 standard
+              - 2 300 standard
+              - 3 50 standard
+              - 4 50 standard
+
+            glue:
+              - internet 22
+
