@@ -89,10 +89,10 @@ defaults:
 
     runcmd:
 
-      - echo "===== Handling linux identity"
-      - cp -n /etc/ssh/ssh_host_rsa_key /home/linux/.ssh/id_rsa
-      - cp -n /etc/ssh/ssh_host_rsa_key.pub /home/linux/.ssh/id_rsa.pub
-      - chown linux:linux /home/linux/.ssh/*
+      - echo "===== Handling root identity"
+      - cp -n /etc/ssh/ssh_host_rsa_key /root/.ssh/id_rsa
+      - cp -n /etc/ssh/ssh_host_rsa_key.pub /root/.ssh/id_rsa.pub
+      - chown root:root /root/.ssh/*
 
       - echo "===== Updating /etc/hosts"
       - cp -n /etc/hosts /etc/hosts.original
@@ -106,13 +106,13 @@ defaults:
     users:
       - default
 
-      - name: linux
+      - name: root
         sudo: 'ALL=(ALL) NOPASSWD:ALL'
         ssh-authorized-keys:
           - "{{ key.rsa_public }}"
           - "{{ local.rsa_public }}"
 
-    disable_root: true
+    disable_root: false
     ssh_pwauth: true
 
 ---
@@ -130,8 +130,7 @@ blueprints:
 
             information:
               - "this is a StorageGRID administration node from NetApp"
-              - "get secret keys with following commands:"
-              - "ssh linux@{{ node.public }}"
+              - "ssh root@{{ node.public }}"
               - "cat /var/log/cloud-init-output.log"
 
             cpu: 4
@@ -148,8 +147,7 @@ blueprints:
 
             information:
               - "this is a StorageGRID gateway node from NetApp"
-              - "get secret keys with following commands:"
-              - "ssh linux@{{ node.public }}"
+              - "ssh root@{{ node.public }}"
               - "cat /var/log/cloud-init-output.log"
 
             cpu: 4
@@ -166,8 +164,7 @@ blueprints:
 
             information:
               - "this is a StorageGRID installer node from NetApp"
-              - "get secret keys with following commands:"
-              - "ssh linux@{{ node.public }}"
+              - "ssh root@{{ node.public }}"
               - "cat /var/log/cloud-init-output.log"
 
             cpu: 4
@@ -179,24 +176,23 @@ blueprints:
             glue:
               - internet 22
 
-        - storage-node[1..4]:
-            default: storagegrid-node
+#        - storage-node[1..4]:
+#            default: storagegrid-node
+#
+#            information:
+#              - "this is a StorageGRID storage node from NetApp"
+#              - "ssh root@{{ node.public }}"
+#              - "cat /var/log/cloud-init-output.log"
 
-            information:
-              - "this is a StorageGRID storage node from NetApp"
-              - "get secret keys with following commands:"
-              - "ssh linux@{{ node.public }}"
-              - "cat /var/log/cloud-init-output.log"
+#            cpu: "{{ cpuPerNode.parameter }}"
+#            memory: "{{ memoryPerNode.parameter }}"
 
-            cpu: "{{ cpuPerNode.parameter }}"
-            memory: "{{ memoryPerNode.parameter }}"
+#            disks:
+#              - 1 100 standard
+#              - 2 300 standard
+#              - 3 50 standard
+#              - 4 50 standard
 
-            disks:
-              - 1 100 standard
-              - 2 300 standard
-              - 3 50 standard
-              - 4 50 standard
-
-            glue:
-              - internet 22
+#            glue:
+#              - internet 22
 
