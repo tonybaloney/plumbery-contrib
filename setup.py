@@ -11,7 +11,7 @@ except ImportError:
     from distutils.core import setup
 
 
-requirements = []
+requirements = ['PyYAML', 'pykwalify']
 
 test_requirements = []
 
