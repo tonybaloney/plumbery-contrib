@@ -15,6 +15,17 @@
 - [Confluence server from Atlassian](applications/confluence)
 - [iTop Community from Combodo, for open-source ITSM](applications/itop)
 
+## Collaboration services
+
+- [BigBlueButton, self-hosted web conferencing system for on-line learning](collaboration/bigbluebutton)
+- [Let's Chat server, self-hosted chat for private teams](collaboration/letschat)
+
+## DevOps services
+
+- [GitLab Community Edition and Samba server, core internal services for developers](devops/gitlab)
+- [Stackstorm server, event-based Ops](devops/stackstorm)
+- [Plumbery in the cloud, with all reference fittings plans](example/plumbery)
+
 ## Container services
 
 - [Rancher, a complete platform for running containers](containers/rancher)
@@ -29,20 +40,10 @@
 - [Cluster of Redis servers](database/redis-cluster)
 - [Cluster of MongoDB servers](database/mongodb-cluster)
 
-## DevOps services
-
-- [GitLab Community Edition and Samba server, core internal services for developers](devops/gitlab)
-- [Stackstorm server, event-based Ops](devops/stackstorm)
-- [Plumbery in the cloud, with all reference fittings plans](example/plumbery)
-
 ## Logging services
 
 - [Centralised logging with Elasticsearch, Logstash, and Kibana](logging/elasticsearch-kibana-logstash)
 - [Multiple pingers connected to a MQTT broker and to a Kibana dashboard](logging/mqtt-swarm)
-
-## Messaging services
-
-- [Let's Chat server, self-hosted chat for private teams](messaging/letschat)
 
 ## Networking services
 
