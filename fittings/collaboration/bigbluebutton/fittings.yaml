@@ -1,0 +1,195 @@
+---
+
+information:
+  - "BigBlueButton, self-hosted web conferencing system for on-line learning"
+
+parameters:
+
+  locationId:
+    information:
+      - "the target data centre for this deployment"
+    type: locations.list
+    default: EU6
+
+  domainName:
+    information:
+      - "the name of the network domain to be deployed"
+    type: str
+    default: BigBlueButtonFox
+
+  networkName:
+    information:
+      - "the name of the Ethernet VLAN to be deployed"
+    type: str
+    default: BigBlueButtonNetwork
+
+  nodeName:
+    information:
+      - "the name of the main node to be deployed"
+    type: str
+    default: bigbluebutton
+
+links:
+  documentation: https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/fittings/applications/bigbluebutton
+  credit: http://docs.bigbluebutton.org/install/install.html
+
+defaults:
+
+  cloud-config:
+
+    ssh_keys:
+      rsa_private: |
+        {{ key.rsa_private }}
+      rsa_public: "{{ key.rsa_public }}"
+
+    users:
+      - default
+
+      - name: ubuntu
+        sudo: 'ALL=(ALL) NOPASSWD:ALL'
+        ssh-authorized-keys:
+          - "{{ key.rsa_public }}"
+          - "{{ local.rsa_public }}"
+
+    disable_root: true
+    ssh_pwauth: false
+
+---
+
+locationId: "{{ locationId.parameter }}"
+
+blueprints:
+
+  - itop:
+
+      domain:
+        name: "{{ domainName.parameter }}"
+        ipv4: auto
+
+      ethernet:
+        name: "{{ networkName.parameter }}"
+        subnet: 10.123.0.0
+
+      nodes:
+
+        - "{{ nodeName.parameter }}":
+
+            description: "#bigbluebutton #ubuntu"
+
+            information:
+              - "Go to private BigBlueButton instance:"
+              - "http://{{ node.public }}"
+              - "If debugging is needed:"
+              - "ssh ubuntu@{{ node.public }}"
+              - "bbb-conf --check"
+
+            appliance: 'Ubuntu 14'
+            cpu: 8
+            memory: 8
+
+            disks:
+              - 1 50 standard
+
+            glue:
+              - internet 22 80 1935 9123 udp:16384..32768
+
+            monitoring: essentials
+
+            cloud-config:
+
+              hostname: "{{ node.name }}"
+
+              bootcmd:
+                - apt-get remove apache2 -y
+                - apt-get autoremove -y
+                - echo "ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true" | sudo debconf-set-selections
+
+              apt_sources:
+                - source: "ppa:libreoffice/libreoffice-4-4"
+
+              packages:
+                - ntp
+                - software-properties-common
+                - build-essential
+                - git-core
+                - checkinstall
+                - yasm
+                - texi2html
+                - libvorbis-dev
+                - libx11-dev
+                - libvpx-dev
+                - libxfixes-dev
+                - zlib1g-dev
+                - pkg-config
+                - netcat
+                - libncurses5-dev
+
+              write_files:
+
+                - path: /root/hosts.awk
+                  content: |
+                    #!/usr/bin/awk -f
+                    /^{{ node.public }}/ {next}
+                    /^{{ node.private }}/ {next}
+                    {print}
+                    END {
+                     print "{{ node.public }}    {{ node.name }}"
+                     print "{{ node.private }}    {{ node.name }}"
+                    }
+
+                - path: /root/install-ffmpeg.sh
+                  content: |
+                    FFMPEG_VERSION=2.3.3
+
+                    cd /usr/local/src
+                    if [ ! -d "/usr/local/src/ffmpeg-${FFMPEG_VERSION}" ]; then
+                      sudo wget "http://ffmpeg.org/releases/ffmpeg-${FFMPEG_VERSION}.tar.bz2"
+                      sudo tar -xjf "ffmpeg-${FFMPEG_VERSION}.tar.bz2"
+                    fi
+
+                    cd "ffmpeg-${FFMPEG_VERSION}"
+                    sudo ./configure --enable-version3 --enable-postproc --enable-libvorbis --enable-libvpx
+                    sudo make
+                    sudo checkinstall --pkgname=ffmpeg --pkgversion="5:${FFMPEG_VERSION}" --backup=no --deldoc=yes --default
+
+              runcmd:
+
+                - echo "===== Growing LVM with added disk"
+                - pvcreate /dev/sdb
+                - vgextend rootvol00 /dev/sdb
+                - lvextend -l +100%FREE /dev/mapper/rootvol00-rootlvol00
+                - resize2fs /dev/mapper/rootvol00-rootlvol00
+
+                - echo "===== Handling ubuntu identity"
+                - cp -n /etc/ssh/ssh_host_rsa_key /home/ubuntu/.ssh/id_rsa
+                - cp -n /etc/ssh/ssh_host_rsa_key.pub /home/ubuntu/.ssh/id_rsa.pub
+                - chown ubuntu:ubuntu /home/ubuntu/.ssh/*
+                - sed -i "/StrictHostKeyChecking/s/^.*$/    StrictHostKeyChecking no/" /etc/ssh/ssh_config
+
+                - echo "===== Updating /etc/hosts"
+                - cp -n /etc/hosts /etc/hosts.original
+                - awk -f /root/hosts.awk /etc/hosts >/etc/hosts.new && mv /etc/hosts.new /etc/hosts
+
+                - echo "===== Installing ffmpeg"
+                - chmod +x /root/install-ffmpeg.sh
+                - /root/install-ffmpeg.sh
+                - ffmpeg -version
+
+                - echo "===== Installing BigBlueButton"
+                - wget -q http://ubuntu.bigbluebutton.org/bigbluebutton.asc -O- | sudo apt-key add -
+                - echo "deb http://ubuntu.bigbluebutton.org/trusty-1-0/ bigbluebutton-trusty main" | sudo tee /etc/apt/sources.list.d/bigbluebutton.list
+                - apt-get update
+                - apt-get install -y bigbluebutton bbb-check bbb-demo
+
+                # the dual --setip is required to make it work...
+                #
+                - echo "===== Finalising the setup"
+                - bbb-conf --enablewebrtc
+                - sleep 1m
+                - "bbb-conf --setip {{ node.private }}"
+                - sleep 1m
+                - "bbb-conf --setip {{ node.public }}"
+                - bbb-conf --clean
+                - bbb-conf --check
+
+
