@@ -15,10 +15,10 @@ requirements = ['plumbery']
 
 test_requirements = []
 
-# get description from README.rst
+# get description from README.md
 def get_long_description():
     description = ''
-    with open('README.rst') as stream:
+    with open('README.md') as stream:
         description = stream.read()
     return description
 
