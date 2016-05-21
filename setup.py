@@ -11,22 +11,15 @@ except ImportError:
     from distutils.core import setup
 
 
-requirements = ['plumbery']
+requirements = []
 
 test_requirements = []
-
-# get description from README.md
-def get_long_description():
-    description = ''
-    with open('README.md') as stream:
-        description = stream.read()
-    return description
 
 setup(
     name='plumbery-contrib',
     version='0.0.1',
     description="Reference files to be used with plumbery",
-    long_description=get_long_description(),
+    long_description=open(os.path.join(os.path.dirname(__file__), "README.md")).read(),
     author="Bernard Paques",
     author_email='bernard.paques@gmail.com',
     url='https://github.com/DimensionDataCBUSydney/plumbery-contrib',
@@ -50,7 +43,5 @@ setup(
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: Implementation :: CPython',
         'Programming Language :: Python :: Implementation :: PyPy'
-    ],
-    test_suite='tests',
-    tests_require=test_requirements
+    ]
 )
