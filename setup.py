@@ -19,7 +19,7 @@ setup(
     name='plumbery-contrib',
     version='0.0.1',
     description="Reference files to be used with plumbery",
-    long_description=open(os.path.join(os.path.dirname(__file__), "README.md")).read(),
+    long_description="(long description will come later)",
     author="Bernard Paques",
     author_email='bernard.paques@gmail.com',
     url='https://github.com/DimensionDataCBUSydney/plumbery-contrib',
