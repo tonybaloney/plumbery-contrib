@@ -1,0 +1,185 @@
+---
+
+information:
+  - "IPsec tunnel with Openswan"
+
+parameters:
+
+  locationId:
+    information:
+      - "the target data centre for this deployment"
+    type: locations.list
+    default: EU8
+
+links:
+  documentation: https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/fittings/networking/openswan
+
+defaults:
+
+  openswan-node:
+
+    description: "#openswan #ubuntu"
+
+    information:
+      - "ssh ubuntu@{{ node.public }}"
+
+    appliance: 'Ubuntu 14'
+    cpu: 2
+    memory: 4
+
+    monitoring: essentials
+
+    glue:
+      - internet 22
+
+    cloud-config:
+
+      bootcmd:
+        - apt-get remove apache2 -y
+        - apt-get autoremove -y
+
+      packages:
+        - ntp
+        - openswan
+
+
+  regular-node:
+
+    description: "#ubuntu"
+
+    information:
+      - "ssh ubuntu@{{ node.public }}"
+
+    appliance: 'Ubuntu 14'
+    cpu: 2
+    memory: 4
+
+    monitoring: essentials
+
+    glue:
+      - internet 22
+
+    cloud-config:
+
+      packages:
+        - ntp
+
+
+  cloud-config:
+
+    hostname: "{{ node.name }}"
+
+    write_files:
+
+      - path: /root/hosts.awk
+        content: |
+          #!/usr/bin/awk -f
+          /^{{ {{ locationId.parameter }}::openswan-a.private }}/ {next}
+          /^{{ {{ locationId.parameter }}::openswan-b.private }}/ {next}
+          /^{{ {{ locationId.parameter }}::node-a.private }}/ {next}
+          /^{{ {{ locationId.parameter }}::node-b.private }}/ {next}
+          {print}
+          END {
+           print "{{ locationId.parameter }}::openswan-a.private    openswan-a"
+           print "{{ locationId.parameter }}::openswan-b.private    openswan-b"
+           print "{{ locationId.parameter }}::node-a.private    node-a"
+           print "{{ locationId.parameter }}::node-b.private    node-b"
+          }
+
+    runcmd:
+
+      - echo "===== Handling ubuntu identity"
+      - cp -n /etc/ssh/ssh_host_rsa_key /home/ubuntu/.ssh/id_rsa
+      - cp -n /etc/ssh/ssh_host_rsa_key.pub /home/ubuntu/.ssh/id_rsa.pub
+      - chown ubuntu:ubuntu /home/ubuntu/.ssh/*
+      - sed -i "/StrictHostKeyChecking/s/^.*$/    StrictHostKeyChecking no/" /etc/ssh/ssh_config
+
+      - echo "===== Updating /etc/hosts"
+      - cp -n /etc/hosts /etc/hosts.original
+      - awk -f /root/hosts.awk /etc/hosts >/etc/hosts.new && mv /etc/hosts.new /etc/hosts
+
+    ssh_keys:
+      rsa_private: |
+        {{ key.rsa_private }}
+      rsa_public: "{{ key.rsa_public }}"
+
+    users:
+      - default
+
+      - name: ubuntu
+        sudo: 'ALL=(ALL) NOPASSWD:ALL'
+        ssh-authorized-keys:
+          - "{{ key.rsa_public }}"
+          - "{{ local.rsa_public }}"
+
+    disable_root: true
+    ssh_pwauth: false
+
+---
+
+locationId: "{{ locationId.parameter }}"
+
+blueprints:
+
+  - side-a:
+
+      domain:
+        name: domain-a
+        service: essentials
+        ipv4: auto
+
+      ethernet:
+        name: side-a
+        subnet: 10.1.0.0
+
+      nodes:
+
+        - openswan-a:
+            default: openswan-node
+
+            cloud-config:
+              runcmd:
+
+                - echo "===== Configuring Openswan"
+
+        - node-a:
+            default: regular-node
+
+            cloud-config:
+              runcmd:
+
+                - echo "===== Configuring the network"
+
+
+  - side-b:
+
+      domain:
+        name: domain-b
+        service: essentials
+        ipv4: auto
+
+      ethernet:
+        name: side-b
+        subnet: 10.2.0.0
+
+      nodes:
+
+        - openswan-b:
+            default: openswan-node
+
+            cloud-config:
+              runcmd:
+
+                - echo "===== Configuring Openswan"
+
+        - node-b:
+            default: regular-node
+
+            cloud-config:
+              runcmd:
+
+                - echo "===== Configuring the network"
+
+
+
+
