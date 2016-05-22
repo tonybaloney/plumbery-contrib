@@ -66,6 +66,10 @@ mapping:
                     type: str
                   "subnet":
                     type: str
+                  "accept":
+                    type: seq
+                    sequence:
+                      - type: str
               "domain":
                 type: map
                 mapping:
