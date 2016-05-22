@@ -13,6 +13,8 @@ parameters:
 
 links:
   documentation: https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/fittings/networking/openswan
+  credit: https://gist.github.com/winhamwr/2871257
+  credit.2: https://rbgeek.wordpress.com/2014/04/26/site-to-site-vpn-between-aws-vpc-and-customer-site-using-linux/
 
 defaults:
 
