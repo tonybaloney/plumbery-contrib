@@ -1,7 +1,7 @@
 ---
 
-information: |
-  Hadoop cluster with 1 master and 3 nodes
+information:
+  - "Hadoop cluster with 1 master and 3 nodes"
 
 parameters:
 
@@ -223,7 +223,6 @@ defaults:
             node3
 
     bootcmd:
-
       - apt-get remove apache2 -y
       - apt-get autoremove -y
 

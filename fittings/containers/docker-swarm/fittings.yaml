@@ -1,8 +1,8 @@
 ---
 
-information: |
-  Docker Swarm, with one queen and 7 bees.
-  A container submitted to the queen is dispatched to bees.
+information:
+  - "Docker Swarm, with one queen and 7 bees."
+  - "A container submitted to the queen is dispatched to bees."
 
 parameters:
 

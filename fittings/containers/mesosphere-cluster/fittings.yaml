@@ -1,8 +1,8 @@
 ---
 
-information: |
-  Mesosphere cluster with Docker, on 3 masters and 9 agents
-  A job submitted to Marathon is dispatched among agents.
+information:
+  - "Mesosphere cluster with Docker, on 3 masters and 9 agents"
+  - "A job submitted to Marathon is dispatched among agents."
 
 parameters:
 
