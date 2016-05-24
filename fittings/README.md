@@ -47,6 +47,7 @@
 
 ## Networking services
 
+- [Site-to-site IPsec tunnel with Openswan](networking/openswan)
 - [OpenVPN gateway](networking/openvpn)
 
 ## Storage services
