@@ -1,7 +1,7 @@
 ---
 
 information:
-  - "IPsec tunnel with Openswan"
+  - "Site-to-site IPsec tunnel with Openswan"
 
 parameters:
 
@@ -135,6 +135,7 @@ defaults:
         - grep -q "net.ipv4.neigh.default.gc_thresh2" /etc/sysctl.conf || echo "net.ipv4.neigh.default.gc_thresh2" >>/etc/sysctl.conf
         - grep -q "net.ipv4.neigh.default.gc_thresh3" /etc/sysctl.conf || echo "net.ipv4.neigh.default.gc_thresh3" >>/etc/sysctl.conf
         - sed -i -f /root/etc-sysctl.conf.sed /etc/sysctl.conf
+        - sysctl -p /etc/sysctl.conf
 
   regular-node:
 
@@ -228,6 +229,40 @@ blueprints:
 
       nodes:
 
+        - node-a:
+            default: regular-node
+
+            information:
+              - "test end-to-end connectivity:"
+              - "ping node-b"
+              - "ssh ubuntu@node-b"
+
+            cloud-config:
+
+              write_files:
+
+                - path: /root/route.awk
+                  content: |
+                    #!/usr/bin/awk -f
+                    /^{{ openswan-a.private }}/ {next}
+                    {print}
+                    END {
+                     print "up ip route add {{ rightSubnet.parameter }}/24 via {{ openswan-a.private }}"
+                    }
+
+              runcmd:
+
+                - echo "===== Adding route to remote subnet"
+                - "ip route add {{ rightSubnet.parameter }}/24 via {{ openswan-a.private }}"
+                - cp -n /etc/network/interfaces /etc/network/interfaces.original
+                - awk -f /root/route.awk /etc/network/interfaces >/etc/network/interfaces.new && mv /etc/network/interfaces.new /etc/network/interfaces
+                - /etc/init.d/networking restart
+
+                - echo "===== Pinging remote nodes"
+                - sleep 3m
+                - ping -c 5 openswan-b
+                - ping -c 5 node-b
+
         - openswan-a:
             default: openswan-node
 
@@ -275,35 +310,6 @@ blueprints:
 
                 - echo "===== Pinging remote nodes"
                 - sleep 1m
-                - ping -c 5 openswan-b
-                - ping -c 5 node-b
-
-        - node-a:
-            default: regular-node
-
-            cloud-config:
-
-              write_files:
-
-                - path: /root/route.awk
-                  content: |
-                    #!/usr/bin/awk -f
-                    /^{{ openswan-a.private }}/ {next}
-                    {print}
-                    END {
-                     print "up ip route add {{ rightSubnet.parameter }}/24 via {{ openswan-a.private }}"
-                    }
-
-              runcmd:
-
-                - echo "===== Adding route to remote subnet"
-                - "ip route add {{ rightSubnet.parameter }}/24 via {{ openswan-a.private }}"
-                - cp -n /etc/network/interfaces /etc/network/interfaces.original
-                - awk -f /root/route.awk /etc/network/interfaces >/etc/network/interfaces.new && mv /etc/network/interfaces.new /etc/network/interfaces
-                - /etc/init.d/networking restart
-
-                - echo "===== Pinging remote nodes"
-                - sleep 3m
                 - ping -c 5 openswan-b
                 - ping -c 5 node-b
 
@@ -379,6 +385,11 @@ blueprints:
 
         - node-b:
             default: regular-node
+
+            information:
+              - "test end-to-end connectivity:"
+              - "ping node-a"
+              - "ssh ubuntu@node-a"
 
             cloud-config:
 
