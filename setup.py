@@ -11,18 +11,11 @@ requirements = ['PyYAML']
 
 test_requirements = []
 
-# get description from README.rst
-def get_long_description():
-    description = ''
-    with open('README.md') as stream:
-        description = stream.read()
-    return description
-
 setup(
     name='plumbery',
     version=__version__,
     description="Cloud automation at Dimension Data with Apache Libcloud",
-    long_description=get_long_description(),
+    long_description='a collection of example fittings for plumbery',
     author="Bernard Paques",
     author_email='bernard.paques@gmail.com',
     url='https://github.com/DimensionDataCBUSydney/plumbery',
