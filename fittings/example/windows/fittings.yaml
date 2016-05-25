@@ -1,0 +1,34 @@
+---
+
+information:
+  - "Windows demo example"
+
+links:
+  documentation: https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/example/first
+
+---
+
+locationId: AU9
+
+blueprints:
+
+  - first:
+
+      domain:
+        name: WindowsTesting
+        ipv4: 2
+
+      ethernet:
+        name: Primary
+        subnet: 10.0.0.0
+
+      nodes:
+
+        - MyServer:
+
+            appliance: 'Win2012 R2'
+            polisher:
+              windows:
+                hostname: 'my-windows'
+                cmds:
+                  - Get-WebRequest https://google.com
