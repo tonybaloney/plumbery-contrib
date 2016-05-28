@@ -1,0 +1,31 @@
+---
+
+information:
+  - "Windows demo example"
+
+links:
+  documentation: https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/example/first
+---
+
+locationId: AU10
+
+blueprints:
+
+  - first:
+
+      domain:
+        name: "Project Argo"
+        ipv4: 2
+
+      ethernet:
+        name: Primary
+        subnet: 10.0.0.0
+
+      nodes:
+
+        - MyWindowsServer:
+            windows:
+              hostname: 'my-windows'
+              cmds:
+                - powershell.exe Invoke-WebRequest -Uri https://google.com
+            appliance: 'Win2012 R2'
