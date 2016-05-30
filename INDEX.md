@@ -2,145 +2,162 @@
 ## IT applications
 
 Ready-to-use IT services
-### [Confluence server](https://plumbery.readthedocs.org/en/latest/tutorial.confluence.html) 
+### [Confluence server from Atlassian](https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/fittings/applications/confluence) 
 
 <img src='https://raw.githubusercontent.com/DimensionDataCBUSydney/plumbery-contrib/master/fittings/applications/confluence/icon.png' style='width: 64px;'/>
-Confluence server
-### [iTop server for open-source ITSM](https://plumbery.readthedocs.org/en/latest/tutorial.itop.html) 
+Confluence server from Atlassian
+### [iTop Community from Combodo, for open-source ITSM](https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/fittings/applications/itop) 
 
 <img src='https://raw.githubusercontent.com/DimensionDataCBUSydney/plumbery-contrib/master/fittings/applications/itop/icon.png' style='width: 64px;'/>
-iTop server for open-source ITSM
-### [Wordpress blogging server](https://plumbery.readthedocs.org/en/latest/tutorial.wordpress.html) 
+iTop Community from Combodo, for open-source ITSM
+### [WordPress blogging server](https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/fittings/applications/wordpress) 
 
 <img src='https://raw.githubusercontent.com/DimensionDataCBUSydney/plumbery-contrib/master/fittings/applications/wordpress/icon.png' style='width: 64px;'/>
-Wordpress blogging server
+WordPress blogging server
 ## Containers
 
 Fittings for container based applications and workloads
-### [Docker node that you can access remotely and securely over the Internet.](https://plumbery.readthedocs.org/en/latest/tutorial.docker.html) 
+### [Docker node](https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/fittings/containers/docker) 
 
 <img src='https://raw.githubusercontent.com/DimensionDataCBUSydney/plumbery-contrib/master/fittings/containers/docker/icon.png' style='width: 64px;'/>
-Docker node that you can access remotely and securely over the Internet.
-### [Docker Swarm, with one queen and 7 bees.](https://plumbery.readthedocs.org/en/latest/tutorial.docker.swarm.html) 
+Docker node
+### [Docker Swarm, with one queen and 7 bees.  A container submitted to the queen is dispatched to bees.](https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/fittings/containers/docker-swarm) 
 
 <img src='https://raw.githubusercontent.com/DimensionDataCBUSydney/plumbery-contrib/master/fittings/containers/docker-swarm/icon.png' style='width: 64px;'/>
-Docker Swarm, with one queen and 7 bees.
-A container submitted to the queen is dispatched to bees.
-### [Kubernetes node](https://plumbery.readthedocs.org/en/latest/tutorial.kubernetes.html) 
+Docker Swarm, with one queen and 7 bees.  A container submitted to the queen is dispatched to bees.
+### [Kubernetes node](https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/fittings/containers/kubernetes) 
 
 <img src='https://raw.githubusercontent.com/DimensionDataCBUSydney/plumbery-contrib/master/fittings/containers/kubernetes/icon.png' style='width: 64px;'/>
 Kubernetes node
 ## Databases
 
 Fittings for database applications
-### [MongoDB cluster](https://plumbery.readthedocs.org/en/latest/tutorial.mongo.html) 
+### [Cluster of MongoDB servers](https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/fittings/database/mongodb-cluster) 
 
 <img src='https://raw.githubusercontent.com/DimensionDataCBUSydney/plumbery-contrib/master/fittings/database/mongodb-cluster/icon.png' style='width: 64px;'/>
-MongoDB cluster
-### [MySQL replication across two data centres](https://plumbery.readthedocs.org/en/latest/tutorial.sql.master.slave.html) 
+Cluster of MongoDB servers
+### [MySQL replication over IPv6 back-end network](https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/fittings/storage/mysql-master-slave) 
 
 <img src='https://raw.githubusercontent.com/DimensionDataCBUSydney/plumbery-contrib/master/fittings/database/mysql-master-slave/icon.png' style='width: 64px;'/>
-MySQL replication across two data centres
-### [Cluster of Redis servers](https://plumbery.readthedocs.org/en/latest/tutorial.redis.html) 
+MySQL replication over IPv6 back-end network
+### [Cluster of Redis servers](https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/fittings/database/redis-cluster) 
 
 <img src='https://raw.githubusercontent.com/DimensionDataCBUSydney/plumbery-contrib/master/fittings/database/redis-cluster/icon.png' style='width: 64px;'/>
 Cluster of Redis servers
 ## DevOps
 
 Fittings for DevOps tools and engines
-### [Stackstorm server](https://plumbery.readthedocs.org/en/latest/tutorial.stackstorm.html) 
+### [Stackstorm server, event-based Ops](https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/fittings/devops/stackstorm) 
 
 <img src='https://raw.githubusercontent.com/DimensionDataCBUSydney/plumbery-contrib/master/fittings/devops/stackstorm/icon.png' style='width: 64px;'/>
-Stackstorm server
+Stackstorm server, event-based Ops
 ## Examples
 
 Generic examples
-### [Plumbery and Apache Libcloud installed in the cloud.](https://plumbery.readthedocs.org/en/latest/tutorial.beachhead.html) 
+### [First example with Backup](https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/example/first) 
 
-<img src='https://raw.githubusercontent.com/DimensionDataCBUSydney/plumbery-contrib/master/fittings/example/beachhead/icon.png' style='width: 64px;'/>
-Plumbery and Apache Libcloud installed in the cloud.
-### [Demonstrates how to configure a server with multiple disks](https://plumbery.readthedocs.org/en/latest/tutorial.disks.html) 
+<img src='https://raw.githubusercontent.com/DimensionDataCBUSydney/plumbery-contrib/master/fittings/example/backup/icon.png' style='width: 64px;'/>
+First example with Backup
+### [Multiple disks added with LVM](https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/fittings/example/disks) 
 
 <img src='https://raw.githubusercontent.com/DimensionDataCBUSydney/plumbery-contrib/master/fittings/example/disks/icon.png' style='width: 64px;'/>
-Demonstrates how to configure a server with multiple disks
-### [First example fittings example](https://developer.dimensiondata.com/PLUM) 
+Multiple disks added with LVM
+### [First example with Ubuntu node](https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/example/first) 
 
 <img src='https://raw.githubusercontent.com/DimensionDataCBUSydney/plumbery-contrib/master/fittings/example/first/icon.png' style='width: 64px;'/>
-First example fittings example
-### [Demonstrates how plumbery is working in parallel to deploy a large number of nodes.](https://plumbery.readthedocs.org/en/latest/tutorial.fittings.html) 
+First example with Ubuntu node
+### [The master plan to conquer the world](https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/example/gigafox) 
 
 <img src='https://raw.githubusercontent.com/DimensionDataCBUSydney/plumbery-contrib/master/fittings/example/gigafox/icon.png' style='width: 64px;'/>
-Demonstrates how plumbery is working in parallel to deploy a large number of nodes.
-### [Ubuntu desktop](https://plumbery.readthedocs.org/en/latest/tutorial.ubuntu.desktop.html) 
+The master plan to conquer the world
+### [Multiple network interfaces](https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/fittings/example/networks) 
+
+<img src='https://raw.githubusercontent.com/DimensionDataCBUSydney/plumbery-contrib/master/fittings/example/networks/icon.png' style='width: 64px;'/>
+Multiple network interfaces
+### [Plumbery and Apache Libcloud](https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/fittings/example/plumbery) 
+
+<img src='https://raw.githubusercontent.com/DimensionDataCBUSydney/plumbery-contrib/master/fittings/example/plumbery/icon.png' style='width: 64px;'/>
+Plumbery and Apache Libcloud
+### [Ubuntu desktop](https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/fittings/example/ubuntu-desktop) 
 
 <img src='https://raw.githubusercontent.com/DimensionDataCBUSydney/plumbery-contrib/master/fittings/example/ubuntu-desktop/icon.png' style='width: 64px;'/>
 Ubuntu desktop
+### [Windows demo example](https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/example/first) 
+
+<img src='https://raw.githubusercontent.com/DimensionDataCBUSydney/plumbery-contrib/master/fittings/example/windows/icon.png' style='width: 64px;'/>
+Windows demo example
+### [A kit of multiple nodes using Microsoft Windows operating system](https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/fittings/example/windows-kit) 
+
+<img src='https://raw.githubusercontent.com/DimensionDataCBUSydney/plumbery-contrib/master/fittings/example/windows-kit/icon.png' style='width: 64px;'/>
+A kit of multiple nodes using Microsoft Windows operating system
 ## Logging
 
 Logging and log collection, retention applications
-### [Centralised logging with Elasticsearch, Logstash, and Kibana.](https://plumbery.readthedocs.org/en/latest/tutorial.elk.html) 
+### [Centralised logging with Elasticsearch, Logstash, and Kibana](https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/logging/elasticsearch-kibana-logstash) 
 
 <img src='https://raw.githubusercontent.com/DimensionDataCBUSydney/plumbery-contrib/master/fittings/logging/elasticsearch-kibana-logstash/icon.png' style='width: 64px;'/>
-Centralised logging with Elasticsearch, Logstash, and Kibana.
-### [These fittings plan are aiming to deploy multiple pingers connected](https://plumbery.readthedocs.org/en/latest/tutorial.mqtt.pinger.swarm.html) 
+Centralised logging with Elasticsearch, Logstash, and Kibana
+### [Swarm of pingers connected to a MQTT broker and to a Kibana dashboard](https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/logging/mqtt-swarm) 
 
 <img src='https://raw.githubusercontent.com/DimensionDataCBUSydney/plumbery-contrib/master/fittings/logging/mqtt-swarm/icon.png' style='width: 64px;'/>
-These fittings plan are aiming to deploy multiple pingers connected
-to a MQTT server and to a Kibana dashboard
+Swarm of pingers connected to a MQTT broker and to a Kibana dashboard
 ## Messaging
 
 Applications for messaging and message distribution
-### [Let's Chat server, self-hosted chat for private teams](https://plumbery.readthedocs.org/en/latest/tutorial.letschat.html) 
+### [Let's Chat server, self-hosted chat for private teams](https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/fittings/messaging/letschat) 
 
 <img src='https://raw.githubusercontent.com/DimensionDataCBUSydney/plumbery-contrib/master/fittings/messaging/letschat/icon.png' style='width: 64px;'/>
 Let's Chat server, self-hosted chat for private teams
 ## Networking
 
 Networking applications
-### [OpenVPN standalone server](https://plumbery.readthedocs.org/en/latest/tutorial.openvpn.html) 
+### [OpenVPN gateway](https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/fittings/networking/openvpn) 
 
 <img src='https://raw.githubusercontent.com/DimensionDataCBUSydney/plumbery-contrib/master/fittings/networking/openvpn/icon.png' style='width: 64px;'/>
-OpenVPN standalone server
+OpenVPN gateway
 ## Storage
 
 Applications for file, object and network storage
-### [Cluster of Ceph servers.](https://plumbery.readthedocs.org/en/latest/tutorial.ceph.html) 
+### [Cluster of Ceph servers providing S3-like storage](https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/fittings/storage/ceph) 
 
 <img src='https://raw.githubusercontent.com/DimensionDataCBUSydney/plumbery-contrib/master/fittings/storage/ceph/icon.png' style='width: 64px;'/>
-Cluster of Ceph servers.
-### [Standalone minio s3-compatible object server](https://plumbery.readthedocs.org/en/latest/tutorial.minio.html) 
+Cluster of Ceph servers providing S3-like storage
+### [EMC Elastic Cloud Storage, for development](https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/fittings/storage/ecs) 
+
+<img src='https://raw.githubusercontent.com/DimensionDataCBUSydney/plumbery-contrib/master/fittings/storage/ecs/icon.png' style='width: 64px;'/>
+EMC Elastic Cloud Storage, for development
+### [Standalone minio s3-compatible object server](https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/fittings/storage/minio) 
 
 <img src='https://raw.githubusercontent.com/DimensionDataCBUSydney/plumbery-contrib/master/fittings/storage/minio/icon.png' style='width: 64px;'/>
 Standalone minio s3-compatible object server
-### [NFS client and server at two different data centres](https://plumbery.readthedocs.org/en/latest/tutorial.nfs.html) 
+### [NFS server and client over IPv6 back-end network](https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/fittings/storage/nfs) 
 
 <img src='https://raw.githubusercontent.com/DimensionDataCBUSydney/plumbery-contrib/master/fittings/storage/nfs/icon.png' style='width: 64px;'/>
-NFS client and server at two different data centres
-### [Demonstration of a standalone Owncloud file server](https://plumbery.readthedocs.org/en/latest/tutorial.owncloud.html) 
+NFS server and client over IPv6 back-end network
+### [Personal storage with ownCloud](https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/fittings/storage/owncloud) 
 
 <img src='https://raw.githubusercontent.com/DimensionDataCBUSydney/plumbery-contrib/master/fittings/storage/owncloud/icon.png' style='width: 64px;'/>
-Demonstration of a standalone Owncloud file server
-### [Samba file sharing server](https://plumbery.readthedocs.org/en/latest/tutorial.samba.html) 
+Personal storage with ownCloud
+### [Samba file sharing server](https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/fittings/storage/samba) 
 
 <img src='https://raw.githubusercontent.com/DimensionDataCBUSydney/plumbery-contrib/master/fittings/storage/samba/icon.png' style='width: 64px;'/>
 Samba file sharing server
 ## Web
 
 Web applications and servers
-### [Standalone Apache 2 web server.](https://plumbery.readthedocs.org/en/latest/tutorial.apache2.html) 
+### [Apache web server with PHP](https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/fittings/web/apache2) 
 
 <img src='https://raw.githubusercontent.com/DimensionDataCBUSydney/plumbery-contrib/master/fittings/web/apache2/icon.png' style='width: 64px;'/>
-Standalone Apache 2 web server.
-### [Cluster of Apache web servers behind a load-balancer.](https://plumbery.readthedocs.org/en/latest/tutorial.apache2.cluster.html) 
+Apache web server with PHP
+### [Cluster of Apache web servers behind the load-balancer integrated in the Managed Cloud Platform](https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/fittings/web/apache2-cluster) 
 
 <img src='https://raw.githubusercontent.com/DimensionDataCBUSydney/plumbery-contrib/master/fittings/web/apache2-cluster/icon.png' style='width: 64px;'/>
-Cluster of Apache web servers behind a load-balancer.
-The load-balancer is provided by the Managed Cloud Platform itself.
-### [Linux-Nginx-MySQL-PHP standalone web server](https://plumbery.readthedocs.org/en/latest/tutorial.lemp.html) 
+Cluster of Apache web servers behind the load-balancer integrated in the Managed Cloud Platform
+### [Linux-Nginx-MySQL-PHP web server (LEMP)](https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/fittings/web/lemp) 
 
 <img src='https://raw.githubusercontent.com/DimensionDataCBUSydney/plumbery-contrib/master/fittings/web/lemp/icon.png' style='width: 64px;'/>
-Linux-Nginx-MySQL-PHP standalone web server
-### [Standalone nodejs server](https://plumbery.readthedocs.org/en/latest/tutorial.nodejs.html) 
+Linux-Nginx-MySQL-PHP web server (LEMP)
+### [Node.js web server](https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/fittings/web/nodejs) 
 
 <img src='https://raw.githubusercontent.com/DimensionDataCBUSydney/plumbery-contrib/master/fittings/web/nodejs/icon.png' style='width: 64px;'/>
-Standalone nodejs server
+Node.js web server

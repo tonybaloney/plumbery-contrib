@@ -2,6 +2,7 @@ import yaml
 import os
 import logging
 import sys
+import json
 
 from validation import validate_fittings
 
@@ -19,15 +20,20 @@ if len(sys.argv) > 1:
 
 readme = ""
 
+complete_index = {}
+
 with open("fittings/categories.yaml", "r") as categories_f:
     docs = yaml.load(categories_f)
     for category in docs['categories']:
         readme += "\n## %s\n\n%s" % (
             category['name'], category['description'])
+        complete_index[category['name']] = {}
         # Check and load directory.
         for subdir, dirs, files in os.walk("fittings/"+category['directory']):
             logging.info("Subdirectory %s", subdir)
-
+            complete_index[category['name']][subdir] = {
+                'name': subdir
+            }
             for dir in dirs:
                 logging.info("Found directory %s", dir)
 
@@ -56,3 +62,5 @@ with open("fittings/categories.yaml", "r") as categories_f:
 
 with open("INDEX.md", "w") as readme_f:
     readme_f.write(readme)
+with open("index.json", "w") as index_f:
+    index_f.write(json.dumps(complete_index))
