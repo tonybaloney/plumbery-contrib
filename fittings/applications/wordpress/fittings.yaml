@@ -89,7 +89,7 @@ blueprints:
               - 1 50 standard
 
             glue:
-              - internet 22 80
+              - internet icmp 22 80
 
             monitoring: essentials
 
