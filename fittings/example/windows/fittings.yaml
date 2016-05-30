@@ -5,17 +5,16 @@ information:
 
 links:
   documentation: https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/example/first
-
 ---
 
-locationId: AU9
+locationId: AU10
 
 blueprints:
 
   - first:
 
       domain:
-        name: WindowsTesting
+        name: "Project Argo"
         ipv4: 2
 
       ethernet:
@@ -24,10 +23,9 @@ blueprints:
 
       nodes:
 
-        - MyServer:
-
-            appliance: 'Win2012 R2'
+        - MyWindowsServer:
             windows:
               hostname: 'my-windows'
               cmds:
-                - Get-WebRequest https://google.com
+                - powershell.exe Invoke-WebRequest -Uri https://google.com
+            appliance: 'Win2012 R2'
