@@ -70,6 +70,8 @@ mapping:
                     type: seq
                     sequence:
                       - type: str
+                  "destroy":
+                    type: str
               "domain":
                 type: map
                 mapping:
@@ -108,16 +110,15 @@ mapping:
                       regex;(.+):
                         type: map
                         mapping:
-                          "default":
-                            type: str
                           "appliance":
                             type: str
+                          "backup":
+                            type: any
                           "cpu":
                             desc: "Number of CPU | CPU configuration"
                             type: text
-                          "memory":
-                            desc: "Amount of RAM in GB"
-                            type: int
+                          "default":
+                            type: str
                           "disks":
                             type: seq
                             sequence:
@@ -130,17 +131,27 @@ mapping:
                             type: seq
                             sequence:
                               - type: str
-                          "running":
-                            type: str
-                            enum: ['always']
-                          "monitoring":
-                            type: str
-                            enum: ['essentials','advanced']
                           "information":
                             type: seq
                             sequence:
                               - type: str
+                          "memory":
+                            desc: "Amount of RAM in GB"
+                            type: int
+                          "monitoring":
+                            type: str
+                            enum: ['essentials','advanced']
                           "prepare":
                             type: seq
                             sequence:
                               - type: str
+                          "windows":
+                            type: map
+                            matching-rule: 'any'
+                            mapping:
+                              "hostname":
+                                type: str
+                              "cmds":
+                                type: seq
+                                sequence:
+                                  - type: str

@@ -1,0 +1,39 @@
+---
+
+information:
+  - "First example with Backup"
+
+links:
+  documentation: https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/example/first
+
+---
+
+locationId: AU9
+
+blueprints:
+
+  - first:
+
+      domain:
+        name: MyDataCentre
+        ipv4: 2
+
+      ethernet:
+        name: MyNetwork
+        subnet: 10.0.0.0
+
+      nodes:
+
+        - ExampleForPierre:
+
+            appliance: 'Ubuntu 14'
+
+            glue:
+              - internet 22
+
+            monitoring: essentials
+
+            information:
+              - "connect to this server in a terminal window: ssh root@{{ node.public }}"
+
+            backup: essentials

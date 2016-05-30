@@ -166,6 +166,7 @@ blueprints:
   - logstash:
 
       ethernet:
+        name: "logstash"
         accept:
           - "AP5::{{ networkName.parameter }}"
 
