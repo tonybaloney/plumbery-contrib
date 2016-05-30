@@ -61,10 +61,15 @@ mapping:
                 mapping:
                   "name":
                     type: str
-                    required: true
                   "description":
                     type: str
                   "subnet":
+                    type: str
+                  "accept":
+                    type: seq
+                    sequence:
+                      - type: str
+                  "destroy":
                     type: str
               "domain":
                 type: map
@@ -120,6 +125,8 @@ mapping:
                               - type: str
                           "cloud-config":
                             type: any
+                          "backup":
+                            type: any
                           "description":
                             type: str
                           "glue":
@@ -140,3 +147,13 @@ mapping:
                             type: seq
                             sequence:
                               - type: str
+                          "windows":
+                            type: map
+                            matching-rule: 'any'
+                            mapping:
+                              "hostname":
+                                type: str
+                              "cmds":
+                                type: seq
+                                sequence:
+                                  - type: str
