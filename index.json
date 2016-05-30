@@ -1,0 +1,151 @@
+{
+    "Containers": {
+        "fittings/containers": {
+            "name": "fittings/containers"
+        },
+        "fittings/containers\\kubernetes": {
+            "name": "fittings/containers\\kubernetes"
+        },
+        "fittings/containers\\docker": {
+            "name": "fittings/containers\\docker"
+        },
+        "fittings/containers\\docker-swarm": {
+            "name": "fittings/containers\\docker-swarm"
+        }
+    },
+    "Networking": {
+        "fittings/networking\\openvpn": {
+            "name": "fittings/networking\\openvpn"
+        },
+        "fittings/networking": {
+            "name": "fittings/networking"
+        }
+    },
+    "Web": {
+        "fittings/web\\nodejs": {
+            "name": "fittings/web\\nodejs"
+        },
+        "fittings/web\\apache2-cluster": {
+            "name": "fittings/web\\apache2-cluster"
+        },
+        "fittings/web\\lemp": {
+            "name": "fittings/web\\lemp"
+        },
+        "fittings/web": {
+            "name": "fittings/web"
+        },
+        "fittings/web\\apache2": {
+            "name": "fittings/web\\apache2"
+        }
+    },
+    "Messaging": {
+        "fittings/messaging\\letschat": {
+            "name": "fittings/messaging\\letschat"
+        },
+        "fittings/messaging": {
+            "name": "fittings/messaging"
+        }
+    },
+    "Storage": {
+        "fittings/storage": {
+            "name": "fittings/storage"
+        },
+        "fittings/storage\\ceph": {
+            "name": "fittings/storage\\ceph"
+        },
+        "fittings/storage\\samba": {
+            "name": "fittings/storage\\samba"
+        },
+        "fittings/storage\\owncloud": {
+            "name": "fittings/storage\\owncloud"
+        },
+        "fittings/storage\\ecs": {
+            "name": "fittings/storage\\ecs"
+        },
+        "fittings/storage\\nfs": {
+            "name": "fittings/storage\\nfs"
+        },
+        "fittings/storage\\minio": {
+            "name": "fittings/storage\\minio"
+        }
+    },
+    "Examples": {
+        "fittings/example\\networks": {
+            "name": "fittings/example\\networks"
+        },
+        "fittings/example": {
+            "name": "fittings/example"
+        },
+        "fittings/example\\windows": {
+            "name": "fittings/example\\windows"
+        },
+        "fittings/example\\first": {
+            "name": "fittings/example\\first"
+        },
+        "fittings/example\\ubuntu-desktop": {
+            "name": "fittings/example\\ubuntu-desktop"
+        },
+        "fittings/example\\gigafox": {
+            "name": "fittings/example\\gigafox"
+        },
+        "fittings/example\\plumbery": {
+            "name": "fittings/example\\plumbery"
+        },
+        "fittings/example\\windows-kit": {
+            "name": "fittings/example\\windows-kit"
+        },
+        "fittings/example\\backup": {
+            "name": "fittings/example\\backup"
+        },
+        "fittings/example\\disks": {
+            "name": "fittings/example\\disks"
+        }
+    },
+    "IT applications": {
+        "fittings/applications\\wordpress": {
+            "name": "fittings/applications\\wordpress"
+        },
+        "fittings/applications\\confluence": {
+            "name": "fittings/applications\\confluence"
+        },
+        "fittings/applications": {
+            "name": "fittings/applications"
+        },
+        "fittings/applications\\itop": {
+            "name": "fittings/applications\\itop"
+        }
+    },
+    "DevOps": {
+        "fittings/devops": {
+            "name": "fittings/devops"
+        },
+        "fittings/devops\\stackstorm": {
+            "name": "fittings/devops\\stackstorm"
+        }
+    },
+    "Databases": {
+        "fittings/database\\mongodb-cluster": {
+            "name": "fittings/database\\mongodb-cluster"
+        },
+        "fittings/database": {
+            "name": "fittings/database"
+        },
+        "fittings/database\\redis-cluster": {
+            "name": "fittings/database\\redis-cluster"
+        },
+        "fittings/database\\mysql-master-slave": {
+            "name": "fittings/database\\mysql-master-slave"
+        }
+    },
+    "Logging": {
+        "fittings/logging\\elasticsearch-kibana-logstash": {
+            "name": "fittings/logging\\elasticsearch-kibana-logstash"
+        },
+        "fittings/logging": {
+            "name": "fittings/logging"
+        },
+        "fittings/logging\\mqtt-swarm": {
+            "name": "fittings/logging\\mqtt-swarm"
+        }
+    }
+}

@@ -27,8 +27,7 @@ blueprints:
         - MyServer:
 
             appliance: 'Win2012 R2'
-            polisher:
-              windows:
-                hostname: 'my-windows'
-                cmds:
-                  - Get-WebRequest https://google.com
+            windows:
+              hostname: 'my-windows'
+              cmds:
+                - Get-WebRequest https://google.com
