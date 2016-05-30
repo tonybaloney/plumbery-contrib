@@ -1,8 +1,14 @@
 ---
 categories:
+  - directory: analytics
+    name: Big Data, data mining
+    description: "Fittings for data collection, cleaning, and analytics"
   - directory: applications
     name: IT applications
     description: "Ready-to-use IT services"
+  - directory: collaboration
+    name: Collaboration, sharing, user experience
+    description: "Virtual places to be together"
   - directory: containers
     name: Containers
     description: "Fittings for container based applications and workloads"
@@ -18,9 +24,6 @@ categories:
   - directory: logging
     name: Logging
     description: "Logging and log collection, retention applications"
-  - directory: messaging
-    name: Messaging
-    description: "Applications for messaging and message distribution"
   - directory: networking
     name: Networking
     description: "Networking applications"

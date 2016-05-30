@@ -29,7 +29,7 @@ defaults:
     service: essentials
     ipv4: auto
 
-  I-REF-DC-Node:
+  I-REF-ADM-Node:
     description: '#windows #kit #directory-server'
     appliance: 'Win2012 R2 DC 2 CPU'
     cpu: 2
@@ -38,13 +38,22 @@ defaults:
       - primary .11
     monitoring: essentials
 
+  I-REF-DC-Node:
+    description: '#windows #kit #directory-server'
+    appliance: 'Win2012 R2 DC 2 CPU'
+    cpu: 2
+    memory: 4
+    glue:
+      - primary .12
+    monitoring: essentials
+
   I-REF-MSSQL-Node:
     description: '#windows #kit #sql-server'
     appliance: 'Win2012 R2 Datacenter 64-bit MS SQL 2014 Ent'
     cpu: 4
     memory: 8
     glue:
-      - primary .12
+      - primary .13
     monitoring: essentials
 
   I-REF-IIS-Node:
@@ -53,7 +62,7 @@ defaults:
     cpu: 2
     memory: 4
     glue:
-      - primary .13
+      - primary .14
     monitoring: essentials
 
   I-REF-EXCH-Node:
@@ -62,7 +71,7 @@ defaults:
     cpu: 2
     memory: 2
     glue:
-      - primary .14
+      - primary .15
     monitoring: essentials
 
   I-REF-CLI64-Node:
@@ -71,7 +80,7 @@ defaults:
     cpu: 2
     memory: 2
     glue:
-      - primary .15
+      - primary .16
     monitoring: essentials
 
   I-REF-APP-Node:
@@ -80,7 +89,7 @@ defaults:
     cpu: 2
     memory: 2
     glue:
-      - primary .16
+      - primary .17
     monitoring: essentials
 
   I-REF-APPC-Node:
@@ -89,7 +98,7 @@ defaults:
     cpu: 2
     memory: 2
     glue:
-      - primary .17
+      - primary .18
     monitoring: essentials
 
   I-REF-APPG-Node:
@@ -98,7 +107,7 @@ defaults:
     cpu: 2
     memory: 2
     glue:
-      - primary .18
+      - primary .19
     monitoring: essentials
 
 ---
@@ -117,6 +126,11 @@ blueprints:
 
       nodes:
 
+        - "I-REF-ADM-001":
+            default: I-REF-ADM-Node
+            glue:
+              - ExternalNetwork .11
+
         - "I-REF-DC-001":
             default: I-REF-DC-Node
 
@@ -131,8 +145,6 @@ blueprints:
 
         - "I-REF-CLI64-001":
             default: I-REF-CLI64-Node
-            glue:
-              - ExternalNetwork .11
 
         - "I-REF-APP-001":
             default: I-REF-APP-Node
@@ -151,6 +163,11 @@ blueprints:
 
       nodes:
 
+        - "I-REF-ADM-002":
+            default: I-REF-ADM-Node
+            glue:
+              - ExternalNetwork .12
+
         - "I-REF-DC-002":
             default: I-REF-DC-Node
 
@@ -165,8 +182,6 @@ blueprints:
 
         - "I-REF-CLI64-002":
             default: I-REF-CLI64-Node
-            glue:
-              - ExternalNetwork .12
 
         - "I-REF-APP-002":
             default: I-REF-APP-Node
@@ -186,6 +201,11 @@ blueprints:
 
       nodes:
 
+        - "I-REF-ADM-003":
+            default: I-REF-ADM-Node
+            glue:
+              - ExternalNetwork .13
+
         - "I-REF-DC-003":
             default: I-REF-DC-Node
 
@@ -200,8 +220,6 @@ blueprints:
 
         - "I-REF-CLI64-003":
             default: I-REF-CLI64-Node
-            glue:
-              - ExternalNetwork .13
 
         - "I-REF-APP-003":
             default: I-REF-APP-Node

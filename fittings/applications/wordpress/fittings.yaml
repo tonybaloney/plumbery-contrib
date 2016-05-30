@@ -9,7 +9,7 @@ parameters:
     information:
       - "the target data centre for this deployment"
     type: locations.list
-    default: EU7
+    default: EU6
 
   domainName:
     information:
@@ -89,7 +89,7 @@ blueprints:
               - 1 50 standard
 
             glue:
-              - internet 22 80
+              - internet icmp 22 80
 
             monitoring: essentials
 

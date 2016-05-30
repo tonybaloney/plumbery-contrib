@@ -1,40 +1,40 @@
-# WordPress blogging server
+# GitLab Community Edition and Samba server, core internal services for developers
 
-The objective of this use case is to deploy a Wordpress server, at the [Managed Cloud Platform from Dimension Data](http://cloud.dimensiondata.com/eu/en/).
+The objective of this use case is to deploy core private services for developers, at the [Managed Cloud Platform from Dimension Data](http://cloud.dimensiondata.com/eu/en/).
 This is done with [plumbery](https://developer.dimensiondata.com/display/PLUM/Plumbery) and a template that is provided below.
 
-![WordPress](wordpress.png)
+GitLab includes Git repository management, code reviews, issue tracking, wikis, and more, plus GitLab CI, an easy-to-use continuous integration and deployment tool.
 
-[WordPress](https://wordpress.org/) is web software you can use to create a beautiful website, blog, or app.
-The community that has created it say that WordPress is both free and priceless at the same time.
+Collaborate with your team using issues, milestones, and line-by-line code review. View activity streams of projects or the people you work with.
+
+GitLab seamlessly integrates with Slack, Hipchat, LDAP, JIRA, Jenkins, and many other popular tools. GitLab includes many webhooks and offers a complete API.
+
+![Architecture](architecture.png)
+
+Samba is added to allow for easy file sharing among software developers.
+
 
 ## Requirements for this use case
 
 * Select a MCP location
 * Add a Network Domain
 * Add an Ethernet network
-* Deploy a Ubuntu node
-* Provide 2 CPU and 4 GB of RAM
-* Add a virtual disk of 50 GB
+* Deploy a CentOS node with 2 CPU and 4 GB of RAM
+* Add a virtual disk of 500 GB
 * Monitor this server in the real-time dashboard provided by Dimension Data
 * Assign a public IPv4 address
 * Add address translation to ensure end-to-end IP connectivity
-* Add firewall rule to accept TCP traffic on port 22 (ssh), 80 (web)
+* Add firewall rule to accept TCP traffic on ports ssh, http and samba
 * Combine the virtual disks into a single expanded logical volume (LVM)
 * Update the operating system
 * Synchronise node clock with NTP
 * Install a new SSH key to secure remote communications
 * Configure SSH to reject passwords and to prevent access from root account
-* Install Apache2 and PHP
-* Install MySQL and create a first database
-* Install WordPress
+* Install GitLab and Samba
 
 ## Fittings plan
 
 [Click here to read fittings.yaml](fittings.yaml)
-
-You can note how SQL instructions are transmitted to the server
-directly from within fittings plan.
 
 ## Deployment command
 
@@ -53,8 +53,7 @@ at any time with the following command:
     $ python -m plumbery fittings.yaml information
 
 Open a browser window and paste the public address reported by plumbery.
-This should display the setup page of WordPress. Paste secrets (name and password)
-that were displayed by plumbery previously. Enjoy WordPress!
+You should receive a login page in return.
 
 ## Destruction commands
 
@@ -68,6 +67,6 @@ Launch following command to remove all resources involved in the fittings plan:
 
 ## See also
 
-- [Application services with plumbery](../)
+- [DevOps services with plumbery](../)
 - [All plumbery fittings plans](../../)
 
