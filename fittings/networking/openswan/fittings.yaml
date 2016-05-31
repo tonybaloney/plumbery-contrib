@@ -1,0 +1,421 @@
+---
+
+information:
+  - "Site-to-site IPsec tunnel with Openswan"
+
+parameters:
+
+  leftLocationId:
+    information:
+      - "the target data centre used for the left deployment"
+    type: locations.list
+    default: EU6
+
+  leftDomain:
+    information:
+      - "the network for the left deployment"
+    type: str
+    default: domain-a
+
+  leftSubnet:
+    information:
+      - "the subnet on the left"
+    type: str
+    default: 10.1.0.0
+
+  rightLocationId:
+    information:
+      - "the target data centre used for the right deployment"
+    type: locations.list
+    default: EU7
+
+  rightDomain:
+    information:
+      - "the network for the right deployment"
+    type: str
+    default: domain-b
+
+  rightSubnet:
+    information:
+      - "the subnet on the right"
+    type: str
+    default: 10.2.0.0
+
+links:
+  documentation: https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/fittings/networking/openswan
+  credit: https://gist.github.com/winhamwr/2871257
+
+defaults:
+
+  openswan-node:
+
+    description: "#openswan #ubuntu"
+
+    information:
+      - "ssh ubuntu@{{ node.public }}"
+
+    appliance: 'Ubuntu 14'
+    cpu: 2
+    memory: 4
+
+    monitoring: essentials
+
+    glue:
+      - internet icmp 22 udp:500 udp:4500
+      - primary .11
+
+    cloud-config:
+
+      bootcmd:
+        - apt-get remove apache2 -y
+        - apt-get autoremove -y
+
+      packages:
+        - ntp
+        - openswan
+
+      write_files:
+
+        - path: /root/etc-sysctl.conf.sed
+          content: |
+            #!/bin/sed -f
+            s/.*net.ipv4.ip_forward.*/net.ipv4.ip_forward=1/
+            s/.*net.ipv4.conf.default.rp_filter.*/net.ipv4.conf.default.rp_filter = 0/
+            s/.*net.ipv4.conf.all.rp_filter.*/net.ipv4.conf.all.rp_filter = 0/
+            s/.*net.ipv4.conf.all.send_redirects.*/net.ipv4.conf.all.send_redirects = 0/
+            s/.*net.ipv4.conf.default.send_redirects.*/net.ipv4.conf.default.send_redirects = 0/
+            s/.*net.ipv4.icmp_ignore_bogus_error_responses.*/net.ipv4.icmp_ignore_bogus_error_responses = 1/
+            s/.*net.ipv4.conf.default.log_martians.*/net.ipv4.conf.default.log_martians = 0/
+            s/.*net.ipv4.conf.all.log_martians.*/net.ipv4.conf.all.log_martians = 0/
+            s/.*net.ipv4.conf.default.accept_source_route.*/net.ipv4.conf.default.accept_source_route = 0/
+            s/.*net.ipv4.conf.all.accept_redirects.*/net.ipv4.conf.all.accept_redirects = 0/
+            s/.*net.ipv4.conf.default.accept_redirects.*/net.ipv4.conf.default.accept_redirects = 0/
+            s/.*net.ipv4.neigh.default.gc_thresh1.*/net.ipv4.neigh.default.gc_thresh1 = 1024/
+            s/.*net.ipv4.neigh.default.gc_thresh2.*/net.ipv4.neigh.default.gc_thresh2 = 2048/
+            s/.*net.ipv4.neigh.default.gc_thresh3.*/net.ipv4.neigh.default.gc_thresh3 = 4096/
+
+        - path: /etc/ipsec.conf
+          content: |
+            version 2.0
+
+            config setup
+                plutodebug="control parsing"
+                plutostderrlog=/var/log/pluto.log
+                dumpdir=/var/run/pluto/
+                nat_traversal=yes
+                protostack=netkey
+                force_keepalive=yes
+                keep_alive=60
+                oe=off
+                nhelpers=0
+                virtual_private=%v4:10.0.0.0/8,%v4:192.168.0.0/16,%v4:172.16.0.0/12,%v4:25.0.0.0/8,%v6:fd00::/8,%v6:fe80::/10
+
+            include /etc/ipsec.d/*.conf
+
+        - path: /etc/ipsec.secrets
+          content: |
+            %any %any : PSK "{{ ipsec.secret }}"
+
+      runcmd:
+
+        - echo "===== Configuring sysctl"
+        - cp -n /etc/sysctl.conf /etc/sysctl.conf.orig
+        - grep -q "net.ipv4.ip_forward" /etc/sysctl.conf || echo "net.ipv4.ip_forward" >>/etc/sysctl.conf
+        - grep -q "net.ipv4.conf.default.rp_filter" /etc/sysctl.conf || echo "net.ipv4.conf.default.rp_filter" >>/etc/sysctl.conf
+        - grep -q "net.ipv4.conf.all.rp_filter" /etc/sysctl.conf || echo "net.ipv4.conf.all.rp_filter" >>/etc/sysctl.conf
+        - grep -q "net.ipv4.conf.all.send_redirects" /etc/sysctl.conf || echo "net.ipv4.conf.all.send_redirects" >>/etc/sysctl.conf
+        - grep -q "net.ipv4.conf.default.send_redirects" /etc/sysctl.conf || echo "net.ipv4.conf.default.send_redirects" >>/etc/sysctl.conf
+        - grep -q "net.ipv4.icmp_ignore_bogus_error_responses" /etc/sysctl.conf || echo "net.ipv4.icmp_ignore_bogus_error_responses" >>/etc/sysctl.conf
+        - grep -q "net.ipv4.conf.default.log_martians" /etc/sysctl.conf || echo "net.ipv4.conf.default.log_martians" >>/etc/sysctl.conf
+        - grep -q "net.ipv4.conf.all.log_martians" /etc/sysctl.conf || echo "net.ipv4.conf.all.log_martians" >>/etc/sysctl.conf
+        - grep -q "net.ipv4.conf.default.accept_source_route" /etc/sysctl.conf || echo "net.ipv4.conf.default.accept_source_route" >>/etc/sysctl.conf
+        - grep -q "net.ipv4.conf.all.accept_redirects" /etc/sysctl.conf || echo "net.ipv4.conf.all.accept_redirects" >>/etc/sysctl.conf
+        - grep -q "net.ipv4.conf.default.accept_redirects" /etc/sysctl.conf || echo "net.ipv4.conf.default.accept_redirects" >>/etc/sysctl.conf
+        - grep -q "net.ipv4.neigh.default.gc_thresh1" /etc/sysctl.conf || echo "net.ipv4.neigh.default.gc_thresh1" >>/etc/sysctl.conf
+        - grep -q "net.ipv4.neigh.default.gc_thresh2" /etc/sysctl.conf || echo "net.ipv4.neigh.default.gc_thresh2" >>/etc/sysctl.conf
+        - grep -q "net.ipv4.neigh.default.gc_thresh3" /etc/sysctl.conf || echo "net.ipv4.neigh.default.gc_thresh3" >>/etc/sysctl.conf
+        - sed -i -f /root/etc-sysctl.conf.sed /etc/sysctl.conf
+        - sysctl -p /etc/sysctl.conf
+
+  regular-node:
+
+    description: "#ubuntu"
+
+    information:
+      - "ssh ubuntu@{{ node.public }}"
+
+    appliance: 'Ubuntu 14'
+    cpu: 2
+    memory: 4
+
+    monitoring: essentials
+
+    glue:
+      - internet 22
+      - primary .101
+
+    cloud-config:
+
+      packages:
+        - ntp
+
+
+  cloud-config:
+
+    hostname: "{{ node.name }}"
+
+    write_files:
+
+      - path: /root/hosts.awk
+        content: |
+          #!/usr/bin/awk -f
+          /^{{ {{ leftLocationId.parameter }}::openswan-a.private }}/ {next}
+          /^{{ {{ leftLocationId.parameter }}::node-a.private }}/ {next}
+          /^{{ {{ rightLocationId.parameter }}::openswan-b.private }}/ {next}
+          /^{{ {{ rightLocationId.parameter }}::node-b.private }}/ {next}
+          {print}
+          END {
+           print "{{ {{ leftLocationId.parameter }}::openswan-a.private }}    openswan-a"
+           print "{{ {{ leftLocationId.parameter }}::node-a.private }}    node-a"
+           print "{{ {{ rightLocationId.parameter }}::openswan-b.private }}    openswan-b"
+           print "{{ {{ rightLocationId.parameter }}::node-b.private }}    node-b"
+          }
+
+    runcmd:
+
+      - echo "===== Handling ubuntu identity"
+      - cp -n /etc/ssh/ssh_host_rsa_key /home/ubuntu/.ssh/id_rsa
+      - cp -n /etc/ssh/ssh_host_rsa_key.pub /home/ubuntu/.ssh/id_rsa.pub
+      - chown ubuntu:ubuntu /home/ubuntu/.ssh/*
+      - sed -i "/StrictHostKeyChecking/s/^.*$/    StrictHostKeyChecking no/" /etc/ssh/ssh_config
+
+      - echo "===== Updating /etc/hosts"
+      - cp -n /etc/hosts /etc/hosts.original
+      - awk -f /root/hosts.awk /etc/hosts >/etc/hosts.new && mv /etc/hosts.new /etc/hosts
+
+    ssh_keys:
+      rsa_private: |
+        {{ key.rsa_private }}
+      rsa_public: "{{ key.rsa_public }}"
+
+    users:
+      - default
+
+      - name: ubuntu
+        sudo: 'ALL=(ALL) NOPASSWD:ALL'
+        ssh-authorized-keys:
+          - "{{ key.rsa_public }}"
+          - "{{ local.rsa_public }}"
+
+    disable_root: true
+    ssh_pwauth: false
+
+---
+
+locationId: "{{ leftLocationId.parameter }}"
+
+blueprints:
+
+  - side-a:
+
+      domain:
+        name: "{{ leftDomain.parameter }}"
+        service: essentials
+        ipv4: auto
+
+      ethernet:
+        name: side-a
+        subnet: "{{ leftSubnet.parameter }}"
+
+      nodes:
+
+        - node-a:
+            default: regular-node
+
+            information:
+              - "test end-to-end connectivity:"
+              - "ping node-b"
+              - "ssh ubuntu@node-b"
+
+            cloud-config:
+
+              write_files:
+
+                - path: /root/route.awk
+                  content: |
+                    #!/usr/bin/awk -f
+                    /^{{ openswan-a.private }}/ {next}
+                    {print}
+                    END {
+                     print "up ip route add {{ rightSubnet.parameter }}/24 via {{ openswan-a.private }}"
+                    }
+
+              runcmd:
+
+                - echo "===== Adding route to remote subnet"
+                - "ip route add {{ rightSubnet.parameter }}/24 via {{ openswan-a.private }}"
+                - cp -n /etc/network/interfaces /etc/network/interfaces.original
+                - awk -f /root/route.awk /etc/network/interfaces >/etc/network/interfaces.new && mv /etc/network/interfaces.new /etc/network/interfaces
+                - /etc/init.d/networking restart
+
+                - echo "===== Pinging remote nodes"
+                - sleep 3m
+                - ping -c 5 openswan-b
+                - ping -c 5 node-b
+
+        - openswan-a:
+            default: openswan-node
+
+            cloud-config:
+
+              write_files:
+
+                - path: /etc/ipsec.d/site_to_site.conf
+                  content: |
+                    conn site-to-site
+
+                        left={{ node.private }}
+                        leftid={{ node.public }}
+                        leftsubnets={{ leftSubnet.parameter }}/24
+                        leftnexthop=%defaultroute
+                        leftsourceip={{ node.private }}
+
+                        right={{ {{ rightLocationId.parameter }}::openswan-b.public }}
+                        rightid={{ {{ rightLocationId.parameter }}::openswan-b.public }}
+                        rightsubnets={{ rightSubnet.parameter }}/24
+                        rightnexthop=%defaultroute
+
+                        type=tunnel
+                        authby=secret
+                        forceencaps=yes
+
+                        keyexchange=ike
+                        ike=3des-md5
+
+                        phase2=esp
+                        phase2alg=3des-md5
+                        compress=no
+                        pfs=no
+                        auto=start
+
+              runcmd:
+
+                - echo "===== Starting Openswan"
+                - service ipsec restart
+
+                - echo "===== Checking IPsec tunnel"
+                - service ipsec status
+                - ipsec whack --status | grep -i established
+                - route -n
+
+                - echo "===== Pinging remote nodes"
+                - sleep 1m
+                - ping -c 5 openswan-b
+                - ping -c 5 node-b
+
+---
+
+locationId: "{{ rightLocationId.parameter }}"
+
+blueprints:
+
+  - side-b:
+
+      domain:
+        name: "{{ rightDomain.parameter }}"
+        service: essentials
+        ipv4: auto
+
+      ethernet:
+        name: side-b
+        subnet: "{{ rightSubnet.parameter }}"
+
+      nodes:
+
+        - openswan-b:
+            default: openswan-node
+
+            cloud-config:
+
+              write_files:
+
+                - path: /etc/ipsec.d/site_to_site.conf
+                  content: |
+                    conn site-to-site
+
+                        left={{ node.private }}
+                        leftid={{ node.public }}
+                        leftsubnets={{ rightSubnet.parameter }}/24
+                        leftnexthop=%defaultroute
+                        leftsourceip={{ node.private }}
+
+                        right={{ {{ leftLocationId.parameter }}::openswan-a.public }}
+                        rightid={{ {{ leftLocationId.parameter }}::openswan-a.public }}
+                        rightsubnets={{ leftSubnet.parameter }}/24
+                        rightnexthop=%defaultroute
+
+                        type=tunnel
+                        authby=secret
+                        forceencaps=yes
+
+                        keyexchange=ike
+                        ike=3des-md5
+
+                        phase2=esp
+                        phase2alg=3des-md5
+                        compress=no
+                        pfs=no
+                        auto=start
+
+              runcmd:
+
+                - echo "===== Starting Openswan"
+                - service ipsec restart
+
+                - echo "===== Checking IPsec tunnel"
+                - service ipsec status
+                - ipsec whack --status | grep -i established
+                - route -n
+
+                - echo "===== Pinging remote nodes"
+                - sleep 1m
+                - ping -c 5 openswan-a
+                - ping -c 5 node-a
+
+
+        - node-b:
+            default: regular-node
+
+            information:
+              - "test end-to-end connectivity:"
+              - "ping node-a"
+              - "ssh ubuntu@node-a"
+
+            cloud-config:
+
+              write_files:
+
+                - path: /root/route.awk
+                  content: |
+                    #!/usr/bin/awk -f
+                    /^{{ openswan-b.private }}/ {next}
+                    {print}
+                    END {
+                     print "up ip route add {{ leftSubnet.parameter }}/24 via {{ openswan-b.private }}"
+                    }
+
+              runcmd:
+
+                - echo "===== Adding route to remote subnet"
+                - "ip route add {{ leftSubnet.parameter }}/24 via {{ openswan-b.private }}"
+                - cp -n /etc/network/interfaces /etc/network/interfaces.original
+                - awk -f /root/route.awk /etc/network/interfaces >/etc/network/interfaces.new && mv /etc/network/interfaces.new /etc/network/interfaces
+                - /etc/init.d/networking restart
+
+                - echo "===== Pinging remote nodes"
+                - sleep 3m
+                - ping -c 5 openswan-a
+                - ping -c 5 node-a
+
+
+

@@ -1,0 +1,222 @@
+---
+
+information:
+  - "GlusterFS cluster of 3 nodes"
+
+parameters:
+
+  locationId:
+    information:
+      - "the primary data centre for this deployment"
+    type: locations.list
+    default: EU6
+
+  domainName:
+    information:
+      - "the name of the network domain to be deployed"
+    type: str
+    default: GlusterfsFox
+
+  networkName:
+    information:
+      - "the name of the Ethernet VLAN to be deployed"
+    type: str
+    default: GlusterfsNetwork
+
+  diskPerNode:
+    information:
+      - "the quantity of storage given to each GlusterFS brick, in GB"
+    type: [100..1000]
+    default: 100
+
+links:
+  documentation: https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/fittings/storage/glusterfs
+  credit: https://wiki.centos.org/HowTos/GlusterFSonCentOS
+
+defaults:
+
+  domain:
+    name: "{{ domainName.parameter }}"
+    ipv4: auto
+
+  ethernet:
+    name: "{{ networkName.parameter }}"
+    subnet: 192.168.20.0
+
+  glusterfs-node:
+
+    information:
+      - "GlusterFS node"
+      - "ssh centos@{{ node.public }}"
+      - "sudo gluster volume info"
+      - "sudo gluster peer status"
+
+    appliance: 'CentOS 7'
+    cpu: 2
+    memory: 8
+
+    disks:
+      - "1 {{ diskPerNode.parameter }} economy"
+      - "2 {{ diskPerNode.parameter }} economy"
+
+    monitoring: essentials
+
+    glue:
+      - internet 22
+
+  cloud-config:
+
+    packages:
+      - ntp
+
+    write_files:
+
+      - path: /root/hosts.awk
+        content: |
+          #!/usr/bin/awk -f
+          /^{{ node1.private }}/ {next}
+          /^{{ node2.private }}/ {next}
+          /^{{ node3.private }}/ {next}
+          {print}
+          END {
+           print "{{ node1.private }}    node1"
+           print "{{ node2.private }}    node2"
+           print "{{ node3.private }}    node3"
+          }
+
+      - path: /root/set_vdisk.sh
+        content: |
+          #!/usr/bin/env bash
+          if [ -z "$(blkid ${1})" ];
+          then
+              echo "===== Formatting ${1}"
+              mkfs -t ${2} ${1}
+          fi
+          UUID=$(blkid ${1} | sed -n 's/.*UUID=\"\([^\"]*\)\".*/\1/p')
+
+          if ! grep -q "${UUID}" /etc/fstab; then
+              echo "===== Adding ${1} to fstab"
+              LINE="UUID=\"${UUID}\"\t${3}\t${2}\tnoatime,nodiratime,nodev,noexec,nosuid\t1 2"
+              echo -e "${LINE}" >> /etc/fstab
+          fi
+
+          echo "===== Mounting ${3}"
+          [ -d "${3}" ] || mkdir -p "${3}"
+          mount "${3}"
+
+    runcmd:
+
+      - echo "===== Updating /etc/hosts"
+      - cp -n /etc/hosts /etc/hosts.original
+      - awk -f /root/hosts.awk /etc/hosts >/etc/hosts.new && mv /etc/hosts.new /etc/hosts
+
+      - echo "===== Handling centos identity"
+      - cp -n /etc/ssh/ssh_host_rsa_key /home/centos/.ssh/id_rsa
+      - cp -n /etc/ssh/ssh_host_rsa_key.pub /home/centos/.ssh/id_rsa.pub
+      - chown centos:centos /home/centos/.ssh/*
+
+      - echo "===== Installing GlusterFS"
+      - yum update -y
+      - yum install -y wget
+      - yum install -y http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+      - wget -P /etc/yum.repos.d/ http://download.gluster.org/pub/gluster/glusterfs/LATEST/CentOS/glusterfs-epel.repo
+      - yum install -y glusterfs-server samba
+
+      - echo "===== Starting GlusterFS daemon"
+      - systemctl enable glusterd.service
+      - systemctl start glusterd.service
+
+      - echo "===== Configuring local storage for GlusterFS"
+      - chmod +x /root/set_vdisk.sh
+
+      - pvcreate /dev/sdb
+      - vgcreate vg_brick1 /dev/sdb
+      - lvcreate -l 100%FREE -n brick1 vg_brick1
+      - /root/set_vdisk.sh /dev/vg_brick1/brick1 xfs /bricks/brick1
+      - mkdir /bricks/brick1/volume1
+
+      - pvcreate /dev/sdc
+      - vgcreate vg_brick2 /dev/sdc
+      - lvcreate -l 100%FREE -n brick2 vg_brick2
+      - /root/set_vdisk.sh /dev/vg_brick2/brick2 xfs /bricks/brick2
+      - mkdir /bricks/brick2/volume2
+
+    ssh_keys:
+      rsa_private: |
+        {{ key.rsa_private }}
+      rsa_public: "{{ key.rsa_public }}"
+
+    users:
+      - default
+
+      - name: centos
+        sudo: 'ALL=(ALL) NOPASSWD:ALL'
+        ssh-authorized-keys:
+          - "{{ key.rsa_public }}"
+          - "{{ local.rsa_public }}"
+
+    disable_root: true
+    ssh_pwauth: false
+
+---
+
+locationId: "{{ locationId.parameter }}"
+
+blueprints:
+
+  - glusterfs:
+
+      nodes:
+
+        - node1:
+            default: glusterfs-node
+
+            cloud-config:
+
+              runcmd:
+
+                - echo "===== Configuring the GlusterFS trusted pool"
+                - sleep 2m
+                - gluster peer probe node2
+
+                - echo "===== Creating shared volume"
+                - sleep 1m
+                - gluster volume create volume1 replica 2 node1:/bricks/brick1/volume1 node2:/bricks/brick1/volume1
+
+                - echo "===== Starting shared volume"
+                - gluster volume start volume1
+
+                - echo "===== Checking volume information"
+                - gluster volume info
+
+                - echo "===== Testing shared volume"
+                - mount -t glusterfs node1:/volume1 /mnt
+                - echo "hello world" | tee /mnt/welcome.txt
+                - cat /bricks/brick1/volume1/welcome.txt
+
+                - echo "===== Expanding the cluster"
+                - gluster peer probe node3
+                - sleep 30
+                - gluster volume add-brick volume1 replica 3 node3:/bricks/brick1/volume1
+
+                - echo "===== Adding another volume"
+                - gluster volume create volume2 replica 3 node1:/bricks/brick2/volume2 node2:/bricks/brick2/volume2 node3:/bricks/brick2/volume2
+                - gluster volume start volume2
+
+                - echo "===== Checking cluster status"
+                - gluster volume info
+                - gluster peer status
+
+        - node2:
+            default: glusterfs-node
+
+            cloud-config:
+
+              runcmd:
+
+                - echo "===== Configuring the GlusterFS trusted pool"
+                - sleep 2m
+                - gluster peer probe node1
+
+        - node3:
+            default: glusterfs-node

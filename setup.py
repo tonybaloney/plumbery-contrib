@@ -1,26 +1,29 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+
+import os
+from os.path import join as pjoin
+import sys
+
 try:
     from setuptools import setup
 except ImportError:
     from distutils.core import setup
 
-__version__ = '1.0.0'
+__version__ = '0.1.0'
 
-requirements = ['PyYAML']
+requirements = ['PyYAML', 'pykwalify']
 
 test_requirements = []
 
 setup(
-    name='plumbery',
+    name='plumbery-contrib',
     version=__version__,
-    description="Cloud automation at Dimension Data with Apache Libcloud",
-    long_description='a collection of example fittings for plumbery',
+    description="Configuration files to be used with plumbery",
+    long_description="A collection of reference use cases and related documentation",
     author="Bernard Paques",
     author_email='bernard.paques@gmail.com',
-    url='https://github.com/DimensionDataCBUSydney/plumbery',
-    packages=['plumbery-contrib'],
-    package_dir={'plumbery-contrib': 'fittings'},
+    url='https://github.com/DimensionDataCBUSydney/plumbery-contrib',
     include_package_data=True,
     install_requires=requirements,
     license='Apache License (2.0)',
@@ -30,7 +33,9 @@ setup(
         # complete classifier list: http://pypi.python.org/pypi?%3Aaction=list_classifiers
         'Development Status :: 4 - Beta',
         'Environment :: Console',
+        'Environment :: Plugins',
         'Intended Audience :: Developers',
+        'Intended Audience :: Customer Service',
         'Intended Audience :: System Administrators',
         'License :: OSI Approved :: Apache Software License',
         'Operating System :: OS Independent',
@@ -39,7 +44,5 @@ setup(
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: Implementation :: CPython',
         'Programming Language :: Python :: Implementation :: PyPy'
-    ],
-    test_suite='tests',
-    tests_require=test_requirements
+    ]
 )

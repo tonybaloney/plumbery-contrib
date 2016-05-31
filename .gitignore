@@ -1,3 +1,6 @@
+*~
 *.secrets
-.DS_Store
 __pycache__/
+plumbery_contrib.egg-info/
+*.pyc
+.DS_Store

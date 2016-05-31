@@ -1,10 +1,11 @@
-# Cluster of Ceph servers providing S3-like storage
+# Elastic Cloud Storage (ECS) from EMC, providing S3-like storage
 
-The objective of this use case is to deploy a cluster of Ceph nodes at the [Managed Cloud Platform from Dimension Data](http://cloud.dimensiondata.com/eu/en/).
+The objective of this use case is to deploy a cluster of EMC ECS nodes at the [Managed Cloud Platform from Dimension Data](http://cloud.dimensiondata.com/eu/en/).
 This is done with [plumbery](https://developer.dimensiondata.com/display/PLUM/Plumbery) and a template that is provided below.
 
-The cluster is built from an `admin` node that is running `ceph-deploy`.
-It has 3 monitoring nodes, 3 storage nodes, and 2 gateway nodes.
+![Architecture](architecture.png)
+
+The cluster is built out of EMC ECS nodes. Resources assigned to each node can be changed by passing parameters to plumbery.
 
 ## Requirements for this use case
 

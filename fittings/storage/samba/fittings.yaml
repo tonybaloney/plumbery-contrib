@@ -89,7 +89,7 @@ blueprints:
             monitoring: essentials
 
             glue:
-              - internet 22 139 445
+              - internet icmp 22 139 445 udp:137..138
 
             cloud-config:
 

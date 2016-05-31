@@ -138,6 +138,6 @@ blueprints:
 
                 - echo "===== Installing libcloud and plumbery"
                 - cd /home/ubuntu
-                - git clone https://github.com/bernard357/libcloud.git
-                - git clone https://github.com/bernard357/plumbery.git
-                - git clone https://github.com/bernard357/plumbery-contrib.git
+                - pip install -e git+https://git-wip-us.apache.org/repos/asf/libcloud.git@trunk#egg=apache-libcloud
+                - pip install -e git+https://github.com/DimensionDataCBUSydney/plumbery.git@master#egg=plumbery
+                - pip install -e git+https://github.com/DimensionDataCBUSydney/plumbery-contrib.git@master#egg=plumbery-contrib
