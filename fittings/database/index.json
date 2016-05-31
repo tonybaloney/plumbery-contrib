@@ -1,0 +1,120 @@
+{
+    "Categories": [{
+            "fittings": [{
+                    "name": "test"
+                }, {
+                    "name": "test"
+                }, {
+                    "name": "test"
+                }
+            ],
+            "name": "IT applications",
+            "description": "Ready-to-use IT services"
+        }, {
+            "fittings": [{
+                    "name": "test"
+                }, {
+                    "name": "test"
+                }, {
+                    "name": "test"
+                }
+            ],
+            "name": "Containers",
+            "description": "Fittings for container based applications and workloads"
+        }, {
+            "fittings": [{
+                    "name": "test"
+                }, {
+                    "name": "test"
+                }, {
+                    "name": "test"
+                }
+            ],
+            "name": "Databases",
+            "description": "Fittings for database applications"
+        }, {
+            "fittings": [{
+                    "name": "test"
+                }
+            ],
+            "name": "DevOps",
+            "description": "Fittings for DevOps tools and engines"
+        }, {
+            "fittings": [{
+                    "name": "test"
+                }, {
+                    "name": "test"
+                }, {
+                    "name": "test"
+                }, {
+                    "name": "test"
+                }, {
+                    "name": "test"
+                }, {
+                    "name": "test"
+                }, {
+                    "name": "test"
+                }, {
+                    "name": "test"
+                }, {
+                    "name": "test"
+                }
+            ],
+            "name": "Examples",
+            "description": "Generic examples"
+        }, {
+            "fittings": [{
+                    "name": "test"
+                }, {
+                    "name": "test"
+                }
+            ],
+            "name": "Logging",
+            "description": "Logging and log collection, retention applications"
+        }, {
+            "fittings": [{
+                    "name": "test"
+                }
+            ],
+            "name": "Messaging",
+            "description": "Applications for messaging and message distribution"
+        }, {
+            "fittings": [{
+                    "name": "test"
+                }
+            ],
+            "name": "Networking",
+            "description": "Networking applications"
+        }, {
+            "fittings": [{
+                    "name": "test"
+                }, {
+                    "name": "test"
+                }, {
+                    "name": "test"
+                }, {
+                    "name": "test"
+                }, {
+                    "name": "test"
+                }, {
+                    "name": "test"
+                }
+            ],
+            "name": "Storage",
+            "description": "Applications for file, object and network storage"
+        }, {
+            "fittings": [{
+                    "name": "test"
+                }, {
+                    "name": "test"
+                }, {
+                    "name": "test"
+                }, {
+                    "name": "test"
+                }
+            ],
+            "name": "Web",
+            "description": "Web applications and servers"
+        }
+    ]
+}
