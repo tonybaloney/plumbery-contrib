@@ -18,49 +18,61 @@ if len(sys.argv) > 1:
     logging.basicConfig(level=level)
 
 
-readme = ""
-
 complete_index = {}
+
+
+def read_fitting(file_path):
+    with open(file_path) as fitting_f:
+        plan = fitting_f.read()
+        documents = plan.split('\n---')
+        index = 0
+        for document in documents:
+            index += 1
+            if '\n' in document and index == 1:
+                settings = yaml.load(document)
+                logging.info("Validated fittings %s", file_path)
+    return settings
+
+
+def get_fittings(directory, name, description):
+    fittings = []
+    # Check and load directory.
+    for subdir, dirs, files in os.walk("fittings/"+directory):
+        logging.info("Sub-directory %s", subdir)
+        for dir in dirs:
+            logging.info("Found directory %s", dir)
+
+        for file in files:
+            if file == "fittings.yaml":
+                # check the yaml
+                file_path = os.path.join(subdir, file)
+                fitting = read_fitting(file_path)
+                fitting_info = fitting.get('information', '')
+                validate_fittings(file_path)
+                fittings.append({"name": os.path.basename(subdir),
+                                 "directory": subdir.replace('\\','/'),
+                                 "icon": os.path.join(subdir, "icon.png").replace('\\','/'),
+                                 "information": fitting_info})
+    return fittings
+
 
 with open("fittings/categories.yaml", "r") as categories_f:
     docs = yaml.load(categories_f)
+    complete_index['Categories'] = [{
+        'name': category['name'],
+        'description': category['description'],
+        'fittings': [
+            fitting for fitting in get_fittings(category['directory'],
+                                                         category['name'],
+                                                         category['description'])
+            ]
+            } for category in docs['categories']]
     for category in docs['categories']:
-        readme += "\n## %s\n\n%s" % (
-            category['name'], category['description'])
-        complete_index[category['name']] = {}
-        # Check and load directory.
-        for subdir, dirs, files in os.walk("fittings/"+category['directory']):
-            logging.info("Subdirectory %s", subdir)
-            complete_index[category['name']][subdir] = {
-                'name': subdir
-            }
-            for dir in dirs:
-                logging.info("Found directory %s", dir)
+        get_fittings(
+            category['directory'],
+            category['name'],
+            category['description'])
 
-            for file in files:
-                if file == "fittings.yaml":
-                    # check the yaml
-                    file_path = os.path.join(subdir, file)
-                    with open(file_path) as fitting_f:
-                        plan = fitting_f.read()
-                        documents = plan.split('\n---')
-                        index = 0
-                        for document in documents:
-                            index += 1
-                            if '\n' in document and index == 1:
-                                settings = yaml.load(document)
-                                logging.info("Validated fittings %s",
-                                             file_path)
 
-                                readme += "\n### [%s](%s) \n\n<img src='%s' style='width: 64px;'/>\n%s" % (
-                                    settings['information'][0],
-                                    settings['links']['documentation'],
-                                    'https://raw.githubusercontent.com/DimensionDataCBUSydney/plumbery-contrib/master/%s/icon.png' % subdir.replace('\\','/'),
-                                    '\n'.join(settings['information'][0:])
-                                )
-                    validate_fittings(file_path)
-
-with open("INDEX.md", "w") as readme_f:
-    readme_f.write(readme)
 with open("index.json", "w") as index_f:
     index_f.write(json.dumps(complete_index))

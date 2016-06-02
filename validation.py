@@ -1,6 +1,7 @@
 import yaml
 import logging
 from pykwalify.core import Core
+import pykwalify.errors
 
 
 def check_existence_of_key(dictionary, key, path):
@@ -23,7 +24,11 @@ def validate_fittings(file_path):
                          settings)
 
             c = Core(source_data=settings, schema_files=["schema.yaml"])
-            c.validate(raise_exception=True)
+            try:
+                c.validate(raise_exception=True)
+            except pykwalify.errors.SchemaError as schema_error:
+                logging.error("Validation of %s failed.", file_path)
+                logging.error(schema_error)
 
 
 if __name__ == "__main__":

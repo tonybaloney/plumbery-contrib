@@ -61,7 +61,6 @@ mapping:
                 mapping:
                   "name":
                     type: str
-                    required: true
                   "description":
                     type: str
                   "subnet":
@@ -145,6 +144,8 @@ mapping:
                             type: seq
                             sequence:
                               - type: str
+                          "running":
+                            type: str
                           "windows":
                             type: map
                             matching-rule: 'any'
