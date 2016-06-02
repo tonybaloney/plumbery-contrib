@@ -46,9 +46,13 @@ def get_fittings(directory, name, description):
             if file == "fittings.yaml":
                 # check the yaml
                 file_path = os.path.join(subdir, file)
+                fitting = read_fitting(file_path)
+                fitting_info = fitting.get('information', '')
                 validate_fittings(file_path)
-                fittings.append({"directory": subdir,
-                                 "icon": os.path.join(subdir, "icon.png")})
+                fittings.append({"name": os.path.basename(subdir),
+                                 "directory": subdir.replace('\\','/'),
+                                 "icon": os.path.join(subdir, "icon.png").replace('\\','/'),
+                                 "infomation": fitting_info})
     return fittings
 
 
@@ -58,7 +62,7 @@ with open("fittings/categories.yaml", "r") as categories_f:
         'name': category['name'],
         'description': category['description'],
         'fittings': [
-            {'name': fitting['directory'].replace('\\', '/')} for fitting in get_fittings(category['directory'],
+            fitting for fitting in get_fittings(category['directory'],
                                                          category['name'],
                                                          category['description'])
             ]
