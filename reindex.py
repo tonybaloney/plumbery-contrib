@@ -52,7 +52,7 @@ def get_fittings(directory, name, description):
                 fittings.append({"name": os.path.basename(subdir),
                                  "directory": subdir.replace('\\','/'),
                                  "icon": os.path.join(subdir, "icon.png").replace('\\','/'),
-                                 "infomation": fitting_info})
+                                 "information": fitting_info})
     return fittings
 
 
