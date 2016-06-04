@@ -68,5 +68,6 @@ Launch following command to remove all resources involved in the fittings plan:
 
 ## See also
 
+- [Collaboration services with plumbery](../)
 - [All plumbery fittings plan](../../)
 
