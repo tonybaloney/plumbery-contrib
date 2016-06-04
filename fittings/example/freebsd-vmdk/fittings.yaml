@@ -1,0 +1,154 @@
+---
+
+information:
+  - "FreeBSD node installed from custom VMDK (experimental)"
+
+parameters:
+
+  locationId:
+    information:
+      - "the target data centre for this deployment"
+    type: locations.list
+    default: NA12
+
+  domainName:
+    information:
+      - "the name of the network domain to be deployed"
+    type: str
+    default: FreebsdFox
+
+  networkName:
+    information:
+      - "the name of the Ethernet VLAN to be deployed"
+    type: str
+    default: FreebsdNetwork
+
+  nodeName:
+    information:
+      - "the name of the node to be deployed"
+    type: str
+    default: freebsd01
+
+links:
+  documentation: https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/fittings/example/freebsd
+
+defaults:
+
+  domain:
+    name: "{{ domainName.parameter }}"
+    service: essentials
+    ipv4: auto
+
+  ethernet:
+    name: "{{ networkName.parameter }}"
+    subnet: 192.168.20.0
+
+  freebsdNode:
+
+    information:
+      - "connect to the FreeBSD node via the console, since it has no network"
+      - "during the preparation of the server you can connect as usual:"
+      - "ssh ubuntu@{{ node.public }}"
+
+    appliance: 'Ubuntu 14'
+    cpu: 4
+    memory: 16
+
+    disks:
+      - 1 100 standard
+
+    glue:
+      - internet icmp 22
+
+    monitoring: essentials
+
+    cloud-config:
+
+      packages:
+        - ntp
+        - expect
+        - qemu
+        - dtrx
+
+      write_files:
+
+        - path: /root/grub_40_custom
+          content: |
+            menuentry 'FreeBSD by plumbery' --class freebsd --class bsd --class os {
+                insmod bsd
+                insmod ufs2
+                set root=(hd1,1)
+                kfreebsd /boot/kernel/kernel
+                kfreebsd_loadenv /boot/device.hints
+                set kFreeBSD.vfs.root.mountfrom=ufs:/dev/da1s1a
+                set vfs.root.mountfrom.options=rw
+                set kFreeBSD.hw.psm.synaptics_support=1
+            }
+
+      runcmd:
+
+        - echo "===== Handling ubuntu identity"
+        - cp -n /etc/ssh/ssh_host_rsa_key /home/ubuntu/.ssh/id_rsa
+        - cp -n /etc/ssh/ssh_host_rsa_key.pub /home/ubuntu/.ssh/id_rsa.pub
+        - chown ubuntu:ubuntu /home/ubuntu/.ssh/*
+        - sed -i "/StrictHostKeyChecking/s/^.*$/    StrictHostKeyChecking no/" /etc/ssh/ssh_config
+
+        - echo "===== Downloading FreeBSD"
+        - cd /root
+        - wget -q http://tenet.dl.sourceforge.net/project/osboxes/vms/vmware/FreeBSD/10.3/FreeBSD_10.3-64bit.7z
+
+        - echo "===== Preparing virtual disk"
+        - dtrx -n FreeBSD_10.3-64bit.7z
+        - rm FreeBSD_10.3-64bit.7z
+        - cd FreeBSD_10.3-64bit/64bit
+        - qemu-img convert FreeBSD\ 10.3\ \(64bit\).vmdk -O raw /dev/sdb
+
+        - echo "===== Checking partitions"
+        - parted /dev/sdb print
+
+        - echo "===== Updating bootloader"
+        - cp -n /etc/grub.d/40_custom /root/etc-grub.d-40_custom.orig
+        - cat /root/etc-grub.d-40_custom.orig /root/grub_40_custom >/etc/grub.d/40_custom
+        - sed -i "/GRUB_DEFAULT=/s/^.*$/GRUB_DEFAULT='FreeBSD by plumbery'/" /etc/default/grub
+        - update-grub
+
+        - echo "===== Almost done"
+        - echo "The node will reboot on FreeBSD"
+        - echo "AT THIS STAGE USE THE CONSOLE TO ACCESS THE NODE -- NO NETWORK"
+
+      power_state:
+        delay: "+3"
+        mode: poweroff
+        message: Booting FreeBSD
+        timeout: 30
+        condition: True
+
+  cloud-config:
+
+    ssh_keys:
+      rsa_private: |
+        {{ key.rsa_private }}
+      rsa_public: "{{ key.rsa_public }}"
+
+    users:
+      - default
+
+      - name: ubuntu
+        sudo: 'ALL=(ALL) NOPASSWD:ALL'
+        ssh-authorized-keys:
+          - "{{ key.rsa_public }}"
+          - "{{ local.rsa_public }}"
+
+    disable_root: true
+    ssh_pwauth: false
+
+---
+
+locationId: "{{ locationId.parameter }}"
+
+blueprints:
+
+  - freebsd:
+      nodes:
+        - "{{ nodeName.parameter }}":
+            default: freebsdNode

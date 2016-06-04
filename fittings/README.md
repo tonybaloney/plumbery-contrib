@@ -6,6 +6,7 @@
 - [Multiple disks added with LVM](example/disks)
 - [Multiple network interfaces](example/networks)
 - [Kit of multiple Windows nodes](example/windows-kit)
+- [FreeBSD node installed from custom VMDK (experimental)](example/freebsd-vmdk)
 - [Ubuntu desktop](example/ubuntu-desktop)
 - [The master plan to conquer the world](example/gigafox)
 
