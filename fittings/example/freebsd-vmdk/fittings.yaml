@@ -30,7 +30,8 @@ parameters:
     default: freebsd01
 
 links:
-  documentation: https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/fittings/example/freebsd
+  documentation: https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/fittings/example/freebsd-vmdk
+  credit: http://www.osboxes.org/freebsd/
 
 defaults:
 
@@ -118,7 +119,7 @@ defaults:
 
       power_state:
         delay: "+3"
-        mode: poweroff
+        mode: reboot
         message: Booting FreeBSD
         timeout: 30
         condition: True
