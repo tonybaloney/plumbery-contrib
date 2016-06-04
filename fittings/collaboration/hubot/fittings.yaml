@@ -176,7 +176,8 @@ blueprints:
                 - "mkdir {{ botName.parameter }}"
                 - "chown ubuntu:ubuntu /home/ubuntu/{{ botName.parameter }}"
                 - "cd {{ botName.parameter }}"
-                - su ubuntu -c "yo {{ botName.parameter }} --adapter=shell --defaults"
+                - su ubuntu -c "yo hubot --name={{ botName.parameter }} --adapter=shell --defaults"
+                - rm hubot-scripts.json
                 - npm uninstall hubot-heroku-keepalive --save
                 - sed -i "/hubot-heroku-keepalive/d" external-scripts.json
 
