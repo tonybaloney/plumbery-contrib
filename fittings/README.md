@@ -17,6 +17,7 @@
 
 ## Collaboration services
 
+- [Hubot server](collaboration/hubot)
 - [BigBlueButton, self-hosted web conferencing system for on-line learning](collaboration/bigbluebutton)
 - [Let's Chat server, self-hosted chat for private teams](collaboration/letschat)
 
