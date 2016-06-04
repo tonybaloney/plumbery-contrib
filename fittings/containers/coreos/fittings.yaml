@@ -76,16 +76,14 @@ defaults:
         - path: /root/fix_partitions
           permissions: "0700"
           content: |
-            #!/bin/sh
-            /usr/bin/expect <<EOF
-            spawn "parted -l"
+            #!/usr/bin/expect
+            eval spawn parted -l
             expect "Fix/Ignore/Cancel?"
             send "f\r"
             expect "Fix/Ignore?"
             send "f\r"
             expect eof
             exit
-            EOF
 
         - path: /root/grub_40_custom
           content: |
