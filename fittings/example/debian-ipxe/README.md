@@ -6,7 +6,7 @@ This is done with [plumbery](https://developer.dimensiondata.com/display/PLUM/Pl
 Warning: this use case is provided only for experimentations. At this point in
 time Debian is not supported by Dimension Data.
 
-![Debian](Debian.png)
+![Debian](debian.png)
 
 The idea is to deploy a small Ubuntu node first, and then to install iPXE to
 reboot on Debian over the wire. For this a small DHCP and file server is
