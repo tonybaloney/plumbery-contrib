@@ -57,7 +57,7 @@ Since no network information is given to the Debian node, it cannot be
 accessed over the Internet. The only way to login to the machine is to use the
 console access, via the Cloud Control web user interface.
 
-![Debian](Debian.png)
+![menu](menu.png)
 
 From the console you can select the best option to install Debian on the node.
 
