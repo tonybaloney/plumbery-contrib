@@ -6,6 +6,9 @@
 - [Multiple disks added with LVM](example/disks)
 - [Multiple network interfaces](example/networks)
 - [Kit of multiple Windows nodes](example/windows-kit)
+- [FreeBSD node installed from custom VMDK (experimental)](example/freebsd-vmdk)
+- [Debian network installation with iPXE and DNSMASQ (experimental)](example/debian-ipxe)
+- [Select your operating system installer with netboot.xyz and iPXE (experimental)](example/omniboot-ipxe)
 - [Ubuntu desktop](example/ubuntu-desktop)
 - [The master plan to conquer the world](example/gigafox)
 
@@ -17,6 +20,7 @@
 
 ## Collaboration services
 
+- [Hubot server](collaboration/hubot)
 - [BigBlueButton, self-hosted web conferencing system for on-line learning](collaboration/bigbluebutton)
 - [Let's Chat server, self-hosted chat for private teams](collaboration/letschat)
 

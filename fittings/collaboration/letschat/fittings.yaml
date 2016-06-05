@@ -30,7 +30,7 @@ parameters:
     default: chat01
 
 links:
-  documentation: https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/fittings/messaging/letschat
+  documentation: https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/fittings/collaboration/letschat
   credit: https://mborgerson.com/setting-up-lets-chat-on-ubuntu
 
 defaults:

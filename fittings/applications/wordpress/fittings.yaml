@@ -50,7 +50,13 @@ defaults:
           - "{{ key.rsa_public }}"
           - "{{ local.rsa_public }}"
 
-    disable_root: true
+      - name: root
+        sudo: 'ALL=(ALL) NOPASSWD:ALL'
+        ssh-authorized-keys:
+          - "{{ key.rsa_public }}"
+          - "{{ local.rsa_public }}"
+
+    disable_root: false
     ssh_pwauth: false
 
 ---
@@ -79,12 +85,14 @@ blueprints:
             information:
               - "open a browser at http://{{ node.public }}/ to view it live"
               - "administration user name is: wpuser"
-              - "and the password when asked: {{ random.secret }}"
+              - "and the password when asked: {{ wordpress.secret }}"
 
             appliance: 'Ubuntu 14'
             cpu: 2
             memory: 4
 
+            # adapt the size to data in wordpress
+            #
             disks:
               - 1 50 standard
 
@@ -95,6 +103,14 @@ blueprints:
 
             cloud-config:
 
+              # provide a password for mysql root account
+              #
+              bootcmd:
+                - echo "mysql-server mysql-server/root_password password {{ mysql_root.secret }}" | sudo debconf-set-selections
+                - echo "mysql-server mysql-server/root_password_again password {{ mysql_root.secret }}" | sudo debconf-set-selections
+
+              # install packages
+              #
               packages:
                 - ntp
                 - apache2
@@ -104,15 +120,26 @@ blueprints:
 
               write_files:
 
+                # script to create the database used by wordpress
+                #
                 - path: /root/wordpress_db.sql
                   content: |
                     create database wordpress;
-                    create user 'wpuser'@'localhost' identified by '{{ random.secret }}';
+                    create user 'wpuser'@'localhost' identified by '{{ wordpress.secret }}';
                     grant all privileges on wordpress.* to 'wpuser'@'localhost';
                     flush privileges;
                     drop database test;
                     drop user 'test'@'localhost';
                     flush privileges;
+
+                # allow user ubuntu to use mysql without password
+                #
+                - path: /home/ubuntu/.my.cnf
+                  permissions: '0400'
+                  content: |
+                    [client]
+                    user=root
+                    password={{ mysql_root.secret }}
 
               runcmd:
 
@@ -126,13 +153,13 @@ blueprints:
                 - cp -n /etc/ssh/ssh_host_rsa_key /home/ubuntu/.ssh/id_rsa
                 - cp -n /etc/ssh/ssh_host_rsa_key.pub /home/ubuntu/.ssh/id_rsa.pub
                 - chown ubuntu:ubuntu /home/ubuntu/.ssh/*
+                - chown ubuntu:ubuntu /home/ubuntu/.my.cnf
                 - sed -i "/StrictHostKeyChecking/s/^.*$/    StrictHostKeyChecking no/" /etc/ssh/ssh_config
 
                 - echo "===== Installing Wordpress"
-                - cp -n /var/www/html/index.html /var/www/html/index.html.deprecated
-                - wget http://wordpress.org/latest.tar.gz -P /tmp/
+                - rm /var/www/html/index.html
+                - wget -q http://wordpress.org/latest.tar.gz -P /tmp/
                 - tar -zxf /tmp/latest.tar.gz -C /tmp/
                 - sudo mv /tmp/wordpress/* /var/www/html/
                 - sudo chown -R www-data:www-data /var/www
-                - mysql -e "source /root/wordpress_db.sql"
-                - mysqladmin -u root password '{{ random.secret }}'
+                - mysql -e "source /root/wordpress_db.sql" -u root -p{{ mysql_root.secret }}

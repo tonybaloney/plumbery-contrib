@@ -29,6 +29,12 @@ parameters:
     type: str
     default: rancher01
 
+  memoryPerNode:
+    information:
+      - "the quantity of memory to assign to each Rancher node"
+    type: str
+    default: 16
+
 links:
   documentation: https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/fittings/containers/rancher
   credit: http://docs.rancher.com/rancher/latest/en/quick-start-guide/
@@ -58,7 +64,7 @@ defaults:
     #
     appliance: 'Ubuntu 14'
     cpu: 32
-    memory: 256
+    memory: "{{ memoryPerNode.parameter }}"
 
     # enough storage space
     #

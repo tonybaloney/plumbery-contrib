@@ -1,0 +1,192 @@
+---
+
+information:
+  - "Hubot server"
+
+parameters:
+
+  locationId:
+    information:
+      - "the target data centre for this deployment"
+    type: locations.list
+    default: EU6
+
+  domainName:
+    information:
+      - "the name of the network domain to be deployed"
+    type: str
+    default: HubotFox
+
+  networkName:
+    information:
+      - "the name of the Ethernet VLAN to be deployed"
+    type: str
+    default: HubotNetwork
+
+  nodeName:
+    information:
+      - "the name of the main node to be deployed"
+    type: str
+    default: hubot01
+
+  botName:
+    information:
+      - "the name of the bot to be created"
+    type: str
+    default: plum
+
+links:
+  documentation: https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/fittings/collaboration/hubot
+  credit: https://hubot.github.com/docs/
+  inspiration: https://github.com/github/hubot/blob/master/docs/scripting.md
+
+defaults:
+
+  cloud-config:
+
+    ssh_keys:
+      rsa_private: |
+        {{ key.rsa_private }}
+      rsa_public: "{{ key.rsa_public }}"
+
+    users:
+      - default
+
+      - name: ubuntu
+        sudo: 'ALL=(ALL) NOPASSWD:ALL'
+        ssh-authorized-keys:
+          - "{{ key.rsa_public }}"
+          - "{{ local.rsa_public }}"
+
+    disable_root: true
+    ssh_pwauth: false
+
+---
+
+locationId: "{{ locationId.parameter }}"
+
+blueprints:
+
+  - letschat:
+
+      domain:
+        name: "{{ domainName.parameter }}"
+        ipv4: 2
+
+      ethernet:
+        name: "{{ networkName.parameter }}"
+        subnet: 10.0.0.0
+
+      nodes:
+        - "{{ nodeName.parameter }}":
+
+            description: "#hubot #ubuntu"
+
+            information:
+              - "engage with {{ botName.parameter }}:"
+              - "ssh ubuntu@{{ node.public }}"
+              - "cd {{ botName.parameter }}"
+              - "bin/hubot"
+              - "{{ botName.parameter }} help"
+
+            appliance: 'Ubuntu 14'
+            cpu: 2
+            memory: 4
+
+            disks:
+              - 1 50 standard
+
+            glue:
+              - internet icmp 22 5000
+
+            monitoring: essentials
+
+            cloud-config:
+              hostname: "{{ node.name }}"
+
+              packages:
+                - ntp
+                - git
+                - redis-server
+
+              write_files:
+
+                - path: /root/hosts.awk
+                  content: |
+                    #!/usr/bin/awk -f
+                    /^{{ node.private }}/ {next}
+                    /^{{ node.ipv6 }}/ {next}
+                    {print}
+                    END {
+                     print "{{ node.private }}    {{ node.name }}"
+                     print "{{ node.ipv6 }}    {{ node.name }}"
+                    }
+
+                - path: /root/update-export-external-scripts.js
+                  content: |
+                    var fs = require('fs');
+
+                    var scripts = require('./export-external-scripts.json')
+
+                    scripts.push('hubot-google-translate')
+                    scripts.push('hubot-principles')
+                    scripts.push('hubot-rules')
+                    scripts.push('hubot-thank-you')
+
+                    fs.writeFile('./export-external-scripts.json', JSON.stringify(scripts), function (err) {
+                      if (err) {
+                        console.log('There has been an error saving configuration data.');
+                        console.log(err.message);
+                        return;
+                      }
+                      console.log('Configuration saved successfully.')
+                    });
+
+              runcmd:
+
+                - echo "===== Growing LVM with added disk"
+                - pvcreate /dev/sdb
+                - vgextend rootvol00 /dev/sdb
+                - lvextend -l +100%FREE /dev/mapper/rootvol00-rootlvol00
+                - resize2fs /dev/mapper/rootvol00-rootlvol00
+
+                - echo "===== Handling ubuntu identity"
+                - cp -n /etc/ssh/ssh_host_rsa_key /home/ubuntu/.ssh/id_rsa
+                - cp -n /etc/ssh/ssh_host_rsa_key.pub /home/ubuntu/.ssh/id_rsa.pub
+                - chown ubuntu:ubuntu /home/ubuntu/.ssh/*
+
+                - echo "===== Updating /etc/hosts"
+                - cp -n /etc/hosts /etc/hosts.original
+                - awk -f /root/hosts.awk /etc/hosts >/etc/hosts.new && mv /etc/hosts.new /etc/hosts
+
+                - echo "===== Installing Node.js and npm"
+                - curl -sL https://deb.nodesource.com/setup | sudo bash -
+                - apt-get install -y nodejs
+                - node -v
+
+                - echo "===== Upgrading npm"
+                - npm install -g npm
+                - npm -v
+
+                - echo "===== Installing Hubot"
+                - cd /home/ubuntu
+                - npm install -g yo generator-hubot
+                - mkdir -p /root/.config/configstore
+                - chmod g+rwx /root /root/.config /root/.config/configstore
+                - "mkdir {{ botName.parameter }}"
+                - "chown ubuntu:ubuntu /home/ubuntu/{{ botName.parameter }}"
+                - "cd {{ botName.parameter }}"
+                - su ubuntu -c "yo hubot --name={{ botName.parameter }} --adapter=shell --defaults"
+                - rm hubot-scripts.json
+                - npm uninstall hubot-heroku-keepalive --save
+                - sed -i "/hubot-heroku-keepalive/d" external-scripts.json
+
+                - echo "===== Adding scripts"
+                - npm install hubot-google-translate --save
+                - npm install hubot-principles --save
+                - npm install hubot-rules --save
+                - npm install hubot-thank-you --save
+                - node /root/update-export-external-scripts.js
+
+                - echo "===== Ready to play"
+                - echo "{{ botName.parameter }} can be started with bin/hubot"

@@ -1,0 +1,223 @@
+---
+
+information:
+  - "Select your operating system installer with netboot.xyz and iPXE (experimental)"
+
+parameters:
+
+  locationId:
+    information:
+      - "the target data centre for this deployment"
+    type: locations.list
+    default: EU8
+
+  domainName:
+    information:
+      - "the name of the network domain to be deployed"
+    type: str
+    default: OmniFox
+
+  networkName:
+    information:
+      - "the name of the Ethernet VLAN to be deployed"
+    type: str
+    default: OmniNetwork
+
+  networkSubnet:
+    information:
+      - "the private subnet to be deployed"
+    type: str
+    default: 192.168.20.0
+
+  networkGateway:
+    information:
+      - "the router address on the network"
+    type: str
+    default: 192.168.20.1
+
+  networkRange:
+    information:
+      - "the range of addresses that are managed dynamically (DHCP)"
+    type: str
+    default: 192.168.20.50,192.168.20.100
+
+links:
+  documentation: https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/fittings/example/omniboot-ipxe
+  credit: https://netboot.xyz/
+
+defaults:
+
+  domain:
+    name: "{{ domainName.parameter }}"
+    service: essentials
+    ipv4: auto
+
+  ethernet:
+    name: "{{ networkName.parameter }}"
+    subnet: "{{ networkSubnet.parameter }}"
+
+  omniNode:
+
+    information:
+      - "connect via the console and select the appropriate boot option"
+
+    appliance: 'Ubuntu 14'
+    cpu: 4
+    memory: 16
+
+    disks:
+      - 1 10 standard
+
+    glue:
+      - internet icmp 22
+
+    cloud-config:
+
+      packages:
+        - ntp
+
+      write_files:
+
+        - path: /root/grub_40_custom
+          content: |
+            menuentry 'iPXE by plumbery' {
+                set root='hd0,1'
+                loopback iso /ipxe.iso
+                linux16 (iso)/ipxe.krn
+            }
+
+      runcmd:
+
+        - echo "===== Handling ubuntu identity"
+        - cp -n /etc/ssh/ssh_host_rsa_key /home/ubuntu/.ssh/id_rsa
+        - cp -n /etc/ssh/ssh_host_rsa_key.pub /home/ubuntu/.ssh/id_rsa.pub
+        - chown ubuntu:ubuntu /home/ubuntu/.ssh/*
+        - sed -i "/StrictHostKeyChecking/s/^.*$/    StrictHostKeyChecking no/" /etc/ssh/ssh_config
+
+        - echo "===== Downloading iPXE"
+        - cd /boot
+        - wget -q http://boot.ipxe.org/ipxe.iso
+        - ls -la *.iso
+
+        - echo "===== Updating bootloader"
+        - cp -n /etc/grub.d/40_custom /root/etc-grub.d-40_custom.orig
+        - cat /root/etc-grub.d-40_custom.orig /root/grub_40_custom >/etc/grub.d/40_custom
+        - sed -i "/GRUB_DEFAULT=/s/^.*$/GRUB_DEFAULT='iPXE by plumbery'/" /etc/default/grub
+
+        - sed -i "/GRUB_TIMEOUT=/s/^.*$/GRUB_TIMEOUT=-1/" /etc/default/grub
+
+        - update-grub
+
+        - echo "===== Waiting for server to be ready"
+        - sleep 3m
+
+#        - wget -q http://boot.salstar.sk/ipxe/ipxe.iso
+
+      power_state:
+        delay: "+1"
+        mode: reboot
+        message: Booting node over the network
+        timeout: 30
+        condition: True
+
+  igniteNode:
+
+    information:
+      - "this is a back-end node that serves requests from other nodes"
+      - "ssh ubuntu@{{ node.public }}"
+
+    appliance: 'Ubuntu 14'
+    cpu: 2
+    memory: 4
+
+    disks:
+      - 1 10 standard
+
+    glue:
+      - internet icmp 22
+
+    monitoring: essentials
+
+    cloud-config:
+
+      packages:
+        - ntp
+        - dtrx
+        - dnsmasq
+        - atftp
+
+      write_files:
+
+        - path: /root/dnsmasq.sed
+          content: |
+            #!/usr/bin/sed
+            s|#dhcp-range=192.168.0.50,192.168.0.150,12h|dhcp-range={{ networkRange.parameter }},255.255.255.0,12h|
+            s|#dhcp-boot=pxelinux.0|dhcp-boot=netboot.xyz-undionly.kpxe|
+            s|#enable-tftp|enable-tftp|
+            s|#tftp-root=/var/ftpd|tftp-root=/var/tftp|
+            s|#dhcp-leasefile=/var/lib/misc/dnsmasq.leases|dhcp-leasefile=/var/lib/misc/dnsmasq.leases|
+            s|#dhcp-authoritative|dhcp-authoritative|
+            s|#log-dhcp|log-dhcp|
+            s|#dhcp-option=3,1.2.3.4|dhcp-option=3,{{ networkGateway.parameter }}|
+
+#            chain http://boot.salstar.sk
+
+      runcmd:
+
+        - echo "===== Growing LVM with added disk"
+        - pvcreate /dev/sdb
+        - vgextend rootvol00 /dev/sdb
+        - lvextend -l +100%FREE /dev/mapper/rootvol00-rootlvol00
+        - resize2fs /dev/mapper/rootvol00-rootlvol00
+
+        - echo "===== Handling ubuntu identity"
+        - cp -n /etc/ssh/ssh_host_rsa_key /home/ubuntu/.ssh/id_rsa
+        - cp -n /etc/ssh/ssh_host_rsa_key.pub /home/ubuntu/.ssh/id_rsa.pub
+        - chown ubuntu:ubuntu /home/ubuntu/.ssh/*
+        - sed -i "/StrictHostKeyChecking/s/^.*$/    StrictHostKeyChecking no/" /etc/ssh/ssh_config
+
+        - echo "===== Configuring dnsmasq"
+        - mkdir -p /var/tftp/
+        - sed -i -f /root/dnsmasq.sed /etc/dnsmasq.conf
+        - /etc/init.d/dnsmasq restart
+
+        - echo "===== Getting loader from netboot.xyz"
+        - cd /var/tftp
+        - wget -q https://boot.netboot.xyz/ipxe/netboot.xyz-undionly.kpxe
+        - chmod 0555 netboot.xyz-undionly.kpxe
+        - ls -ls *.kpxe
+
+  cloud-config:
+
+    ssh_keys:
+      rsa_private: |
+        {{ key.rsa_private }}
+      rsa_public: "{{ key.rsa_public }}"
+
+    users:
+      - default
+
+      - name: ubuntu
+        sudo: 'ALL=(ALL) NOPASSWD:ALL'
+        ssh-authorized-keys:
+          - "{{ key.rsa_public }}"
+          - "{{ local.rsa_public }}"
+
+    disable_root: true
+    ssh_pwauth: false
+
+---
+
+locationId: "{{ locationId.parameter }}"
+
+blueprints:
+
+  - clients:
+      nodes:
+        - omni01:
+            default: omniNode
+
+  - server:
+      nodes:
+        - omni-ignite:
+            default: igniteNode

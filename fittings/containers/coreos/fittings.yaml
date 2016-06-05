@@ -1,0 +1,177 @@
+---
+
+information:
+  - "CoreOS node"
+
+parameters:
+
+  locationId:
+    information:
+      - "the target data centre for this deployment"
+    type: locations.list
+    default: NA12
+
+  domainName:
+    information:
+      - "the name of the network domain to be deployed"
+    type: str
+    default: CoreosFox
+
+  networkName:
+    information:
+      - "the name of the Ethernet VLAN to be deployed"
+    type: str
+    default: CoreosNetwork
+
+  nodeName:
+    information:
+      - "the name of the main node to be deployed"
+    type: str
+    default: coreos01
+
+links:
+  documentation: https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/fittings/containers/coreos
+
+defaults:
+
+  domain:
+    name: "{{ domainName.parameter }}"
+    description: "CoreOS nodes"
+    service: essentials
+    ipv4: auto
+
+  ethernet:
+    name: "{{ networkName.parameter }}"
+    subnet: 192.168.20.0
+
+  coreosNode:
+
+    description: "#coreos #ubuntu"
+
+    information:
+      - "check the server before it is rebooted as a CoreOS node:"
+      - "ssh ubuntu@{{ node.public }}"
+      - "reboot"
+
+    appliance: 'Ubuntu 14'
+    cpu: 4
+    memory: 16
+
+    disks:
+      - 1 50 standard
+
+    glue:
+      - internet icmp 22
+
+    monitoring: essentials
+
+    cloud-config:
+
+      packages:
+        - ntp
+        - expect
+
+      write_files:
+
+        - path: /root/fix_partitions
+          permissions: "0700"
+          content: |
+            #!/usr/bin/expect
+            eval spawn parted -l
+            expect "Fix/Ignore/Cancel?"
+            send "f\r"
+            expect "Fix/Ignore?"
+            send "f\r"
+            expect eof
+            exit
+
+        - path: /root/grub_40_custom
+          content: |
+            menuentry 'CoreOS by plumbery' {
+                    insmod part_gpt
+                    insmod ext2
+                    set root='hd1,gpt3'
+                    linux /boot/vmlinuz root=/dev/sdb3
+            }
+
+        - path: /root/cloud-config.yaml
+          content: |
+            #cloud-config
+            # include one or more SSH public keys
+            ssh_authorized_keys:
+              - "{{ key.rsa_public }}"
+              - "{{ local.rsa_public }}"
+            coreos:
+              etcd2:
+                # generate a new token for each unique cluster from https://discovery.etcd.io/new?size=3
+                # specify the initial size of your cluster with ?size=X
+                discovery: {{ https://discovery.etcd.io/new }}
+                advertise-client-urls: http://{{ node.public }}:2379,http://{{ node.public }}:4001
+                initial-advertise-peer-urls: http://{{ node.public }}:2380
+                # listen on both the official ports and the legacy ports
+                # legacy ports can be omitted if your application doesn't depend on them
+                listen-client-urls: http://0.0.0.0:2379,http://0.0.0.0:4001
+                listen-peer-urls: http://{{ node.public }}:2380
+              units:
+                - name: etcd2.service
+                  command: start
+                - name: fleet.service
+                  command: start
+
+      runcmd:
+
+        - echo "===== Handling ubuntu identity"
+        - cp -n /etc/ssh/ssh_host_rsa_key /home/ubuntu/.ssh/id_rsa
+        - cp -n /etc/ssh/ssh_host_rsa_key.pub /home/ubuntu/.ssh/id_rsa.pub
+        - chown ubuntu:ubuntu /home/ubuntu/.ssh/*
+        - sed -i "/StrictHostKeyChecking/s/^.*$/    StrictHostKeyChecking no/" /etc/ssh/ssh_config
+
+        - echo "===== Installing CoreOS"
+        - cd /root
+        - wget -q https://raw.githubusercontent.com/coreos/init/master/bin/coreos-install
+        - chmod +x coreos-install
+        - ./coreos-install -d /dev/sdb -c cloud-config.yaml
+
+        - echo "===== Fixing partitions"
+        - /root/fix_partitions
+
+        - echo "===== Updating bootloader"
+        - cp -n /etc/grub.d/40_custom /root/etc-grub.d-40_custom.orig
+        - cat /root/etc-grub.d-40_custom.orig /root/grub_40_custom >/etc/grub.d/40_custom
+        - sed -i "/GRUB_DEFAULT=/s/^.*$/GRUB_DEFAULT='CoreOS by plumbery'/" /etc/default/grub
+        - update-grub
+
+        - echo "===== Almost done"
+        - echo "You should check the configuration and reboot the node"
+        - echo "AT THIS STAGE COREOS DOES NOT BOOT -- WHAT ARE WE DOING WRONG?"
+
+
+  cloud-config:
+
+    ssh_keys:
+      rsa_private: |
+        {{ key.rsa_private }}
+      rsa_public: "{{ key.rsa_public }}"
+
+    users:
+      - default
+
+      - name: ubuntu
+        sudo: 'ALL=(ALL) NOPASSWD:ALL'
+        ssh-authorized-keys:
+          - "{{ key.rsa_public }}"
+          - "{{ local.rsa_public }}"
+
+    disable_root: true
+    ssh_pwauth: false
+
+---
+
+locationId: "{{ locationId.parameter }}"
+
+blueprints:
+
+  - coreos:
+      nodes:
+        - "{{ nodeName.parameter }}":
+            default: coreosNode

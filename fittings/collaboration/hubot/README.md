@@ -1,11 +1,11 @@
-# Let's Chat server
+# Hubot server
 
-[Let's Chat](https://sdelements.github.io/lets-chat/) is a persistent messaging application that runs on Node.js and MongoDB.
-It's designed to be easily deployable and fits well with small, intimate teams. It's free (MIT licensed) and ships with killer features such as LDAP/Kerberos authentication, a REST-like API and XMPP support.
+[Hubot](https://hubot.github.com) is a software robot written in CoffeeScript on Node.js.
+It's designed to automate company chat room.
 
-![Lets Chat](lets-chat.png)
+![hubot](hubot.png)
 
-In this use case we demonstrate how to create a ready-to-use [Let's Chat](https://sdelements.github.io/lets-chat/) server
+In this use case we demonstrate how to create a ready-to-use Hubot server
 on a single node at the [Managed Cloud Platform from Dimension Data](http://cloud.dimensiondata.com/eu/en/).
 This is done with [plumbery](https://developer.dimensiondata.com/display/PLUM/Plumbery) and a template that is provided below.
 
@@ -15,20 +15,21 @@ This is done with [plumbery](https://developer.dimensiondata.com/display/PLUM/Pl
 * Add a Network Domain
 * Add an Ethernet network
 * Deploy a Ubuntu server
-* Provide 8 CPU and 32 MB of RAM
-* Add a virtual disk of 50 GB
+* Provide enough CPU and RAM
+* Add a virtual disk
 * Monitor this server in the real-time dashboard
 * Assign a public IPv4 address
 * Add address translation to ensure end-to-end IP connectivity
-* Add firewall rule to accept TCP traffic on port 22 (ssh) and 5000 (web)
+* Add firewall rule to accept TCP traffic on port 22 (ssh)
 * Use the virtual disk to expand logical volume (LVM)
 * Update the operating system
 * Synhronise node clock
 * Edit the host name and the `/etc/hosts` file
 * Install a new SSH key to secure remote communications
 * Configure SSH to reject passwords and to prevent access from root account
-* Install Let's Chat
-* Launch it
+* Install Nodejs, npm and hubot itself
+* Create a bot
+* Add some pre-existing scripts to the bot
 
 ## Fittings plan
 
@@ -47,13 +48,16 @@ You can find the public address assigned to the Let's Chat node like this:
 
     $ python -m plumbery fittings.yaml information
 
-Copy the web link into some browser to access the server and to start a
-discussion.
+Use ssh to connect to the server
 
-Share the link with people around you so that you can chat together.
+    $ ssh ubuntu@<public-ip-address>
 
-Note: if you have registered your email address to gravatar, then your face
-will appear automatically in Let's Chat.
+From there, you can launch hubot from the command line and play with it
+interactively.
+
+    $ cd plum
+    $ bin/hubot
+    > plum help
 
 ## Destruction commands
 
@@ -64,7 +68,6 @@ Launch following command to remove all resources involved in the fittings plan:
 ## Use case status
 
 - [x] Work as expected
-- [ ] Add Hubot to get interactive feedback while demonstrating the chat
 
 ## See also
 
