@@ -10,8 +10,11 @@ mapping:
     mapping:
       "documentation":
         type: str
-        required: true
+        required: false
       "credit":
+        type: str
+        required: false
+      "inspiration":
         type: str
         required: false
   "defaults":
