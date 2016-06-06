@@ -6,16 +6,47 @@ information:
 links:
   documentation: https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/multicloud/aws-stack
 
+parameters:
+  locationId:
+      information:
+        - "the target data centre for this deployment"
+      type: locations.list
+      default: AU10
+  
+  awsRegionId:
+      information:
+        - "the AWS Region"
+      type: str
+      default: ap-southeast-2
+  
+  awsKeyName:
+    information:
+      - "The AWS SSH keypair name"
+    type: str
+    
+  awsSecretKey:
+    information:
+      - "The AWS IAM API key secret"
+    type: str
+    
+  awsSecretId:
+    information:
+      - "The AWS IAM API key ID"
+    type: str
+    
 ---
 
-locationId: EU6
+locationId: {{locationId.parameter}}
 
 blueprints:
 
   - first:
       multicloud:
         parameters:
-          aws_region: "ap-southeast-2"
+          aws_region: {{awsRegionId.parameter}}
+          key_name: {{awsKeyName.parameter}}
+          aws_secret_key: {{awsSecretKey.parameter}}
+          aws_access_key: {{awsSecretId.parameter}}
           
       domain:
         name: MyDataCentre

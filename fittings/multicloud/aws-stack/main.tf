@@ -101,7 +101,6 @@ resource "aws_instance" "web" {
   # Our Security group to allow HTTP and SSH access
   security_groups = ["${aws_security_group.default.name}"]
 
-  user_data = "${file("userdata.sh")}"
   #Instance tags
   tags {
     Name = "elb-example"
