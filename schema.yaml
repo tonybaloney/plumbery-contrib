@@ -59,6 +59,11 @@ mapping:
           regex;(.+):
             type: map
             mapping:
+              "multicloud":
+                type: map
+                mapping:
+                  "parameters":
+                    type: any
               "ethernet":
                 type: map
                 mapping:

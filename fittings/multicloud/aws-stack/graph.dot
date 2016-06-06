@@ -1,0 +1,21 @@
+digraph {
+        compound = "true"
+        newrank = "true"
+        subgraph "root" {
+                "[root] aws_elb.web" [label = "aws_elb.web", shape = "box"]
+                "[root] aws_instance.web" [label = "aws_instance.web", shape = "box"]
+                "[root] aws_lb_cookie_stickiness_policy.default" [label = "aws_lb_cookie_stickiness_policy.default", shape = "box"]
+                "[root] aws_security_group.default" [label = "aws_security_group.default", shape = "box"]
+                "[root] aws_security_group.elb" [label = "aws_security_group.elb", shape = "box"]
+                "[root] provider.aws" [label = "provider.aws", shape = "diamond"]
+                "[root] aws_elb.web" -> "[root] aws_instance.web"
+                "[root] aws_elb.web" -> "[root] aws_security_group.elb"
+                "[root] aws_elb.web" -> "[root] provider.aws"
+                "[root] aws_instance.web" -> "[root] aws_security_group.default"
+                "[root] aws_instance.web" -> "[root] provider.aws"
+                "[root] aws_lb_cookie_stickiness_policy.default" -> "[root] aws_elb.web"
+                "[root] aws_lb_cookie_stickiness_policy.default" -> "[root] provider.aws"
+                "[root] aws_security_group.default" -> "[root] provider.aws"
+                "[root] aws_security_group.elb" -> "[root] provider.aws"
+        }
+}

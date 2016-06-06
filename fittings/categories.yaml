@@ -33,3 +33,6 @@ categories:
   - directory: web
     name: Web
     description: "Web applications and servers"
+  - directory: multicloud
+    name: "Multi-Cloud"
+    description: "Templates for deploying across multiple cloud environments"

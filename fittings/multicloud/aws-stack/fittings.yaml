@@ -1,0 +1,40 @@
+---
+
+information:
+  - "Multicloud example with nodes in AWS and Dimension Data Cloud"
+
+links:
+  documentation: https://github.com/DimensionDataCBUSydney/plumbery-contrib/tree/master/multicloud/aws-stack
+
+---
+
+locationId: EU6
+
+blueprints:
+
+  - first:
+      multicloud:
+        parameters:
+          aws_region: "ap-southeast-2"
+          
+      domain:
+        name: MyDataCentre
+        ipv4: 2
+
+      ethernet:
+        name: MyNetwork
+        subnet: 10.0.0.0
+
+      nodes:
+
+        - MyServer:
+
+            appliance: 'Ubuntu 14'
+
+            glue:
+              - internet 22
+
+            monitoring: essentials
+
+            information:
+              - "connect to this server in a terminal window: ssh root@{{ node.public }}"
