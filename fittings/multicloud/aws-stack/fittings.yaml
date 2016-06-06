@@ -36,17 +36,17 @@ parameters:
     
 ---
 
-locationId: {{locationId.parameter}}
+locationId: "{{locationId.parameter}}"
 
 blueprints:
 
   - first:
       multicloud:
         parameters:
-          aws_region: {{awsRegionId.parameter}}
-          key_name: {{awsKeyName.parameter}}
-          aws_secret_key: {{awsSecretKey.parameter}}
-          aws_access_key: {{awsSecretId.parameter}}
+          aws_region: "{{awsRegionId.parameter}}"
+          key_name: "{{awsKeyName.parameter}}"
+          aws_secret_key: "{{awsSecretKey.parameter}}"
+          aws_access_key: "{{awsSecretId.parameter}}"
           
       domain:
         name: MyDataCentre
