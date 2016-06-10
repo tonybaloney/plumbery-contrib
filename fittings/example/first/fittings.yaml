@@ -8,30 +8,32 @@ links:
 
 ---
 
-locationId: EU6
+locationId: AU10
 
 blueprints:
 
   - first:
 
       domain:
-        name: MyDataCentre
+        name: AnthonyDemo
         ipv4: 2
 
       ethernet:
         name: MyNetwork
-        subnet: 10.0.0.0
+        subnet: 172.16.0.0
 
       nodes:
 
-        - MyServer:
+        - WebServer:
 
             appliance: 'Ubuntu 14'
 
             glue:
               - internet 22
+              - internet 80
+              - internet 443
 
-            monitoring: essentials
-
+            monitoring: advanced
+            backups: essentials
             information:
               - "connect to this server in a terminal window: ssh root@{{ node.public }}"
